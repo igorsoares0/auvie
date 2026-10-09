@@ -101,6 +101,8 @@ enum MediaKind { photo, video }
 
 enum ExportFormat { jpeg, png }
 
+enum LayerBlend { normal, screen, multiply, overlay, softLight }
+
 class PickedMedia {
   PickedMedia({
     required this.uri,
@@ -297,6 +299,85 @@ class DevelopParams {
   }
 }
 
+/// One element rasterized by Flutter (text, brush, sticker, overlay,
+/// frame), composited over the developed photo before encoding.
+class ExportLayer {
+  ExportLayer({
+    required this.path,
+    required this.left,
+    required this.top,
+    required this.width,
+    required this.height,
+    required this.blend,
+    required this.opacity,
+  });
+
+  /// PNG file.
+  String path;
+
+  /// Where it goes, in output pixels (the PNG is scaled to fit).
+  double left;
+
+  double top;
+
+  double width;
+
+  double height;
+
+  LayerBlend blend;
+
+  /// 0…1.
+  double opacity;
+
+  List<Object?> _toList() {
+    return <Object?>[path, left, top, width, height, blend, opacity];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static ExportLayer decode(Object result) {
+    result as List<Object?>;
+    return ExportLayer(
+      path: result[0]! as String,
+      left: result[1]! as double,
+      top: result[2]! as double,
+      width: result[3]! as double,
+      height: result[4]! as double,
+      blend: result[5]! as LayerBlend,
+      opacity: result[6]! as double,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! ExportLayer || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(path, other.path) &&
+        _deepEquals(left, other.left) &&
+        _deepEquals(top, other.top) &&
+        _deepEquals(width, other.width) &&
+        _deepEquals(height, other.height) &&
+        _deepEquals(blend, other.blend) &&
+        _deepEquals(opacity, other.opacity);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'ExportLayer(path: $path, left: $left, top: $top, width: $width, height: $height, blend: $blend, opacity: $opacity)';
+  }
+}
+
 class ExportRequest {
   ExportRequest({
     required this.uri,
@@ -307,6 +388,7 @@ class ExportRequest {
     required this.decodeMaxPx,
     required this.keepMetadata,
     required this.fileName,
+    required this.layers,
   });
 
   String uri;
@@ -328,6 +410,9 @@ class ExportRequest {
   /// Without extension.
   String fileName;
 
+  /// Elements in z-order, bottom first.
+  List<ExportLayer> layers;
+
   List<Object?> _toList() {
     return <Object?>[
       uri,
@@ -338,6 +423,7 @@ class ExportRequest {
       decodeMaxPx,
       keepMetadata,
       fileName,
+      layers,
     ];
   }
 
@@ -356,6 +442,7 @@ class ExportRequest {
       decodeMaxPx: result[5]! as int,
       keepMetadata: result[6]! as bool,
       fileName: result[7]! as String,
+      layers: (result[8]! as List<Object?>).cast<ExportLayer>(),
     );
   }
 
@@ -375,7 +462,8 @@ class ExportRequest {
         _deepEquals(outputHeight, other.outputHeight) &&
         _deepEquals(decodeMaxPx, other.decodeMaxPx) &&
         _deepEquals(keepMetadata, other.keepMetadata) &&
-        _deepEquals(fileName, other.fileName);
+        _deepEquals(fileName, other.fileName) &&
+        _deepEquals(layers, other.layers);
   }
 
   @override
@@ -384,7 +472,7 @@ class ExportRequest {
 
   @override
   String toString() {
-    return 'ExportRequest(uri: $uri, params: $params, format: $format, outputWidth: $outputWidth, outputHeight: $outputHeight, decodeMaxPx: $decodeMaxPx, keepMetadata: $keepMetadata, fileName: $fileName)';
+    return 'ExportRequest(uri: $uri, params: $params, format: $format, outputWidth: $outputWidth, outputHeight: $outputHeight, decodeMaxPx: $decodeMaxPx, keepMetadata: $keepMetadata, fileName: $fileName, layers: $layers)';
   }
 }
 
@@ -578,23 +666,29 @@ class _PigeonCodec extends StandardMessageCodec {
     } else if (value is ExportFormat) {
       buffer.putUint8(130);
       writeValue(buffer, value.index);
-    } else if (value is PickedMedia) {
+    } else if (value is LayerBlend) {
       buffer.putUint8(131);
-      writeValue(buffer, value.encode());
-    } else if (value is DevelopParams) {
+      writeValue(buffer, value.index);
+    } else if (value is PickedMedia) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    } else if (value is ExportRequest) {
+    } else if (value is DevelopParams) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
-    } else if (value is ExportResult) {
+    } else if (value is ExportLayer) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
-    } else if (value is ExportProgress) {
+    } else if (value is ExportRequest) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
-    } else if (value is PreviewInfo) {
+    } else if (value is ExportResult) {
       buffer.putUint8(136);
+      writeValue(buffer, value.encode());
+    } else if (value is ExportProgress) {
+      buffer.putUint8(137);
+      writeValue(buffer, value.encode());
+    } else if (value is PreviewInfo) {
+      buffer.putUint8(138);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -611,16 +705,21 @@ class _PigeonCodec extends StandardMessageCodec {
         final value = readValue(buffer) as int?;
         return value == null ? null : ExportFormat.values[value];
       case 131:
-        return PickedMedia.decode(readValue(buffer)!);
+        final value = readValue(buffer) as int?;
+        return value == null ? null : LayerBlend.values[value];
       case 132:
-        return DevelopParams.decode(readValue(buffer)!);
+        return PickedMedia.decode(readValue(buffer)!);
       case 133:
-        return ExportRequest.decode(readValue(buffer)!);
+        return DevelopParams.decode(readValue(buffer)!);
       case 134:
-        return ExportResult.decode(readValue(buffer)!);
+        return ExportLayer.decode(readValue(buffer)!);
       case 135:
-        return ExportProgress.decode(readValue(buffer)!);
+        return ExportRequest.decode(readValue(buffer)!);
       case 136:
+        return ExportResult.decode(readValue(buffer)!);
+      case 137:
+        return ExportProgress.decode(readValue(buffer)!);
+      case 138:
         return PreviewInfo.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);

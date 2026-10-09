@@ -52,7 +52,7 @@ Map<String, dynamic> sampleJson() => {
       'id': 'leak_01',
       'type': 'overlay',
       'name': 'Leak',
-      'file': 'overlays/leak_01.webp',
+      'params': {'generator': 'leak', 'blend': 'screen'},
     },
   ],
 };
@@ -95,6 +95,29 @@ void main() {
     test('round-trips through JSON text', () {
       final json = jsonDecode(jsonEncode(catalog)) as Map<String, dynamic>;
       expect(Catalog.fromJson(json), catalog);
+    });
+
+    test('reports overlays and frames the app cannot draw', () {
+      final json = sampleJson();
+      (json['assets'] as List)
+        ..add({
+          'id': 'blob',
+          'type': 'overlay',
+          'name': 'Blob',
+          'params': {'generator': 'lava'},
+        })
+        ..add({
+          'id': 'gold',
+          'type': 'frame',
+          'name': 'Gold',
+          'params': {'style': 'baroque'},
+        })
+        ..add({'id': 'nofile', 'type': 'sticker', 'name': 'Nothing'});
+      expect(Catalog.fromJson(json).validate(), [
+        'Overlay "blob" has an unknown generator',
+        'Frame "gold" has an unknown style',
+        'Asset "nofile" has no file',
+      ]);
     });
 
     test('reports duplicate ids and unknown collections', () {
@@ -167,6 +190,18 @@ void main() {
         'nocturne_19',
       ]);
       expect(catalog.presetById('portra_fade')!.curves, isNotNull);
+    });
+
+    test('every shipped sticker file exists', () async {
+      final catalog = await BundledCatalogSource(rootBundle).load();
+      final stickers = catalog.assetsOfType(ContentAssetType.sticker);
+      expect(stickers, hasLength(12));
+      for (final sticker in stickers) {
+        final svg = await rootBundle.loadString(sticker.file);
+        expect(svg, contains('currentColor'), reason: sticker.id);
+      }
+      expect(catalog.assetsOfType(ContentAssetType.overlay), hasLength(6));
+      expect(catalog.assetsOfType(ContentAssetType.frame), hasLength(4));
     });
 
     test('the shipped catalog has no out-of-range settings', () async {

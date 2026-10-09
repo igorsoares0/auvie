@@ -4,13 +4,17 @@ import 'package:auvie/app/router/routes.dart';
 import 'package:auvie/app/theme/app_theme.dart';
 import 'package:auvie/app/theme/spacing.dart';
 import 'package:auvie/app/widgets/caps_link.dart';
+import 'package:auvie/features/editor/add/add_panel.dart';
 import 'package:auvie/features/editor/adjustments/adjust_panel.dart';
+import 'package:auvie/features/editor/brush/brush_panel.dart';
 import 'package:auvie/features/editor/photo/editor_session.dart';
 import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
 import 'package:auvie/features/editor/presets/film_panel.dart';
 import 'package:auvie/features/editor/shell/edit_caption.dart';
 import 'package:auvie/features/editor/shell/editor_chrome.dart';
 import 'package:auvie/features/editor/shell/editor_preview.dart';
+import 'package:auvie/features/editor/text/text_edit_overlay.dart';
+import 'package:auvie/features/editor/text/type_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -81,7 +85,16 @@ class _PhotoEditorScreenState extends ConsumerState<PhotoEditorScreen> {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) unawaited(_close());
+        if (didPop) return;
+        final typing = ref
+            .read(photoEditorProvider(widget.projectId))
+            .value
+            ?.editingElementId;
+        if (typing != null) {
+          _controller.cancelTyping();
+        } else {
+          unawaited(_close());
+        }
       },
       child: Scaffold(
         body: SafeArea(
@@ -126,20 +139,34 @@ class _Editor extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final id = session.project.id;
     final panel = switch (session.tool) {
+      EditorTool.film => FilmPanel(key: const ValueKey('film'), projectId: id),
       EditorTool.adjust => AdjustPanel(
         key: const ValueKey('adjust'),
         projectId: id,
       ),
-      _ => FilmPanel(key: const ValueKey('film'), projectId: id),
+      EditorTool.type => TypePanel(key: const ValueKey('type'), projectId: id),
+      EditorTool.brush => BrushPanel(
+        key: const ValueKey('brush'),
+        projectId: id,
+      ),
+      EditorTool.add => AddPanel(key: const ValueKey('add'), projectId: id),
     };
+    final typing = session.editingElementId != null;
 
-    return Column(
+    final editor = Column(
       children: [
-        EditorHeader(
-          title: session.project.name,
-          onClose: onClose,
-          onExport: onExport,
-        ),
+        if (typing)
+          EditorHeader.typing(
+            title: session.project.name,
+            onCancel: controller.cancelTyping,
+            onDone: controller.finishTyping,
+          )
+        else
+          EditorHeader(
+            title: session.project.name,
+            onClose: onClose,
+            onExport: onExport,
+          ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
@@ -170,6 +197,16 @@ class _Editor extends ConsumerWidget {
           ),
         ),
         EditorToolbar(active: session.tool, onSelect: controller.selectTool),
+      ],
+    );
+    if (!typing) return editor;
+    return Stack(
+      children: [
+        editor,
+        Positioned.fill(
+          top: AuvieSpacing.headerHeight,
+          child: TextEditOverlay(projectId: id),
+        ),
       ],
     );
   }

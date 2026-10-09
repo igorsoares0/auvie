@@ -23,6 +23,12 @@ abstract class PresetCollection with _$PresetCollection {
 
 enum ContentAssetType { sticker, overlay, frame, font }
 
+/// Overlay generators the app can draw (params.generator).
+const overlayGenerators = {'leak', 'burn', 'streak', 'dust', 'scratches'};
+
+/// Frame styles the app can draw (params.style).
+const frameStyles = {'border', 'print', 'film35', 'hairline'};
+
 /// A file distributed as content (spec §44): stickers, overlays, frames,
 /// fonts. [file] is an asset path when bundled, a URL when remote (M8).
 @freezed
@@ -31,11 +37,17 @@ abstract class ContentAsset with _$ContentAsset {
     required String id,
     required ContentAssetType type,
     required String name,
-    required String file,
+
+    /// Asset path (bundled) or URL (remote, M8). Empty for generated content.
+    @Default('') String file,
     String? collectionId,
     String? thumbnail,
     @Default(false) bool isPremium,
     @Default(1) int version,
+
+    /// Type-specific settings: overlays `{generator, blend, opacity}`,
+    /// frames `{style, color, margin}`.
+    @Default(<String, Object?>{}) Map<String, Object?> params,
   }) = _ContentAsset;
 
   factory fromJson(Map<String, dynamic> json) => _$ContentAssetFromJson(json);
@@ -99,6 +111,18 @@ abstract class Catalog with _$Catalog {
       }
     }
     for (final asset in assets) {
+      switch (asset.type) {
+        case ContentAssetType.sticker || ContentAssetType.font:
+          if (asset.file.isEmpty) issues.add('Asset "${asset.id}" has no file');
+        case ContentAssetType.overlay:
+          if (!overlayGenerators.contains(asset.params['generator'])) {
+            issues.add('Overlay "${asset.id}" has an unknown generator');
+          }
+        case ContentAssetType.frame:
+          if (!frameStyles.contains(asset.params['style'])) {
+            issues.add('Frame "${asset.id}" has an unknown style');
+          }
+      }
       final collectionId = asset.collectionId;
       if (collectionId != null && !collectionIds.contains(collectionId)) {
         issues.add(

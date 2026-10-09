@@ -76,6 +76,7 @@ _TextStyleSpec _$TextStyleSpecFromJson(Map<String, dynamic> json) =>
       color: (json['color'] as num?)?.toInt() ?? 0xFFEFE8DC,
       letterSpacing: (json['letterSpacing'] as num?)?.toDouble() ?? 0,
       lineHeight: (json['lineHeight'] as num?)?.toDouble() ?? 1.2,
+      uppercase: json['uppercase'] as bool? ?? false,
       shadow: json['shadow'] == null
           ? null
           : TextShadowSpec.fromJson(json['shadow'] as Map<String, dynamic>),
@@ -99,6 +100,7 @@ Map<String, dynamic> _$TextStyleSpecToJson(_TextStyleSpec instance) =>
       'color': instance.color,
       'letterSpacing': instance.letterSpacing,
       'lineHeight': instance.lineHeight,
+      'uppercase': instance.uppercase,
       'shadow': instance.shadow?.toJson(),
       'outline': instance.outline?.toJson(),
       'background': instance.background?.toJson(),
@@ -249,6 +251,7 @@ StickerElement _$StickerElementFromJson(Map<String, dynamic> json) =>
     StickerElement(
       id: json['id'] as String,
       assetId: json['assetId'] as String,
+      color: (json['color'] as num?)?.toInt() ?? 0xFFF6F0E6,
       transform: json['transform'] == null
           ? const ElementTransform()
           : ElementTransform.fromJson(
@@ -265,6 +268,7 @@ Map<String, dynamic> _$StickerElementToJson(StickerElement instance) =>
     <String, dynamic>{
       'id': instance.id,
       'assetId': instance.assetId,
+      'color': instance.color,
       'transform': instance.transform.toJson(),
       'opacity': instance.opacity,
       'time': instance.time?.toJson(),
@@ -300,6 +304,7 @@ const _$OverlayBlendEnumMap = {
   OverlayBlend.multiply: 'multiply',
   OverlayBlend.overlay: 'overlay',
   OverlayBlend.softLight: 'softLight',
+  OverlayBlend.normal: 'normal',
 };
 
 FrameElement _$FrameElementFromJson(Map<String, dynamic> json) => FrameElement(

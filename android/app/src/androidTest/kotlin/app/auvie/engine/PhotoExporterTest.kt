@@ -16,6 +16,8 @@ import app.auvie.engine.gl.GlEngine
 import app.auvie.engine.media.MediaLoader
 import app.auvie.engine.pigeon.DevelopParams
 import app.auvie.engine.pigeon.ExportFormat
+import app.auvie.engine.pigeon.ExportLayer
+import app.auvie.engine.pigeon.LayerBlend
 import app.auvie.engine.pigeon.ExportRequest
 import app.auvie.engine.pigeon.ExportResult
 import com.google.common.truth.Truth.assertThat
@@ -100,9 +102,10 @@ class PhotoExporterTest {
         format: ExportFormat = ExportFormat.JPEG,
         keep: Boolean = false,
         name: String = "auvie-test-${System.nanoTime()}",
+        layers: List<ExportLayer> = emptyList(),
     ) = ExportRequest(
         uri.toString(), params(), format, width.toLong(), height.toLong(),
-        maxOf(width, height).toLong(), keep, name,
+        maxOf(width, height).toLong(), keep, name, layers,
     )
 
     private fun run(request: ExportRequest, tile: Int = 2048): ExportResult = runBlocking {
@@ -193,5 +196,60 @@ class PhotoExporterTest {
         // Capped at 32 MP by the planner.
         assertThat(result.width * result.height).isAtMost(32_000_000L)
         assertThat(result.height).isGreaterThan(result.width)
+    }
+
+    /** A [w]×[h] PNG layer filled with [color]. */
+    private fun layer(name: String, w: Int, h: Int, color: Int): String {
+        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888).apply { eraseColor(color) }
+        val file = File(dir, name)
+        file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        bitmap.recycle()
+        return file.absolutePath
+    }
+
+    @Test
+    fun layersAreCompositedWithTheirPlaceBlendAndOpacity() {
+        val source = original("g.jpg", 600, 400) // Upright 400 × 600, grey-blue.
+        val red = layer("red.png", 10, 10, Color.RED)
+        val white = layer("white.png", 10, 10, Color.WHITE)
+        val result = run(
+            request(
+                source, 400, 600, format = ExportFormat.PNG,
+                layers = listOf(
+                    // Opaque red square, scaled up from 10 px to 100 px.
+                    ExportLayer(red, 50.0, 50.0, 100.0, 100.0, LayerBlend.NORMAL, 1.0),
+                    // Half-opaque white over the lower half.
+                    ExportLayer(white, 0.0, 300.0, 400.0, 300.0, LayerBlend.NORMAL, 0.5),
+                    // Screen with black changes nothing.
+                    ExportLayer(layer("black.png", 4, 4, Color.BLACK), 0.0, 0.0, 400.0, 600.0, LayerBlend.SCREEN, 1.0),
+                ),
+            ),
+        )
+        val out = android.graphics.BitmapFactory.decodeFile(result.filePath)
+        val inRed = out.getPixel(100, 100)
+        assertThat(Color.red(inRed)).isGreaterThan(240)
+        assertThat(Color.green(inRed)).isLessThan(20)
+        val outside = out.getPixel(300, 100)
+        val lifted = out.getPixel(300, 500)
+        // Half-white lifts the photo halfway towards white.
+        assertThat(Color.green(lifted)).isGreaterThan(Color.green(outside) + 30)
+        assertThat(Color.green(lifted)).isLessThan(255)
+        out.recycle()
+    }
+
+    @Test
+    fun screenLightensAndMultiplyDarkens() {
+        val grey = Color.rgb(128, 128, 128)
+        val output = Bitmap.createBitmap(20, 10, Bitmap.Config.ARGB_8888).apply { eraseColor(grey) }
+        val mid = layer("mid.png", 2, 2, Color.rgb(128, 128, 128))
+        app.auvie.engine.export.LayerCompositor.compose(
+            output,
+            listOf(
+                ExportLayer(mid, 0.0, 0.0, 10.0, 10.0, LayerBlend.SCREEN, 1.0),
+                ExportLayer(mid, 10.0, 0.0, 10.0, 10.0, LayerBlend.MULTIPLY, 1.0),
+            ),
+        )
+        assertThat(Color.red(output.getPixel(5, 5))).isGreaterThan(180)
+        assertThat(Color.red(output.getPixel(15, 5))).isLessThan(80)
     }
 }

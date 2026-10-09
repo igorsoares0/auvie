@@ -1,11 +1,31 @@
 {
-  "catalogVersion": 1,
+  "catalogVersion": 2,
   "collections": [
-    { "id": "film", "name": "Film", "order": 0 },
-    { "id": "vintage", "name": "Vintage", "order": 1 },
-    { "id": "moody", "name": "Moody", "order": 2 },
-    { "id": "clean", "name": "Clean", "order": 3 },
-    { "id": "night", "name": "Night", "order": 4 }
+    {
+      "id": "film",
+      "name": "Film",
+      "order": 0
+    },
+    {
+      "id": "vintage",
+      "name": "Vintage",
+      "order": 1
+    },
+    {
+      "id": "moody",
+      "name": "Moody",
+      "order": 2
+    },
+    {
+      "id": "clean",
+      "name": "Clean",
+      "order": 3
+    },
+    {
+      "id": "night",
+      "name": "Night",
+      "order": 4
+    }
   ],
   "presets": [
     {
@@ -14,7 +34,11 @@
       "collectionId": "film",
       "stock": "Colour neg.",
       "iso": 100,
-      "tone": { "highlight": "#e9c9a0", "mid": "#b4674a", "shadow": "#3b2a22" },
+      "tone": {
+        "highlight": "#e9c9a0",
+        "mid": "#b4674a",
+        "shadow": "#3b2a22"
+      },
       "settings": {
         "contrast": 0.12,
         "highlights": -0.1,
@@ -31,7 +55,11 @@
       "collectionId": "film",
       "stock": "Colour neg.",
       "iso": 400,
-      "tone": { "highlight": "#efe0cc", "mid": "#c49a80", "shadow": "#3d3530" },
+      "tone": {
+        "highlight": "#efe0cc",
+        "mid": "#c49a80",
+        "shadow": "#3d3530"
+      },
       "settings": {
         "exposure": 0.04,
         "contrast": -0.06,
@@ -50,7 +78,11 @@
       "collectionId": "moody",
       "stock": "Muted neg.",
       "iso": 400,
-      "tone": { "highlight": "#d6d2ca", "mid": "#8c8a86", "shadow": "#2c2d2f" },
+      "tone": {
+        "highlight": "#d6d2ca",
+        "mid": "#8c8a86",
+        "shadow": "#2c2d2f"
+      },
       "settings": {
         "contrast": 0.1,
         "saturation": -0.65,
@@ -65,7 +97,11 @@
       "collectionId": "clean",
       "stock": "Slide",
       "iso": 100,
-      "tone": { "highlight": "#d7e1dc", "mid": "#6f8c90", "shadow": "#1f2a2e" },
+      "tone": {
+        "highlight": "#d7e1dc",
+        "mid": "#6f8c90",
+        "shadow": "#1f2a2e"
+      },
       "settings": {
         "exposure": 0.06,
         "contrast": -0.04,
@@ -82,7 +118,11 @@
       "isPremium": true,
       "stock": "Colour neg.",
       "iso": 400,
-      "tone": { "highlight": "#efe0cc", "mid": "#c49a80", "shadow": "#4a3f38" },
+      "tone": {
+        "highlight": "#efe0cc",
+        "mid": "#c49a80",
+        "shadow": "#4a3f38"
+      },
       "settings": {
         "exposure": 0.05,
         "contrast": -0.18,
@@ -97,9 +137,18 @@
       "curves": {
         "master": {
           "points": [
-            { "x": 0, "y": 0.08 },
-            { "x": 0.5, "y": 0.52 },
-            { "x": 1, "y": 0.96 }
+            {
+              "x": 0,
+              "y": 0.08
+            },
+            {
+              "x": 0.5,
+              "y": 0.52
+            },
+            {
+              "x": 1,
+              "y": 0.96
+            }
           ]
         }
       }
@@ -111,7 +160,11 @@
       "isPremium": true,
       "stock": "Tungsten",
       "iso": 800,
-      "tone": { "highlight": "#b9a98a", "mid": "#3d4f66", "shadow": "#121a26" },
+      "tone": {
+        "highlight": "#b9a98a",
+        "mid": "#3d4f66",
+        "shadow": "#121a26"
+      },
       "settings": {
         "exposure": -0.05,
         "contrast": 0.15,
@@ -125,5 +178,202 @@
       }
     }
   ],
-  "assets": []
+  "assets": [
+    {
+      "id": "sticker_star",
+      "type": "sticker",
+      "name": "Star",
+      "file": "assets/content/stickers/star.svg",
+      "isPremium": false
+    },
+    {
+      "id": "sticker_sparkle",
+      "type": "sticker",
+      "name": "Sparkle",
+      "file": "assets/content/stickers/sparkle.svg",
+      "isPremium": false
+    },
+    {
+      "id": "sticker_arrow",
+      "type": "sticker",
+      "name": "Arrow",
+      "file": "assets/content/stickers/arrow.svg",
+      "isPremium": false
+    },
+    {
+      "id": "sticker_circle_scribble",
+      "type": "sticker",
+      "name": "Circle",
+      "file": "assets/content/stickers/circle_scribble.svg",
+      "isPremium": false
+    },
+    {
+      "id": "sticker_heart",
+      "type": "sticker",
+      "name": "Heart",
+      "file": "assets/content/stickers/heart.svg",
+      "isPremium": false
+    },
+    {
+      "id": "sticker_sun",
+      "type": "sticker",
+      "name": "Sun",
+      "file": "assets/content/stickers/sun.svg",
+      "isPremium": false
+    },
+    {
+      "id": "sticker_moon",
+      "type": "sticker",
+      "name": "Moon",
+      "file": "assets/content/stickers/moon.svg",
+      "isPremium": false
+    },
+    {
+      "id": "sticker_stamp",
+      "type": "sticker",
+      "name": "Stamp",
+      "file": "assets/content/stickers/stamp.svg",
+      "isPremium": true
+    },
+    {
+      "id": "sticker_film_frame",
+      "type": "sticker",
+      "name": "Frame",
+      "file": "assets/content/stickers/film_frame.svg",
+      "isPremium": true
+    },
+    {
+      "id": "sticker_flash",
+      "type": "sticker",
+      "name": "Flash",
+      "file": "assets/content/stickers/flash.svg",
+      "isPremium": false
+    },
+    {
+      "id": "sticker_quote",
+      "type": "sticker",
+      "name": "Quote",
+      "file": "assets/content/stickers/quote.svg",
+      "isPremium": true
+    },
+    {
+      "id": "sticker_underline",
+      "type": "sticker",
+      "name": "Underline",
+      "file": "assets/content/stickers/underline.svg",
+      "isPremium": false
+    },
+    {
+      "id": "overlay_leak_warm",
+      "type": "overlay",
+      "name": "Warm leak",
+      "isPremium": false,
+      "params": {
+        "generator": "leak",
+        "tone": "warm",
+        "blend": "screen",
+        "opacity": 0.8
+      }
+    },
+    {
+      "id": "overlay_leak_cool",
+      "type": "overlay",
+      "name": "Cool leak",
+      "isPremium": false,
+      "params": {
+        "generator": "leak",
+        "tone": "cool",
+        "blend": "screen",
+        "opacity": 0.7
+      }
+    },
+    {
+      "id": "overlay_film_burn",
+      "type": "overlay",
+      "name": "Film burn",
+      "isPremium": true,
+      "params": {
+        "generator": "burn",
+        "blend": "screen",
+        "opacity": 0.85
+      }
+    },
+    {
+      "id": "overlay_streak",
+      "type": "overlay",
+      "name": "Streak",
+      "isPremium": false,
+      "params": {
+        "generator": "streak",
+        "blend": "screen",
+        "opacity": 0.6
+      }
+    },
+    {
+      "id": "overlay_dust",
+      "type": "overlay",
+      "name": "Dust",
+      "isPremium": false,
+      "params": {
+        "generator": "dust",
+        "blend": "normal",
+        "opacity": 0.9
+      }
+    },
+    {
+      "id": "overlay_scratches",
+      "type": "overlay",
+      "name": "Scratches",
+      "isPremium": true,
+      "params": {
+        "generator": "scratches",
+        "blend": "normal",
+        "opacity": 0.7
+      }
+    },
+    {
+      "id": "frame_paper",
+      "type": "frame",
+      "name": "Paper",
+      "isPremium": false,
+      "params": {
+        "style": "border",
+        "color": "#F3EEE5",
+        "margin": 0.04
+      }
+    },
+    {
+      "id": "frame_print",
+      "type": "frame",
+      "name": "Print",
+      "isPremium": false,
+      "params": {
+        "style": "print",
+        "color": "#F3EEE5",
+        "margin": 0.05
+      }
+    },
+    {
+      "id": "frame_film35",
+      "type": "frame",
+      "name": "35mm",
+      "isPremium": true,
+      "params": {
+        "style": "film35",
+        "color": "#0B0A09",
+        "margin": 0.07
+      }
+    },
+    {
+      "id": "frame_hairline",
+      "type": "frame",
+      "name": "Hairline",
+      "isPremium": false,
+      "params": {
+        "style": "hairline",
+        "color": "#EFE8DC",
+        "margin": 0.035
+      }
+    }
+  ]
 }

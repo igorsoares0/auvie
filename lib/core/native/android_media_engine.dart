@@ -86,6 +86,18 @@ class AndroidMediaEngine implements MediaEngine {
             decodeMaxPx: job.decodeMaxPx,
             keepMetadata: job.keepMetadata,
             fileName: job.fileName,
+            layers: [
+              for (final l in job.layers)
+                pigeon.ExportLayer(
+                  path: l.path,
+                  left: l.left,
+                  top: l.top,
+                  width: l.width,
+                  height: l.height,
+                  blend: pigeon.LayerBlend.values.byName(l.blend.name),
+                  opacity: l.opacity,
+                ),
+            ],
           ),
         );
         return (

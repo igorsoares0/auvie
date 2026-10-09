@@ -220,6 +220,20 @@ enum class ExportFormat(val raw: Int) {
   }
 }
 
+enum class LayerBlend(val raw: Int) {
+  NORMAL(0),
+  SCREEN(1),
+  MULTIPLY(2),
+  OVERLAY(3),
+  SOFT_LIGHT(4);
+
+  companion object {
+    fun ofRaw(raw: Int): LayerBlend? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
 /** Generated class from Pigeon that represents data sent in messages. */
 data class PickedMedia (
   /** Persisted content:// URI, or a file:// copy when persisting failed. */
@@ -375,6 +389,75 @@ data class DevelopParams (
   }
 }
 
+/**
+ * One element rasterized by Flutter (text, brush, sticker, overlay,
+ * frame), composited over the developed photo before encoding.
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class ExportLayer (
+  /** PNG file. */
+  val path: String,
+  /** Where it goes, in output pixels (the PNG is scaled to fit). */
+  val left: Double,
+  val top: Double,
+  val width: Double,
+  val height: Double,
+  val blend: LayerBlend,
+  /** 0…1. */
+  val opacity: Double
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): ExportLayer {
+      val path = pigeonVar_list[0] as String
+      val left = pigeonVar_list[1] as Double
+      val top = pigeonVar_list[2] as Double
+      val width = pigeonVar_list[3] as Double
+      val height = pigeonVar_list[4] as Double
+      val blend = pigeonVar_list[5] as LayerBlend
+      val opacity = pigeonVar_list[6] as Double
+      return ExportLayer(path, left, top, width, height, blend, opacity)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      path,
+      left,
+      top,
+      width,
+      height,
+      blend,
+      opacity,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as ExportLayer
+    return MediaApiPigeonUtils.deepEquals(this.path, other.path) && MediaApiPigeonUtils.deepEquals(this.left, other.left) && MediaApiPigeonUtils.deepEquals(this.top, other.top) && MediaApiPigeonUtils.deepEquals(this.width, other.width) && MediaApiPigeonUtils.deepEquals(this.height, other.height) && MediaApiPigeonUtils.deepEquals(this.blend, other.blend) && MediaApiPigeonUtils.deepEquals(this.opacity, other.opacity)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.path)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.left)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.top)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.width)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.height)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.blend)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.opacity)
+    return result
+  }
+  override fun toString(): String {
+    return "ExportLayer(path=$path, left=$left, top=$top, width=$width, height=$height, blend=$blend, opacity=$opacity)"
+  }
+}
+
 /** Generated class from Pigeon that represents data sent in messages. */
 data class ExportRequest (
   val uri: String,
@@ -387,7 +470,9 @@ data class ExportRequest (
   /** Copy date, camera and location from the original (JPEG only). */
   val keepMetadata: Boolean,
   /** Without extension. */
-  val fileName: String
+  val fileName: String,
+  /** Elements in z-order, bottom first. */
+  val layers: List<ExportLayer>
 )
  {
   companion object {
@@ -400,7 +485,8 @@ data class ExportRequest (
       val decodeMaxPx = pigeonVar_list[5] as Long
       val keepMetadata = pigeonVar_list[6] as Boolean
       val fileName = pigeonVar_list[7] as String
-      return ExportRequest(uri, params, format, outputWidth, outputHeight, decodeMaxPx, keepMetadata, fileName)
+      val layers = pigeonVar_list[8] as List<ExportLayer>
+      return ExportRequest(uri, params, format, outputWidth, outputHeight, decodeMaxPx, keepMetadata, fileName, layers)
     }
   }
   fun toList(): List<Any?> {
@@ -413,6 +499,7 @@ data class ExportRequest (
       decodeMaxPx,
       keepMetadata,
       fileName,
+      layers,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -423,7 +510,7 @@ data class ExportRequest (
       return true
     }
     val other = other as ExportRequest
-    return MediaApiPigeonUtils.deepEquals(this.uri, other.uri) && MediaApiPigeonUtils.deepEquals(this.params, other.params) && MediaApiPigeonUtils.deepEquals(this.format, other.format) && MediaApiPigeonUtils.deepEquals(this.outputWidth, other.outputWidth) && MediaApiPigeonUtils.deepEquals(this.outputHeight, other.outputHeight) && MediaApiPigeonUtils.deepEquals(this.decodeMaxPx, other.decodeMaxPx) && MediaApiPigeonUtils.deepEquals(this.keepMetadata, other.keepMetadata) && MediaApiPigeonUtils.deepEquals(this.fileName, other.fileName)
+    return MediaApiPigeonUtils.deepEquals(this.uri, other.uri) && MediaApiPigeonUtils.deepEquals(this.params, other.params) && MediaApiPigeonUtils.deepEquals(this.format, other.format) && MediaApiPigeonUtils.deepEquals(this.outputWidth, other.outputWidth) && MediaApiPigeonUtils.deepEquals(this.outputHeight, other.outputHeight) && MediaApiPigeonUtils.deepEquals(this.decodeMaxPx, other.decodeMaxPx) && MediaApiPigeonUtils.deepEquals(this.keepMetadata, other.keepMetadata) && MediaApiPigeonUtils.deepEquals(this.fileName, other.fileName) && MediaApiPigeonUtils.deepEquals(this.layers, other.layers)
   }
 
   override fun hashCode(): Int {
@@ -436,10 +523,11 @@ data class ExportRequest (
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.decodeMaxPx)
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.keepMetadata)
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.fileName)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.layers)
     return result
   }
   override fun toString(): String {
-    return "ExportRequest(uri=$uri, params=$params, format=$format, outputWidth=$outputWidth, outputHeight=$outputHeight, decodeMaxPx=$decodeMaxPx, keepMetadata=$keepMetadata, fileName=$fileName)"
+    return "ExportRequest(uri=$uri, params=$params, format=$format, outputWidth=$outputWidth, outputHeight=$outputHeight, decodeMaxPx=$decodeMaxPx, keepMetadata=$keepMetadata, fileName=$fileName, layers=$layers)"
   }
 }
 
@@ -604,31 +692,41 @@ private open class MediaApiPigeonCodec : StandardMessageCodec() {
         }
       }
       131.toByte() -> {
-        return (readValue(buffer) as? List<Any?>)?.let {
-          PickedMedia.fromList(it)
+        return (readValue(buffer) as Long?)?.let {
+          LayerBlend.ofRaw(it.toInt())
         }
       }
       132.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          DevelopParams.fromList(it)
+          PickedMedia.fromList(it)
         }
       }
       133.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          ExportRequest.fromList(it)
+          DevelopParams.fromList(it)
         }
       }
       134.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          ExportResult.fromList(it)
+          ExportLayer.fromList(it)
         }
       }
       135.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          ExportProgress.fromList(it)
+          ExportRequest.fromList(it)
         }
       }
       136.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          ExportResult.fromList(it)
+        }
+      }
+      137.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          ExportProgress.fromList(it)
+        }
+      }
+      138.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
           PreviewInfo.fromList(it)
         }
@@ -646,28 +744,36 @@ private open class MediaApiPigeonCodec : StandardMessageCodec() {
         stream.write(130)
         writeValue(stream, value.raw.toLong())
       }
-      is PickedMedia -> {
+      is LayerBlend -> {
         stream.write(131)
-        writeValue(stream, value.toList())
+        writeValue(stream, value.raw.toLong())
       }
-      is DevelopParams -> {
+      is PickedMedia -> {
         stream.write(132)
         writeValue(stream, value.toList())
       }
-      is ExportRequest -> {
+      is DevelopParams -> {
         stream.write(133)
         writeValue(stream, value.toList())
       }
-      is ExportResult -> {
+      is ExportLayer -> {
         stream.write(134)
         writeValue(stream, value.toList())
       }
-      is ExportProgress -> {
+      is ExportRequest -> {
         stream.write(135)
         writeValue(stream, value.toList())
       }
-      is PreviewInfo -> {
+      is ExportResult -> {
         stream.write(136)
+        writeValue(stream, value.toList())
+      }
+      is ExportProgress -> {
+        stream.write(137)
+        writeValue(stream, value.toList())
+      }
+      is PreviewInfo -> {
+        stream.write(138)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)

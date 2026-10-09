@@ -29,11 +29,13 @@ _ContentAsset _$ContentAssetFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       type: $enumDecode(_$ContentAssetTypeEnumMap, json['type']),
       name: json['name'] as String,
-      file: json['file'] as String,
+      file: json['file'] as String? ?? '',
       collectionId: json['collectionId'] as String?,
       thumbnail: json['thumbnail'] as String?,
       isPremium: json['isPremium'] as bool? ?? false,
       version: (json['version'] as num?)?.toInt() ?? 1,
+      params:
+          json['params'] as Map<String, dynamic>? ?? const <String, Object?>{},
     );
 
 Map<String, dynamic> _$ContentAssetToJson(_ContentAsset instance) =>
@@ -46,6 +48,7 @@ Map<String, dynamic> _$ContentAssetToJson(_ContentAsset instance) =>
       'thumbnail': instance.thumbnail,
       'isPremium': instance.isPremium,
       'version': instance.version,
+      'params': instance.params,
     };
 
 const _$ContentAssetTypeEnumMap = {

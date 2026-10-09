@@ -10,6 +10,7 @@ import 'package:auvie/core/native/media_engine_provider.dart';
 import 'package:auvie/core/native/render_params.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
 import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
+import 'package:auvie/features/export/element_layers.dart';
 import 'package:auvie/features/export/export_options.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -156,12 +157,18 @@ class ExportController extends _$ExportController {
         phase: ExportRunning(jobId: jobId, fraction: 0, thenShare: thenShare),
       ),
     );
+    final rasterizer = ref.read(elementLayerRasterizerProvider);
     unawaited(_progress?.cancel());
     _progress = _engine.exportProgress
         .where((p) => p.jobId == jobId)
         .listen((p) => _onProgress(jobId, p.fraction, thenShare));
 
     try {
+      final layers = await rasterizer.rasterize(
+        jobId: jobId,
+        elements: project.edit.elements,
+        output: pixels,
+      );
       final result = await _engine.exportPhoto(jobId, (
         uri: project.media.uri,
         params: RenderParams.fromEdit(
@@ -179,6 +186,7 @@ class ExportController extends _$ExportController {
         ),
         keepMetadata: session.options.keepMetadata,
         fileName: project.name ?? 'Auvie',
+        layers: layers,
       ));
       _set(_session.copyWith(phase: ExportDone(result, thenShare: thenShare)));
     } on MediaEngineException catch (e) {
@@ -193,6 +201,7 @@ class ExportController extends _$ExportController {
       // Not awaited: a cancelled subscription needs nothing more from us.
       unawaited(_progress?.cancel());
       _progress = null;
+      unawaited(rasterizer.clean(jobId));
     }
   }
 

@@ -1397,7 +1397,8 @@ mixin _$TextStyleSpec {
 
  String get fontFamily;/// Fraction of the media's shorter side.
  double get fontSize; int get fontWeight; bool get italic; TextAlignment get align; int get color;/// In em.
- double get letterSpacing; double get lineHeight; TextShadowSpec? get shadow; TextOutlineSpec? get outline; TextBackgroundSpec? get background;
+ double get letterSpacing; double get lineHeight;/// Set in capitals (Grotesk).
+ bool get uppercase; TextShadowSpec? get shadow; TextOutlineSpec? get outline; TextBackgroundSpec? get background;
 /// Create a copy of TextStyleSpec
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1411,20 +1412,20 @@ $TextStyleSpecCopyWith<TextStyleSpec> get copyWith => _$TextStyleSpecCopyWithImp
 @override
 bool operator ==(Object other) {
   final _this = this as TextStyleSpec;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TextStyleSpec&&(identical(other.fontFamily, _this.fontFamily) || other.fontFamily == _this.fontFamily)&&(identical(other.fontSize, _this.fontSize) || other.fontSize == _this.fontSize)&&(identical(other.fontWeight, _this.fontWeight) || other.fontWeight == _this.fontWeight)&&(identical(other.italic, _this.italic) || other.italic == _this.italic)&&(identical(other.align, _this.align) || other.align == _this.align)&&(identical(other.color, _this.color) || other.color == _this.color)&&(identical(other.letterSpacing, _this.letterSpacing) || other.letterSpacing == _this.letterSpacing)&&(identical(other.lineHeight, _this.lineHeight) || other.lineHeight == _this.lineHeight)&&(identical(other.shadow, _this.shadow) || other.shadow == _this.shadow)&&(identical(other.outline, _this.outline) || other.outline == _this.outline)&&(identical(other.background, _this.background) || other.background == _this.background));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TextStyleSpec&&(identical(other.fontFamily, _this.fontFamily) || other.fontFamily == _this.fontFamily)&&(identical(other.fontSize, _this.fontSize) || other.fontSize == _this.fontSize)&&(identical(other.fontWeight, _this.fontWeight) || other.fontWeight == _this.fontWeight)&&(identical(other.italic, _this.italic) || other.italic == _this.italic)&&(identical(other.align, _this.align) || other.align == _this.align)&&(identical(other.color, _this.color) || other.color == _this.color)&&(identical(other.letterSpacing, _this.letterSpacing) || other.letterSpacing == _this.letterSpacing)&&(identical(other.lineHeight, _this.lineHeight) || other.lineHeight == _this.lineHeight)&&(identical(other.uppercase, _this.uppercase) || other.uppercase == _this.uppercase)&&(identical(other.shadow, _this.shadow) || other.shadow == _this.shadow)&&(identical(other.outline, _this.outline) || other.outline == _this.outline)&&(identical(other.background, _this.background) || other.background == _this.background));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as TextStyleSpec;
-  return Object.hash(runtimeType,_this.fontFamily,_this.fontSize,_this.fontWeight,_this.italic,_this.align,_this.color,_this.letterSpacing,_this.lineHeight,_this.shadow,_this.outline,_this.background);
+  return Object.hash(runtimeType,_this.fontFamily,_this.fontSize,_this.fontWeight,_this.italic,_this.align,_this.color,_this.letterSpacing,_this.lineHeight,_this.uppercase,_this.shadow,_this.outline,_this.background);
 }
 
 @override
 String toString() {
   final _this = this as TextStyleSpec;
-  return 'TextStyleSpec(fontFamily: ${_this.fontFamily}, fontSize: ${_this.fontSize}, fontWeight: ${_this.fontWeight}, italic: ${_this.italic}, align: ${_this.align}, color: ${_this.color}, letterSpacing: ${_this.letterSpacing}, lineHeight: ${_this.lineHeight}, shadow: ${_this.shadow}, outline: ${_this.outline}, background: ${_this.background})';
+  return 'TextStyleSpec(fontFamily: ${_this.fontFamily}, fontSize: ${_this.fontSize}, fontWeight: ${_this.fontWeight}, italic: ${_this.italic}, align: ${_this.align}, color: ${_this.color}, letterSpacing: ${_this.letterSpacing}, lineHeight: ${_this.lineHeight}, uppercase: ${_this.uppercase}, shadow: ${_this.shadow}, outline: ${_this.outline}, background: ${_this.background})';
 }
 
 
@@ -1435,7 +1436,7 @@ abstract mixin class $TextStyleSpecCopyWith<$Res>  {
   factory $TextStyleSpecCopyWith(TextStyleSpec value, $Res Function(TextStyleSpec) _then) = _$TextStyleSpecCopyWithImpl;
 @useResult
 $Res call({
- String fontFamily, double fontSize, int fontWeight, bool italic, TextAlignment align, int color, double letterSpacing, double lineHeight, TextShadowSpec? shadow, TextOutlineSpec? outline, TextBackgroundSpec? background
+ String fontFamily, double fontSize, int fontWeight, bool italic, TextAlignment align, int color, double letterSpacing, double lineHeight, bool uppercase, TextShadowSpec? shadow, TextOutlineSpec? outline, TextBackgroundSpec? background
 });
 
 
@@ -1452,7 +1453,7 @@ class _$TextStyleSpecCopyWithImpl<$Res>
 
 /// Create a copy of TextStyleSpec
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? fontFamily = null,Object? fontSize = null,Object? fontWeight = null,Object? italic = null,Object? align = null,Object? color = null,Object? letterSpacing = null,Object? lineHeight = null,Object? shadow = freezed,Object? outline = freezed,Object? background = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? fontFamily = null,Object? fontSize = null,Object? fontWeight = null,Object? italic = null,Object? align = null,Object? color = null,Object? letterSpacing = null,Object? lineHeight = null,Object? uppercase = null,Object? shadow = freezed,Object? outline = freezed,Object? background = freezed,}) {
   return _then(TextStyleSpec(
 fontFamily: null == fontFamily ? _self.fontFamily : fontFamily // ignore: cast_nullable_to_non_nullable
 as String,fontSize: null == fontSize ? _self.fontSize : fontSize // ignore: cast_nullable_to_non_nullable
@@ -1462,7 +1463,8 @@ as bool,align: null == align ? _self.align : align // ignore: cast_nullable_to_n
 as TextAlignment,color: null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
 as int,letterSpacing: null == letterSpacing ? _self.letterSpacing : letterSpacing // ignore: cast_nullable_to_non_nullable
 as double,lineHeight: null == lineHeight ? _self.lineHeight : lineHeight // ignore: cast_nullable_to_non_nullable
-as double,shadow: freezed == shadow ? _self.shadow : shadow // ignore: cast_nullable_to_non_nullable
+as double,uppercase: null == uppercase ? _self.uppercase : uppercase // ignore: cast_nullable_to_non_nullable
+as bool,shadow: freezed == shadow ? _self.shadow : shadow // ignore: cast_nullable_to_non_nullable
 as TextShadowSpec?,outline: freezed == outline ? _self.outline : outline // ignore: cast_nullable_to_non_nullable
 as TextOutlineSpec?,background: freezed == background ? _self.background : background // ignore: cast_nullable_to_non_nullable
 as TextBackgroundSpec?,
@@ -1586,10 +1588,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String fontFamily,  double fontSize,  int fontWeight,  bool italic,  TextAlignment align,  int color,  double letterSpacing,  double lineHeight,  TextShadowSpec? shadow,  TextOutlineSpec? outline,  TextBackgroundSpec? background)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String fontFamily,  double fontSize,  int fontWeight,  bool italic,  TextAlignment align,  int color,  double letterSpacing,  double lineHeight,  bool uppercase,  TextShadowSpec? shadow,  TextOutlineSpec? outline,  TextBackgroundSpec? background)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TextStyleSpec() when $default != null:
-return $default(_that.fontFamily,_that.fontSize,_that.fontWeight,_that.italic,_that.align,_that.color,_that.letterSpacing,_that.lineHeight,_that.shadow,_that.outline,_that.background);case _:
+return $default(_that.fontFamily,_that.fontSize,_that.fontWeight,_that.italic,_that.align,_that.color,_that.letterSpacing,_that.lineHeight,_that.uppercase,_that.shadow,_that.outline,_that.background);case _:
   return orElse();
 
 }
@@ -1607,10 +1609,10 @@ return $default(_that.fontFamily,_that.fontSize,_that.fontWeight,_that.italic,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String fontFamily,  double fontSize,  int fontWeight,  bool italic,  TextAlignment align,  int color,  double letterSpacing,  double lineHeight,  TextShadowSpec? shadow,  TextOutlineSpec? outline,  TextBackgroundSpec? background)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String fontFamily,  double fontSize,  int fontWeight,  bool italic,  TextAlignment align,  int color,  double letterSpacing,  double lineHeight,  bool uppercase,  TextShadowSpec? shadow,  TextOutlineSpec? outline,  TextBackgroundSpec? background)  $default,) {final _that = this;
 switch (_that) {
 case _TextStyleSpec():
-return $default(_that.fontFamily,_that.fontSize,_that.fontWeight,_that.italic,_that.align,_that.color,_that.letterSpacing,_that.lineHeight,_that.shadow,_that.outline,_that.background);case _:
+return $default(_that.fontFamily,_that.fontSize,_that.fontWeight,_that.italic,_that.align,_that.color,_that.letterSpacing,_that.lineHeight,_that.uppercase,_that.shadow,_that.outline,_that.background);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1627,10 +1629,10 @@ return $default(_that.fontFamily,_that.fontSize,_that.fontWeight,_that.italic,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String fontFamily,  double fontSize,  int fontWeight,  bool italic,  TextAlignment align,  int color,  double letterSpacing,  double lineHeight,  TextShadowSpec? shadow,  TextOutlineSpec? outline,  TextBackgroundSpec? background)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String fontFamily,  double fontSize,  int fontWeight,  bool italic,  TextAlignment align,  int color,  double letterSpacing,  double lineHeight,  bool uppercase,  TextShadowSpec? shadow,  TextOutlineSpec? outline,  TextBackgroundSpec? background)?  $default,) {final _that = this;
 switch (_that) {
 case _TextStyleSpec() when $default != null:
-return $default(_that.fontFamily,_that.fontSize,_that.fontWeight,_that.italic,_that.align,_that.color,_that.letterSpacing,_that.lineHeight,_that.shadow,_that.outline,_that.background);case _:
+return $default(_that.fontFamily,_that.fontSize,_that.fontWeight,_that.italic,_that.align,_that.color,_that.letterSpacing,_that.lineHeight,_that.uppercase,_that.shadow,_that.outline,_that.background);case _:
   return null;
 
 }
@@ -1642,7 +1644,7 @@ return $default(_that.fontFamily,_that.fontSize,_that.fontWeight,_that.italic,_t
 @JsonSerializable()
 
 class _TextStyleSpec implements TextStyleSpec {
-  const _TextStyleSpec({this.fontFamily = 'Newsreader', this.fontSize = 0.06, this.fontWeight = 400, this.italic = false, this.align = TextAlignment.center, this.color = 0xFFEFE8DC, this.letterSpacing = 0, this.lineHeight = 1.2, this.shadow, this.outline, this.background});
+  const _TextStyleSpec({this.fontFamily = 'Newsreader', this.fontSize = 0.06, this.fontWeight = 400, this.italic = false, this.align = TextAlignment.center, this.color = 0xFFEFE8DC, this.letterSpacing = 0, this.lineHeight = 1.2, this.uppercase = false, this.shadow, this.outline, this.background});
   factory _TextStyleSpec.fromJson(Map<String, dynamic> json) => _$TextStyleSpecFromJson(json);
 
 @override@JsonKey() final  String fontFamily;
@@ -1655,6 +1657,8 @@ class _TextStyleSpec implements TextStyleSpec {
 /// In em.
 @override@JsonKey() final  double letterSpacing;
 @override@JsonKey() final  double lineHeight;
+/// Set in capitals (Grotesk).
+@override@JsonKey() final  bool uppercase;
 @override final  TextShadowSpec? shadow;
 @override final  TextOutlineSpec? outline;
 @override final  TextBackgroundSpec? background;
@@ -1672,18 +1676,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _TextStyleSpec&&(identical(other.fontFamily, fontFamily) || other.fontFamily == fontFamily)&&(identical(other.fontSize, fontSize) || other.fontSize == fontSize)&&(identical(other.fontWeight, fontWeight) || other.fontWeight == fontWeight)&&(identical(other.italic, italic) || other.italic == italic)&&(identical(other.align, align) || other.align == align)&&(identical(other.color, color) || other.color == color)&&(identical(other.letterSpacing, letterSpacing) || other.letterSpacing == letterSpacing)&&(identical(other.lineHeight, lineHeight) || other.lineHeight == lineHeight)&&(identical(other.shadow, shadow) || other.shadow == shadow)&&(identical(other.outline, outline) || other.outline == outline)&&(identical(other.background, background) || other.background == background));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _TextStyleSpec&&(identical(other.fontFamily, fontFamily) || other.fontFamily == fontFamily)&&(identical(other.fontSize, fontSize) || other.fontSize == fontSize)&&(identical(other.fontWeight, fontWeight) || other.fontWeight == fontWeight)&&(identical(other.italic, italic) || other.italic == italic)&&(identical(other.align, align) || other.align == align)&&(identical(other.color, color) || other.color == color)&&(identical(other.letterSpacing, letterSpacing) || other.letterSpacing == letterSpacing)&&(identical(other.lineHeight, lineHeight) || other.lineHeight == lineHeight)&&(identical(other.uppercase, uppercase) || other.uppercase == uppercase)&&(identical(other.shadow, shadow) || other.shadow == shadow)&&(identical(other.outline, outline) || other.outline == outline)&&(identical(other.background, background) || other.background == background));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,fontFamily,fontSize,fontWeight,italic,align,color,letterSpacing,lineHeight,shadow,outline,background);
+    return Object.hash(runtimeType,fontFamily,fontSize,fontWeight,italic,align,color,letterSpacing,lineHeight,uppercase,shadow,outline,background);
 }
 
 @override
 String toString() {
-    return 'TextStyleSpec(fontFamily: $fontFamily, fontSize: $fontSize, fontWeight: $fontWeight, italic: $italic, align: $align, color: $color, letterSpacing: $letterSpacing, lineHeight: $lineHeight, shadow: $shadow, outline: $outline, background: $background)';
+    return 'TextStyleSpec(fontFamily: $fontFamily, fontSize: $fontSize, fontWeight: $fontWeight, italic: $italic, align: $align, color: $color, letterSpacing: $letterSpacing, lineHeight: $lineHeight, uppercase: $uppercase, shadow: $shadow, outline: $outline, background: $background)';
 }
 
 
@@ -1694,7 +1698,7 @@ abstract mixin class _$TextStyleSpecCopyWith<$Res> implements $TextStyleSpecCopy
   factory _$TextStyleSpecCopyWith(_TextStyleSpec value, $Res Function(_TextStyleSpec) _then) = __$TextStyleSpecCopyWithImpl;
 @override @useResult
 $Res call({
- String fontFamily, double fontSize, int fontWeight, bool italic, TextAlignment align, int color, double letterSpacing, double lineHeight, TextShadowSpec? shadow, TextOutlineSpec? outline, TextBackgroundSpec? background
+ String fontFamily, double fontSize, int fontWeight, bool italic, TextAlignment align, int color, double letterSpacing, double lineHeight, bool uppercase, TextShadowSpec? shadow, TextOutlineSpec? outline, TextBackgroundSpec? background
 });
 
 
@@ -1711,7 +1715,7 @@ class __$TextStyleSpecCopyWithImpl<$Res>
 
 /// Create a copy of TextStyleSpec
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? fontFamily = null,Object? fontSize = null,Object? fontWeight = null,Object? italic = null,Object? align = null,Object? color = null,Object? letterSpacing = null,Object? lineHeight = null,Object? shadow = freezed,Object? outline = freezed,Object? background = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? fontFamily = null,Object? fontSize = null,Object? fontWeight = null,Object? italic = null,Object? align = null,Object? color = null,Object? letterSpacing = null,Object? lineHeight = null,Object? uppercase = null,Object? shadow = freezed,Object? outline = freezed,Object? background = freezed,}) {
   return _then(_TextStyleSpec(
 fontFamily: null == fontFamily ? _self.fontFamily : fontFamily // ignore: cast_nullable_to_non_nullable
 as String,fontSize: null == fontSize ? _self.fontSize : fontSize // ignore: cast_nullable_to_non_nullable
@@ -1721,7 +1725,8 @@ as bool,align: null == align ? _self.align : align // ignore: cast_nullable_to_n
 as TextAlignment,color: null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
 as int,letterSpacing: null == letterSpacing ? _self.letterSpacing : letterSpacing // ignore: cast_nullable_to_non_nullable
 as double,lineHeight: null == lineHeight ? _self.lineHeight : lineHeight // ignore: cast_nullable_to_non_nullable
-as double,shadow: freezed == shadow ? _self.shadow : shadow // ignore: cast_nullable_to_non_nullable
+as double,uppercase: null == uppercase ? _self.uppercase : uppercase // ignore: cast_nullable_to_non_nullable
+as bool,shadow: freezed == shadow ? _self.shadow : shadow // ignore: cast_nullable_to_non_nullable
 as TextShadowSpec?,outline: freezed == outline ? _self.outline : outline // ignore: cast_nullable_to_non_nullable
 as TextOutlineSpec?,background: freezed == background ? _self.background : background // ignore: cast_nullable_to_non_nullable
 as TextBackgroundSpec?,
@@ -2517,13 +2522,13 @@ return frame(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String id,  String text,  TextStyleSpec style,  String? textPresetId,  ElementTransform transform,  double opacity,  TimeRange? time)?  text,TResult Function( String id,  String text,  List<StrokePoint> path,  TextStyleSpec style,  ElementTransform transform,  double opacity,  TimeRange? time)?  textPath,TResult Function( String id,  BrushType brushType,  double size,  int color,  double smoothing,  List<BrushStroke> strokes,  ElementTransform transform,  double opacity,  TimeRange? time)?  brush,TResult Function( String id,  String assetId,  ElementTransform transform,  double opacity,  TimeRange? time)?  sticker,TResult Function( String id,  String assetId,  OverlayBlend blend,  double opacity,  TimeRange? time)?  overlay,TResult Function( String id,  String assetId)?  frame,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String id,  String text,  TextStyleSpec style,  String? textPresetId,  ElementTransform transform,  double opacity,  TimeRange? time)?  text,TResult Function( String id,  String text,  List<StrokePoint> path,  TextStyleSpec style,  ElementTransform transform,  double opacity,  TimeRange? time)?  textPath,TResult Function( String id,  BrushType brushType,  double size,  int color,  double smoothing,  List<BrushStroke> strokes,  ElementTransform transform,  double opacity,  TimeRange? time)?  brush,TResult Function( String id,  String assetId,  int color,  ElementTransform transform,  double opacity,  TimeRange? time)?  sticker,TResult Function( String id,  String assetId,  OverlayBlend blend,  double opacity,  TimeRange? time)?  overlay,TResult Function( String id,  String assetId)?  frame,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case TextElement() when text != null:
 return text(_that.id,_that.text,_that.style,_that.textPresetId,_that.transform,_that.opacity,_that.time);case TextPathElement() when textPath != null:
 return textPath(_that.id,_that.text,_that.path,_that.style,_that.transform,_that.opacity,_that.time);case BrushElement() when brush != null:
 return brush(_that.id,_that.brushType,_that.size,_that.color,_that.smoothing,_that.strokes,_that.transform,_that.opacity,_that.time);case StickerElement() when sticker != null:
-return sticker(_that.id,_that.assetId,_that.transform,_that.opacity,_that.time);case OverlayElement() when overlay != null:
+return sticker(_that.id,_that.assetId,_that.color,_that.transform,_that.opacity,_that.time);case OverlayElement() when overlay != null:
 return overlay(_that.id,_that.assetId,_that.blend,_that.opacity,_that.time);case FrameElement() when frame != null:
 return frame(_that.id,_that.assetId);case _:
   return orElse();
@@ -2543,13 +2548,13 @@ return frame(_that.id,_that.assetId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String id,  String text,  TextStyleSpec style,  String? textPresetId,  ElementTransform transform,  double opacity,  TimeRange? time)  text,required TResult Function( String id,  String text,  List<StrokePoint> path,  TextStyleSpec style,  ElementTransform transform,  double opacity,  TimeRange? time)  textPath,required TResult Function( String id,  BrushType brushType,  double size,  int color,  double smoothing,  List<BrushStroke> strokes,  ElementTransform transform,  double opacity,  TimeRange? time)  brush,required TResult Function( String id,  String assetId,  ElementTransform transform,  double opacity,  TimeRange? time)  sticker,required TResult Function( String id,  String assetId,  OverlayBlend blend,  double opacity,  TimeRange? time)  overlay,required TResult Function( String id,  String assetId)  frame,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String id,  String text,  TextStyleSpec style,  String? textPresetId,  ElementTransform transform,  double opacity,  TimeRange? time)  text,required TResult Function( String id,  String text,  List<StrokePoint> path,  TextStyleSpec style,  ElementTransform transform,  double opacity,  TimeRange? time)  textPath,required TResult Function( String id,  BrushType brushType,  double size,  int color,  double smoothing,  List<BrushStroke> strokes,  ElementTransform transform,  double opacity,  TimeRange? time)  brush,required TResult Function( String id,  String assetId,  int color,  ElementTransform transform,  double opacity,  TimeRange? time)  sticker,required TResult Function( String id,  String assetId,  OverlayBlend blend,  double opacity,  TimeRange? time)  overlay,required TResult Function( String id,  String assetId)  frame,}) {final _that = this;
 switch (_that) {
 case TextElement():
 return text(_that.id,_that.text,_that.style,_that.textPresetId,_that.transform,_that.opacity,_that.time);case TextPathElement():
 return textPath(_that.id,_that.text,_that.path,_that.style,_that.transform,_that.opacity,_that.time);case BrushElement():
 return brush(_that.id,_that.brushType,_that.size,_that.color,_that.smoothing,_that.strokes,_that.transform,_that.opacity,_that.time);case StickerElement():
-return sticker(_that.id,_that.assetId,_that.transform,_that.opacity,_that.time);case OverlayElement():
+return sticker(_that.id,_that.assetId,_that.color,_that.transform,_that.opacity,_that.time);case OverlayElement():
 return overlay(_that.id,_that.assetId,_that.blend,_that.opacity,_that.time);case FrameElement():
 return frame(_that.id,_that.assetId);}
 }
@@ -2565,13 +2570,13 @@ return frame(_that.id,_that.assetId);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String id,  String text,  TextStyleSpec style,  String? textPresetId,  ElementTransform transform,  double opacity,  TimeRange? time)?  text,TResult? Function( String id,  String text,  List<StrokePoint> path,  TextStyleSpec style,  ElementTransform transform,  double opacity,  TimeRange? time)?  textPath,TResult? Function( String id,  BrushType brushType,  double size,  int color,  double smoothing,  List<BrushStroke> strokes,  ElementTransform transform,  double opacity,  TimeRange? time)?  brush,TResult? Function( String id,  String assetId,  ElementTransform transform,  double opacity,  TimeRange? time)?  sticker,TResult? Function( String id,  String assetId,  OverlayBlend blend,  double opacity,  TimeRange? time)?  overlay,TResult? Function( String id,  String assetId)?  frame,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String id,  String text,  TextStyleSpec style,  String? textPresetId,  ElementTransform transform,  double opacity,  TimeRange? time)?  text,TResult? Function( String id,  String text,  List<StrokePoint> path,  TextStyleSpec style,  ElementTransform transform,  double opacity,  TimeRange? time)?  textPath,TResult? Function( String id,  BrushType brushType,  double size,  int color,  double smoothing,  List<BrushStroke> strokes,  ElementTransform transform,  double opacity,  TimeRange? time)?  brush,TResult? Function( String id,  String assetId,  int color,  ElementTransform transform,  double opacity,  TimeRange? time)?  sticker,TResult? Function( String id,  String assetId,  OverlayBlend blend,  double opacity,  TimeRange? time)?  overlay,TResult? Function( String id,  String assetId)?  frame,}) {final _that = this;
 switch (_that) {
 case TextElement() when text != null:
 return text(_that.id,_that.text,_that.style,_that.textPresetId,_that.transform,_that.opacity,_that.time);case TextPathElement() when textPath != null:
 return textPath(_that.id,_that.text,_that.path,_that.style,_that.transform,_that.opacity,_that.time);case BrushElement() when brush != null:
 return brush(_that.id,_that.brushType,_that.size,_that.color,_that.smoothing,_that.strokes,_that.transform,_that.opacity,_that.time);case StickerElement() when sticker != null:
-return sticker(_that.id,_that.assetId,_that.transform,_that.opacity,_that.time);case OverlayElement() when overlay != null:
+return sticker(_that.id,_that.assetId,_that.color,_that.transform,_that.opacity,_that.time);case OverlayElement() when overlay != null:
 return overlay(_that.id,_that.assetId,_that.blend,_that.opacity,_that.time);case FrameElement() when frame != null:
 return frame(_that.id,_that.assetId);case _:
   return null;
@@ -2943,11 +2948,12 @@ $TimeRangeCopyWith<$Res>? get time {
 @JsonSerializable()
 
 class StickerElement implements EditElement {
-  const StickerElement({required this.id, required this.assetId, this.transform = const ElementTransform(), this.opacity = 1, this.time,  String? $type}): $type = $type ?? 'sticker';
+  const StickerElement({required this.id, required this.assetId, this.color = 0xFFF6F0E6, this.transform = const ElementTransform(), this.opacity = 1, this.time,  String? $type}): $type = $type ?? 'sticker';
   factory StickerElement.fromJson(Map<String, dynamic> json) => _$StickerElementFromJson(json);
 
 @override final  String id;
  final  String assetId;
+@JsonKey() final  int color;
 @JsonKey() final  ElementTransform transform;
 @JsonKey() final  double opacity;
  final  TimeRange? time;
@@ -2969,18 +2975,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is StickerElement&&(identical(other.id, id) || other.id == id)&&(identical(other.assetId, assetId) || other.assetId == assetId)&&(identical(other.transform, transform) || other.transform == transform)&&(identical(other.opacity, opacity) || other.opacity == opacity)&&(identical(other.time, time) || other.time == time));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is StickerElement&&(identical(other.id, id) || other.id == id)&&(identical(other.assetId, assetId) || other.assetId == assetId)&&(identical(other.color, color) || other.color == color)&&(identical(other.transform, transform) || other.transform == transform)&&(identical(other.opacity, opacity) || other.opacity == opacity)&&(identical(other.time, time) || other.time == time));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,assetId,transform,opacity,time);
+    return Object.hash(runtimeType,id,assetId,color,transform,opacity,time);
 }
 
 @override
 String toString() {
-    return 'EditElement.sticker(id: $id, assetId: $assetId, transform: $transform, opacity: $opacity, time: $time)';
+    return 'EditElement.sticker(id: $id, assetId: $assetId, color: $color, transform: $transform, opacity: $opacity, time: $time)';
 }
 
 
@@ -2991,7 +2997,7 @@ abstract mixin class $StickerElementCopyWith<$Res> implements $EditElementCopyWi
   factory $StickerElementCopyWith(StickerElement value, $Res Function(StickerElement) _then) = _$StickerElementCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String assetId, ElementTransform transform, double opacity, TimeRange? time
+ String id, String assetId, int color, ElementTransform transform, double opacity, TimeRange? time
 });
 
 
@@ -3008,11 +3014,12 @@ class _$StickerElementCopyWithImpl<$Res>
 
 /// Create a copy of EditElement
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? assetId = null,Object? transform = null,Object? opacity = null,Object? time = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? assetId = null,Object? color = null,Object? transform = null,Object? opacity = null,Object? time = freezed,}) {
   return _then(StickerElement(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,assetId: null == assetId ? _self.assetId : assetId // ignore: cast_nullable_to_non_nullable
-as String,transform: null == transform ? _self.transform : transform // ignore: cast_nullable_to_non_nullable
+as String,color: null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
+as int,transform: null == transform ? _self.transform : transform // ignore: cast_nullable_to_non_nullable
 as ElementTransform,opacity: null == opacity ? _self.opacity : opacity // ignore: cast_nullable_to_non_nullable
 as double,time: freezed == time ? _self.time : time // ignore: cast_nullable_to_non_nullable
 as TimeRange?,

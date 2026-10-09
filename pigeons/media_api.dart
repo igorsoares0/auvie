@@ -76,6 +76,35 @@ class DevelopParams {
 
 enum ExportFormat { jpeg, png }
 
+enum LayerBlend { normal, screen, multiply, overlay, softLight }
+
+/// One element rasterized by Flutter (text, brush, sticker, overlay,
+/// frame), composited over the developed photo before encoding.
+class ExportLayer {
+  ExportLayer({
+    required this.path,
+    required this.left,
+    required this.top,
+    required this.width,
+    required this.height,
+    required this.blend,
+    required this.opacity,
+  });
+
+  /// PNG file.
+  String path;
+
+  /// Where it goes, in output pixels (the PNG is scaled to fit).
+  double left;
+  double top;
+  double width;
+  double height;
+  LayerBlend blend;
+
+  /// 0…1.
+  double opacity;
+}
+
 class ExportRequest {
   ExportRequest({
     required this.uri,
@@ -86,6 +115,7 @@ class ExportRequest {
     required this.decodeMaxPx,
     required this.keepMetadata,
     required this.fileName,
+    required this.layers,
   });
 
   String uri;
@@ -102,6 +132,9 @@ class ExportRequest {
 
   /// Without extension.
   String fileName;
+
+  /// Elements in z-order, bottom first.
+  List<ExportLayer> layers;
 }
 
 class ExportResult {

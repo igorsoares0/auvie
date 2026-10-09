@@ -54,7 +54,7 @@ final class ProjectThumbnailsProvider
   }
 }
 
-String _$projectThumbnailsHash() => r'61d1182f74012f2a17769f44797b29a2daf621be';
+String _$projectThumbnailsHash() => r'40718907f8d696aacdf88994add5ab146dcfe0a3';
 
 @ProviderFor(projectStarter)
 final projectStarterProvider = ProjectStarterProvider._();

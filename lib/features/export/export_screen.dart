@@ -13,6 +13,8 @@ import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/native/media_engine.dart';
 import 'package:auvie/core/native/media_engine_provider.dart';
 import 'package:auvie/core/platform/share_service.dart';
+import 'package:auvie/features/editor/elements/element_assets_provider.dart';
+import 'package:auvie/features/editor/elements/elements_painter.dart';
 import 'package:auvie/features/editor/shell/edit_caption.dart';
 import 'package:auvie/features/export/export_controller.dart';
 import 'package:auvie/features/export/export_error_sheet.dart';
@@ -102,18 +104,39 @@ class ExportScreen extends ConsumerWidget {
       .shareFile(result.filePath, mimeType: format.mimeType);
 }
 
-/// The developed, cropped photo.
+/// The developed, cropped photo with its elements.
 class _Photo extends ConsumerWidget {
-  const new({required this.projectId, this.fit = BoxFit.contain});
+  const new({required this.projectId});
 
   final String projectId;
-  final BoxFit fit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bytes = ref.watch(exportPreviewProvider(projectId)).value;
-    if (bytes == null) return ColoredBox(color: context.palette.hairline);
-    return Image.memory(bytes, fit: fit, gaplessPlayback: true);
+    final session = ref.watch(exportControllerProvider(projectId)).value;
+    final assets = ref.watch(elementAssetsProvider).value;
+    if (bytes == null || session == null) {
+      return ColoredBox(color: context.palette.hairline);
+    }
+    final project = session.project;
+    return Center(
+      child: AspectRatio(
+        aspectRatio: project.edit.crop.outputRatio(project.media.aspectRatio),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.memory(bytes, fit: BoxFit.cover, gaplessPlayback: true),
+            if (assets != null)
+              CustomPaint(
+                painter: ElementsPainter(
+                  elements: project.edit.elements,
+                  assets: assets,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -175,7 +198,7 @@ class _Options extends ConsumerWidget {
               SizedBox(
                 width: 92,
                 height: 116,
-                child: _Photo(projectId: projectId, fit: BoxFit.cover),
+                child: _Photo(projectId: projectId),
               ),
               const SizedBox(width: AuvieSpacing.s14),
               Expanded(
@@ -430,7 +453,7 @@ class _Exporting extends ConsumerWidget {
                     return Stack(
                       fit: StackFit.expand,
                       children: [
-                        _Photo(projectId: projectId, fit: BoxFit.cover),
+                        _Photo(projectId: projectId),
                         Positioned(
                           left: 0,
                           right: 0,
@@ -576,7 +599,7 @@ class _Done extends ConsumerWidget {
                   decoration: const BoxDecoration(color: AuvieColors.bone),
                   child: Padding(
                     padding: const EdgeInsets.all(10),
-                    child: _Photo(projectId: projectId, fit: BoxFit.cover),
+                    child: _Photo(projectId: projectId),
                   ),
                 ),
               ),

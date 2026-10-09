@@ -9,19 +9,20 @@ String describeEdit(EditState edit, Preset? preset) {
       edit.adjustments.values.length +
       (edit.curves.isIdentity ? 0 : 1) +
       (edit.crop.isIdentity ? 0 : 1);
-  final adjustments = count == 0
-      ? null
-      : '${_numberWord(count)} adjustment${count == 1 ? '' : 's'}';
+  String? counted(int n, String noun) =>
+      n == 0 ? null : '${_numberWord(n)} $noun${n == 1 ? '' : 's'}';
+  final rest = [
+    ?counted(count, 'adjustment'),
+    ?counted(edit.elements.length, 'element'),
+  ].join(', ');
 
   if (ref == null || preset == null) {
-    if (adjustments == null) return 'Original';
-    return adjustments[0].toUpperCase() + adjustments.substring(1);
+    if (rest.isEmpty) return 'Original';
+    return rest[0].toUpperCase() + rest.substring(1);
   }
   final name = presetBaseName(preset.name);
   final percent = (ref.intensity * 100).round();
-  return adjustments == null
-      ? '$name, at $percent%'
-      : '$name $percent%, $adjustments';
+  return rest.isEmpty ? '$name, at $percent%' : '$name $percent%, $rest';
 }
 
 /// "Ektar 02" → "Ektar"; names without a stock number stay whole.

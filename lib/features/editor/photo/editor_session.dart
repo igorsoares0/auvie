@@ -1,6 +1,8 @@
 import 'package:auvie/core/models/edit_state.dart';
+import 'package:auvie/core/models/elements.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/features/editor/adjustments/adjustment_family.dart';
+import 'package:auvie/features/editor/elements/text_presets.dart';
 import 'package:auvie/features/editor/history/edit_history.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -11,13 +13,29 @@ enum EditorTool {
   film,
   adjust,
 
-  /// TYPE, BRUSH and ADD are built in M5.
   type,
   brush,
   add;
 
-  bool get isAvailable => this == film || this == adjust;
+  bool get isAvailable => true;
 }
+
+/// TYPE's two modes (handoff 04).
+enum TypeMode { setType, textBrush }
+
+/// ADD's tabs.
+enum AddTab { stickers, overlays, frames }
+
+/// Current BRUSH settings: `size` is a fraction of the shorter side.
+typedef BrushSettings = ({
+  BrushType type,
+  double size,
+  int color,
+  double opacity,
+});
+
+const ({int color, double opacity, double size, BrushType type}) defaultBrush =
+    (type: BrushType.pen, size: 0.008, color: 0xFFF6F0E6, opacity: 1.0);
 
 /// Special FILM category listing favorites.
 const savedCategory = 'saved';
@@ -36,9 +54,30 @@ abstract class EditorSession with _$EditorSession {
 
     /// Collection id, or [savedCategory].
     String? category,
+
+    /// Element shown with its frame and pill.
+    String? selectedElementId,
+
+    /// Text element being typed (the keyboard is up).
+    String? editingElementId,
+    @Default(TypeMode.setType) TypeMode typeMode,
+
+    /// Look of the next text added (when no text is selected).
+    @Default(TextPreset.didone) TextPreset textPreset,
+    @Default(0xFFF6F0E6) int textColor,
+    @Default(defaultBrush) BrushSettings brush,
+
+    /// Brush element strokes are added to, while its settings don't change.
+    String? activeBrushId,
+    @Default(AddTab.stickers) AddTab addTab,
   }) = _EditorSession;
 
   const new _();
 
   EditState get edit => history.present;
+
+  EditElement? element(String? id) =>
+      id == null ? null : edit.elements.where((e) => e.id == id).firstOrNull;
+
+  EditElement? get selected => element(selectedElementId);
 }

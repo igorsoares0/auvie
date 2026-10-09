@@ -13,7 +13,7 @@ enum TextAlignment { left, center, right }
 enum BrushType { pen, marker, pencil, chalk, paint, highlighter }
 
 /// How an overlay (light leak, dust, film burn…) blends with the media.
-enum OverlayBlend { screen, multiply, overlay, softLight }
+enum OverlayBlend { screen, multiply, overlay, softLight, normal }
 
 /// Position (center), scale and rotation of an element.
 @freezed
@@ -94,6 +94,9 @@ abstract class TextStyleSpec with _$TextStyleSpec {
     /// In em.
     @Default(0) double letterSpacing,
     @Default(1.2) double lineHeight,
+
+    /// Set in capitals (Grotesk).
+    @Default(false) bool uppercase,
     TextShadowSpec? shadow,
     TextOutlineSpec? outline,
     TextBackgroundSpec? background,
@@ -159,9 +162,11 @@ sealed class EditElement with _$EditElement {
     TimeRange? time,
   }) = BrushElement;
 
+  /// A line-art sticker tinted with [color] (its SVG uses currentColor).
   const factory sticker({
     required String id,
     required String assetId,
+    @Default(0xFFF6F0E6) int color,
     @Default(ElementTransform()) ElementTransform transform,
     @Default(1) double opacity,
     TimeRange? time,

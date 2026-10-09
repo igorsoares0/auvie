@@ -11,6 +11,7 @@ import app.auvie.engine.pigeon.ExportRequest
 import app.auvie.engine.pigeon.ExportResult
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 
@@ -58,7 +59,7 @@ class PhotoExporter(
                     }
                     canvas.drawBitmap(part, tile.x.toFloat(), tile.y.toFloat(), null)
                     part.recycle()
-                    progress(RENDER_START + (ENCODE_START - RENDER_START) * (i + 1) / tiles.size, STAGE_RENDER)
+                    progress(RENDER_START + (COMPOSE_START - RENDER_START) * (i + 1) / tiles.size, STAGE_RENDER)
                 }
             } catch (e: Throwable) {
                 output.recycle()
@@ -66,6 +67,29 @@ class PhotoExporter(
             }
         } finally {
             engine.thread.call { source.release() }
+        }
+
+        if (request.layers.isNotEmpty()) {
+            progress(COMPOSE_START, STAGE_COMPOSE)
+            val job = coroutineContext[Job]
+            try {
+                withContext(Dispatchers.IO) {
+                    LayerCompositor.compose(
+                        output,
+                        request.layers,
+                        scale = size.width.toFloat() / request.outputWidth,
+                    ) { i ->
+                        job?.ensureActive()
+                        progress(
+                            COMPOSE_START + (ENCODE_START - COMPOSE_START) * (i + 1) / request.layers.size,
+                            STAGE_COMPOSE,
+                        )
+                    }
+                }
+            } catch (e: Throwable) {
+                output.recycle()
+                throw e
+            }
         }
 
         val file = store.newFile(ExportPlanner.fileName(request.fileName, request.format))
@@ -110,10 +134,12 @@ class PhotoExporter(
     companion object {
         const val STAGE_DECODE = "decode"
         const val STAGE_RENDER = "render"
+        const val STAGE_COMPOSE = "compose"
         const val STAGE_ENCODE = "encode"
         const val STAGE_SAVE = "save"
         private const val RENDER_START = 0.25
-        private const val ENCODE_START = 0.75
+        private const val COMPOSE_START = 0.7
+        private const val ENCODE_START = 0.78
         private const val SAVE_START = 0.92
     }
 }

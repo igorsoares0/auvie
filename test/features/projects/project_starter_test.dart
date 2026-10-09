@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:auvie/app/settings/app_settings.dart';
+import 'package:auvie/core/content/catalog.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/storage/app_paths.dart';
 import 'package:auvie/core/storage/database.dart';
 import 'package:auvie/core/storage/project_repository.dart';
+import 'package:auvie/features/editor/elements/element_assets.dart';
 import 'package:auvie/features/projects/project_starter.dart';
 import 'package:auvie/features/projects/project_thumbnails.dart';
 import 'package:drift/native.dart';
@@ -38,6 +40,9 @@ void main() {
         engine: engine,
         repository: repository,
         paths: Future.value(paths),
+        assets: Future.value(
+          const ElementAssets(catalog: Catalog(catalogVersion: 1)),
+        ),
       ),
       settings: AppSettings(await SharedPreferences.getInstance()),
     );

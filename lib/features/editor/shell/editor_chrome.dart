@@ -6,18 +6,37 @@ import 'package:auvie/app/widgets/caps_link.dart';
 import 'package:auvie/features/editor/photo/editor_session.dart';
 import 'package:flutter/material.dart';
 
-/// CLOSE / "Roll 014 · 07" / EXPORT.
+/// CLOSE / "Roll 014 · 07" / EXPORT, or CANCEL / title / DONE while
+/// typing (handoff 04).
 class EditorHeader extends StatelessWidget {
   const new({
     required this.title,
-    required this.onClose,
-    required this.onExport,
+    required VoidCallback onClose,
+    required VoidCallback onExport,
     super.key,
-  });
+  }) : _left = 'Close',
+       _right = 'EXPORT',
+       _onLeft = onClose,
+       _onRight = onExport,
+       _keys = const ('editor-close', 'editor-export');
+
+  const new typing({
+    required this.title,
+    required VoidCallback onCancel,
+    required VoidCallback onDone,
+    super.key,
+  }) : _left = 'Cancel',
+       _right = 'DONE',
+       _onLeft = onCancel,
+       _onRight = onDone,
+       _keys = const ('typing-cancel', 'typing-done');
 
   final String? title;
-  final VoidCallback onClose;
-  final VoidCallback onExport;
+  final String _left;
+  final String _right;
+  final VoidCallback _onLeft;
+  final VoidCallback _onRight;
+  final (String, String) _keys;
 
   @override
   Widget build(BuildContext context) {
@@ -35,10 +54,10 @@ class EditorHeader extends StatelessWidget {
         child: Row(
           children: [
             CapsLink(
-              'Close',
-              key: const Key('editor-close'),
+              _left,
+              key: Key(_keys.$1),
               color: palette.mutedStrong,
-              onTap: onClose,
+              onTap: _onLeft,
             ),
             Expanded(
               child: Text.rich(
@@ -66,9 +85,9 @@ class EditorHeader extends StatelessWidget {
             Semantics(
               button: true,
               child: GestureDetector(
-                key: const Key('editor-export'),
+                key: Key(_keys.$2),
                 behavior: HitTestBehavior.opaque,
-                onTap: onExport,
+                onTap: _onRight,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: DecoratedBox(
@@ -80,7 +99,7 @@ class EditorHeader extends StatelessWidget {
                         horizontal: 12,
                         vertical: 10,
                       ),
-                      child: Text('EXPORT', style: context.type.buttonLabel),
+                      child: Text(_right, style: context.type.buttonLabel),
                     ),
                   ),
                 ),

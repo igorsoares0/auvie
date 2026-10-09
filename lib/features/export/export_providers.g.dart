@@ -67,7 +67,7 @@ final class ExportPreviewProvider
   }
 }
 
-String _$exportPreviewHash() => r'3ff1cedc4d0405fb20c599683f246f753849c3a3';
+String _$exportPreviewHash() => r'6a079f35659e42729da90597ddc805b635ffbed4';
 
 /// The edited, cropped photo shown on the Export screens.
 

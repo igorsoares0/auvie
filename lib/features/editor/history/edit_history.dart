@@ -68,6 +68,13 @@ class EditHistory<T> {
     );
   }
 
+  /// Drops the previews since the last commit (e.g. CANCEL while typing).
+  EditHistory<T> discard() {
+    final start = _gestureStart;
+    if (start == null) return this;
+    return EditHistory._(_past, start, _future, null, limit);
+  }
+
   EditHistory<T> undo() {
     final base = commit();
     if (base._past.isEmpty) return base;

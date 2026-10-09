@@ -130,10 +130,14 @@ void main() {
     await tester.pump(PhotoEditor.saveDelay); // Let the autosave run.
   });
 
-  testWidgets('tools for later milestones are disabled', (tester) async {
+  testWidgets('every tool opens its panel', (tester) async {
     await openEditor(tester);
     await tapKey(tester, 'tool-type');
-    expect(find.text('HOLD TO COMPARE'), findsOneWidget); // Still on FILM.
+    expect(find.text('SET TYPE'), findsOneWidget);
+    await tapKey(tester, 'tool-brush');
+    expect(find.text('MARKER'), findsOneWidget);
+    await tapKey(tester, 'tool-add');
+    expect(find.text('STICKERS'), findsOneWidget);
   });
 
   testWidgets('holding the photo shows the original', (tester) async {

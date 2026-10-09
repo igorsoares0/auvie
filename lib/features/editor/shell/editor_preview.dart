@@ -7,6 +7,7 @@ import 'package:auvie/core/native/preview_size.dart';
 import 'package:auvie/core/native/render_params.dart';
 import 'package:auvie/features/editor/adjustments/adjustment_family.dart';
 import 'package:auvie/features/editor/crop/crop_overlay.dart';
+import 'package:auvie/features/editor/elements/elements_layer.dart';
 import 'package:auvie/features/editor/photo/editor_session.dart';
 import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
 import 'package:flutter/material.dart';
@@ -176,6 +177,10 @@ class _EditorPreviewState extends ConsumerState<EditorPreview> {
                       : () => _compare(original: false),
                   child: Texture(textureId: preview.textureId),
                 ),
+                if (!cropping)
+                  Positioned.fill(
+                    child: ElementsLayer(projectId: widget.projectId),
+                  ),
                 if (cropping)
                   CropOverlay(
                     rect: crop.rect,

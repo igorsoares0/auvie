@@ -46,8 +46,23 @@ typedef PhotoPreview = ({int textureId, int width, int height});
 
 enum ExportFormat { jpeg, png }
 
+enum LayerBlend { normal, screen, multiply, overlay, softLight }
+
+/// An element rasterized to `path` (PNG), placed at `left`, `top`,
+/// `width` × `height` output pixels.
+typedef ExportLayerSpec = ({
+  String path,
+  double left,
+  double top,
+  double width,
+  double height,
+  LayerBlend blend,
+  double opacity,
+});
+
 /// A full-size photo export (spec §34). `decodeMaxPx` is the longer side to
-/// decode the original at; `fileName` has no extension.
+/// decode the original at; `fileName` has no extension; `layers` are the
+/// elements, bottom first.
 typedef ExportJob = ({
   String uri,
   RenderParams params,
@@ -57,6 +72,7 @@ typedef ExportJob = ({
   int decodeMaxPx,
   bool keepMetadata,
   String fileName,
+  List<ExportLayerSpec> layers,
 });
 
 /// `mediaUri` is the copy in Pictures/Auvie; `filePath` the app's copy, for

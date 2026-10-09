@@ -298,7 +298,10 @@ as bool,
 /// @nodoc
 mixin _$ContentAsset {
 
- String get id; ContentAssetType get type; String get name; String get file; String? get collectionId; String? get thumbnail; bool get isPremium; int get version;
+ String get id; ContentAssetType get type; String get name;/// Asset path (bundled) or URL (remote, M8). Empty for generated content.
+ String get file; String? get collectionId; String? get thumbnail; bool get isPremium; int get version;/// Type-specific settings: overlays `{generator, blend, opacity}`,
+/// frames `{style, color, margin}`.
+ Map<String, Object?> get params;
 /// Create a copy of ContentAsset
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -312,20 +315,20 @@ $ContentAssetCopyWith<ContentAsset> get copyWith => _$ContentAssetCopyWithImpl<C
 @override
 bool operator ==(Object other) {
   final _this = this as ContentAsset;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ContentAsset&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.file, _this.file) || other.file == _this.file)&&(identical(other.collectionId, _this.collectionId) || other.collectionId == _this.collectionId)&&(identical(other.thumbnail, _this.thumbnail) || other.thumbnail == _this.thumbnail)&&(identical(other.isPremium, _this.isPremium) || other.isPremium == _this.isPremium)&&(identical(other.version, _this.version) || other.version == _this.version));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ContentAsset&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.file, _this.file) || other.file == _this.file)&&(identical(other.collectionId, _this.collectionId) || other.collectionId == _this.collectionId)&&(identical(other.thumbnail, _this.thumbnail) || other.thumbnail == _this.thumbnail)&&(identical(other.isPremium, _this.isPremium) || other.isPremium == _this.isPremium)&&(identical(other.version, _this.version) || other.version == _this.version)&&const DeepCollectionEquality().equals(other.params, _this.params));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as ContentAsset;
-  return Object.hash(runtimeType,_this.id,_this.type,_this.name,_this.file,_this.collectionId,_this.thumbnail,_this.isPremium,_this.version);
+  return Object.hash(runtimeType,_this.id,_this.type,_this.name,_this.file,_this.collectionId,_this.thumbnail,_this.isPremium,_this.version,const DeepCollectionEquality().hash(_this.params));
 }
 
 @override
 String toString() {
   final _this = this as ContentAsset;
-  return 'ContentAsset(id: ${_this.id}, type: ${_this.type}, name: ${_this.name}, file: ${_this.file}, collectionId: ${_this.collectionId}, thumbnail: ${_this.thumbnail}, isPremium: ${_this.isPremium}, version: ${_this.version})';
+  return 'ContentAsset(id: ${_this.id}, type: ${_this.type}, name: ${_this.name}, file: ${_this.file}, collectionId: ${_this.collectionId}, thumbnail: ${_this.thumbnail}, isPremium: ${_this.isPremium}, version: ${_this.version}, params: ${_this.params})';
 }
 
 
@@ -336,7 +339,7 @@ abstract mixin class $ContentAssetCopyWith<$Res>  {
   factory $ContentAssetCopyWith(ContentAsset value, $Res Function(ContentAsset) _then) = _$ContentAssetCopyWithImpl;
 @useResult
 $Res call({
- String id, ContentAssetType type, String name, String file, String? collectionId, String? thumbnail, bool isPremium, int version
+ String id, ContentAssetType type, String name, String file, String? collectionId, String? thumbnail, bool isPremium, int version, Map<String, Object?> params
 });
 
 
@@ -353,7 +356,7 @@ class _$ContentAssetCopyWithImpl<$Res>
 
 /// Create a copy of ContentAsset
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? type = null,Object? name = null,Object? file = null,Object? collectionId = freezed,Object? thumbnail = freezed,Object? isPremium = null,Object? version = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? type = null,Object? name = null,Object? file = null,Object? collectionId = freezed,Object? thumbnail = freezed,Object? isPremium = null,Object? version = null,Object? params = null,}) {
   return _then(ContentAsset(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
@@ -363,7 +366,8 @@ as String,collectionId: freezed == collectionId ? _self.collectionId : collectio
 as String?,thumbnail: freezed == thumbnail ? _self.thumbnail : thumbnail // ignore: cast_nullable_to_non_nullable
 as String?,isPremium: null == isPremium ? _self.isPremium : isPremium // ignore: cast_nullable_to_non_nullable
 as bool,version: null == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
-as int,
+as int,params: null == params ? _self.params : params // ignore: cast_nullable_to_non_nullable
+as Map<String, Object?>,
   ));
 }
 
@@ -448,10 +452,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  ContentAssetType type,  String name,  String file,  String? collectionId,  String? thumbnail,  bool isPremium,  int version)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  ContentAssetType type,  String name,  String file,  String? collectionId,  String? thumbnail,  bool isPremium,  int version,  Map<String, Object?> params)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ContentAsset() when $default != null:
-return $default(_that.id,_that.type,_that.name,_that.file,_that.collectionId,_that.thumbnail,_that.isPremium,_that.version);case _:
+return $default(_that.id,_that.type,_that.name,_that.file,_that.collectionId,_that.thumbnail,_that.isPremium,_that.version,_that.params);case _:
   return orElse();
 
 }
@@ -469,10 +473,10 @@ return $default(_that.id,_that.type,_that.name,_that.file,_that.collectionId,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  ContentAssetType type,  String name,  String file,  String? collectionId,  String? thumbnail,  bool isPremium,  int version)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  ContentAssetType type,  String name,  String file,  String? collectionId,  String? thumbnail,  bool isPremium,  int version,  Map<String, Object?> params)  $default,) {final _that = this;
 switch (_that) {
 case _ContentAsset():
-return $default(_that.id,_that.type,_that.name,_that.file,_that.collectionId,_that.thumbnail,_that.isPremium,_that.version);case _:
+return $default(_that.id,_that.type,_that.name,_that.file,_that.collectionId,_that.thumbnail,_that.isPremium,_that.version,_that.params);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -489,10 +493,10 @@ return $default(_that.id,_that.type,_that.name,_that.file,_that.collectionId,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  ContentAssetType type,  String name,  String file,  String? collectionId,  String? thumbnail,  bool isPremium,  int version)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  ContentAssetType type,  String name,  String file,  String? collectionId,  String? thumbnail,  bool isPremium,  int version,  Map<String, Object?> params)?  $default,) {final _that = this;
 switch (_that) {
 case _ContentAsset() when $default != null:
-return $default(_that.id,_that.type,_that.name,_that.file,_that.collectionId,_that.thumbnail,_that.isPremium,_that.version);case _:
+return $default(_that.id,_that.type,_that.name,_that.file,_that.collectionId,_that.thumbnail,_that.isPremium,_that.version,_that.params);case _:
   return null;
 
 }
@@ -504,17 +508,29 @@ return $default(_that.id,_that.type,_that.name,_that.file,_that.collectionId,_th
 @JsonSerializable()
 
 class _ContentAsset implements ContentAsset {
-  const _ContentAsset({required this.id, required this.type, required this.name, required this.file, this.collectionId, this.thumbnail, this.isPremium = false, this.version = 1});
+  const _ContentAsset({required this.id, required this.type, required this.name, this.file = '', this.collectionId, this.thumbnail, this.isPremium = false, this.version = 1,  Map<String, Object?> params = const <String, Object?>{}}): _params = params;
   factory _ContentAsset.fromJson(Map<String, dynamic> json) => _$ContentAssetFromJson(json);
 
 @override final  String id;
 @override final  ContentAssetType type;
 @override final  String name;
-@override final  String file;
+/// Asset path (bundled) or URL (remote, M8). Empty for generated content.
+@override@JsonKey() final  String file;
 @override final  String? collectionId;
 @override final  String? thumbnail;
 @override@JsonKey() final  bool isPremium;
 @override@JsonKey() final  int version;
+/// Type-specific settings: overlays `{generator, blend, opacity}`,
+/// frames `{style, color, margin}`.
+ final  Map<String, Object?> _params;
+/// Type-specific settings: overlays `{generator, blend, opacity}`,
+/// frames `{style, color, margin}`.
+@override@JsonKey() Map<String, Object?> get params {
+  if (_params is EqualUnmodifiableMapView) return _params;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_params);
+}
+
 
 /// Create a copy of ContentAsset
 /// with the given fields replaced by the non-null parameter values.
@@ -529,18 +545,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ContentAsset&&(identical(other.id, id) || other.id == id)&&(identical(other.type, type) || other.type == type)&&(identical(other.name, name) || other.name == name)&&(identical(other.file, file) || other.file == file)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.thumbnail, thumbnail) || other.thumbnail == thumbnail)&&(identical(other.isPremium, isPremium) || other.isPremium == isPremium)&&(identical(other.version, version) || other.version == version));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ContentAsset&&(identical(other.id, id) || other.id == id)&&(identical(other.type, type) || other.type == type)&&(identical(other.name, name) || other.name == name)&&(identical(other.file, file) || other.file == file)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.thumbnail, thumbnail) || other.thumbnail == thumbnail)&&(identical(other.isPremium, isPremium) || other.isPremium == isPremium)&&(identical(other.version, version) || other.version == version)&&const DeepCollectionEquality().equals(other.params, _params));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,type,name,file,collectionId,thumbnail,isPremium,version);
+    return Object.hash(runtimeType,id,type,name,file,collectionId,thumbnail,isPremium,version,const DeepCollectionEquality().hash(_params));
 }
 
 @override
 String toString() {
-    return 'ContentAsset(id: $id, type: $type, name: $name, file: $file, collectionId: $collectionId, thumbnail: $thumbnail, isPremium: $isPremium, version: $version)';
+    return 'ContentAsset(id: $id, type: $type, name: $name, file: $file, collectionId: $collectionId, thumbnail: $thumbnail, isPremium: $isPremium, version: $version, params: $params)';
 }
 
 
@@ -551,7 +567,7 @@ abstract mixin class _$ContentAssetCopyWith<$Res> implements $ContentAssetCopyWi
   factory _$ContentAssetCopyWith(_ContentAsset value, $Res Function(_ContentAsset) _then) = __$ContentAssetCopyWithImpl;
 @override @useResult
 $Res call({
- String id, ContentAssetType type, String name, String file, String? collectionId, String? thumbnail, bool isPremium, int version
+ String id, ContentAssetType type, String name, String file, String? collectionId, String? thumbnail, bool isPremium, int version, Map<String, Object?> params
 });
 
 
@@ -568,7 +584,7 @@ class __$ContentAssetCopyWithImpl<$Res>
 
 /// Create a copy of ContentAsset
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? type = null,Object? name = null,Object? file = null,Object? collectionId = freezed,Object? thumbnail = freezed,Object? isPremium = null,Object? version = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? type = null,Object? name = null,Object? file = null,Object? collectionId = freezed,Object? thumbnail = freezed,Object? isPremium = null,Object? version = null,Object? params = null,}) {
   return _then(_ContentAsset(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
@@ -578,7 +594,8 @@ as String,collectionId: freezed == collectionId ? _self.collectionId : collectio
 as String?,thumbnail: freezed == thumbnail ? _self.thumbnail : thumbnail // ignore: cast_nullable_to_non_nullable
 as String?,isPremium: null == isPremium ? _self.isPremium : isPremium // ignore: cast_nullable_to_non_nullable
 as bool,version: null == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
-as int,
+as int,params: null == params ? _self._params : params // ignore: cast_nullable_to_non_nullable
+as Map<String, Object?>,
   ));
 }
 

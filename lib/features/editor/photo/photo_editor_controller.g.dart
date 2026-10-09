@@ -8,6 +8,61 @@ part of 'photo_editor_controller.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Makes ids for new elements (overridable so tests are deterministic:
+/// brush and overlay textures are seeded by the id).
+
+@ProviderFor(elementIds)
+final elementIdsProvider = ElementIdsProvider._();
+
+/// Makes ids for new elements (overridable so tests are deterministic:
+/// brush and overlay textures are seeded by the id).
+
+final class ElementIdsProvider
+    extends
+        $FunctionalProvider<
+          String Function(),
+          String Function(),
+          String Function()
+        >
+    with $Provider<String Function()> {
+  /// Makes ids for new elements (overridable so tests are deterministic:
+  /// brush and overlay textures are seeded by the id).
+  ElementIdsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'elementIdsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$elementIdsHash();
+
+  @$internal
+  @override
+  $ProviderElement<String Function()> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  String Function() create(Ref ref) {
+    return elementIds(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(String Function() value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<String Function()>(value),
+    );
+  }
+}
+
+String _$elementIdsHash() => r'990f63c670504e986dde2e5f113d01fab7b3bc31';
+
 /// State and actions of the photo editor for one project. Edits autosave
 /// [saveDelay] after the last change (spec: errors never discard an edit).
 
@@ -56,7 +111,7 @@ final class PhotoEditorProvider
   }
 }
 
-String _$photoEditorHash() => r'4f332bc6761bd8e7c469878b3cccbca69afe4ef4';
+String _$photoEditorHash() => r'bee2581303ced7dd92ada57d94e851a54ea2c97a';
 
 /// State and actions of the photo editor for one project. Edits autosave
 /// [saveDelay] after the last change (spec: errors never discard an edit).

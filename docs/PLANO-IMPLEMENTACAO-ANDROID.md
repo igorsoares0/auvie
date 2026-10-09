@@ -254,6 +254,8 @@ Tamanho relativo: **P** pequeno · **M** médio · **G** grande.
 
 > ✅ Ao fim da M5: MVP de foto completo (spec §68, itens 1–9).
 
+**Estado (2026-10-09):** concluída; testes no aparelho verdes. Elementos desenhados por um único `ElementsPainter` em Flutter (preview, miniaturas e export); no export, cada elemento vira uma camada PNG que o Kotlin compõe com o modo de mesclagem dele (`LayerCompositor`). Pacote inicial de conteúdo criado: 12 stickers SVG, 6 overlays gerados por código, 4 molduras por parâmetros. Texto com 7 estilos (Didone, Grotesk, Typewriter, Hand, Classic, Bold, Film) e linha STYLE (alinhar, sombra, contorno, fundo, opacidade).
+
 ### M6 — Video engine (G)
 - Picker de vídeo, `probe` (duração, fps, rotação, faixa de áudio).
 - Preview: ExoPlayer → `SurfaceProducer` com `setVideoEffects(DevelopGlEffect, crop, overlays)`; play/pause/seek; timecode.

@@ -53,7 +53,7 @@ final class ExportControllerProvider
   }
 }
 
-String _$exportControllerHash() => r'6dd52c041e459043e4435396cab8138a7de4631f';
+String _$exportControllerHash() => r'0633f031d3aba2982d7891f051baaf468d0c212e';
 
 /// The Export screen for one project (spec §34–35, handoff 07 / S3–S5).
 
