@@ -70,7 +70,7 @@ final class PresetThumbnailProvider
   }
 }
 
-String _$presetThumbnailHash() => r'127c9872315a708a6d6b0bdea50bd068d6f2862c';
+String _$presetThumbnailHash() => r'3b9c5d6e2327a8594988241a029fbe5517d10570';
 
 /// The user's photo developed with [presetId] at full intensity (null:
 /// the original). Kept while a card shows it.

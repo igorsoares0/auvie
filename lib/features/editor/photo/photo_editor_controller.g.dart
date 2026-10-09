@@ -56,7 +56,7 @@ final class PhotoEditorProvider
   }
 }
 
-String _$photoEditorHash() => r'87380f17dcbe8dbd6feb74afdc26c1542c719f16';
+String _$photoEditorHash() => r'4f332bc6761bd8e7c469878b3cccbca69afe4ef4';
 
 /// State and actions of the photo editor for one project. Edits autosave
 /// [saveDelay] after the last change (spec: errors never discard an edit).

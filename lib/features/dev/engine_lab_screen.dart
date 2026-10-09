@@ -89,7 +89,11 @@ class _EngineLabScreenState extends ConsumerState<EngineLabScreen> {
     unawaited(
       _engine.updateEdit(
         preview.textureId,
-        RenderParams.fromEdit(_edit, _preset),
+        RenderParams.fromEdit(
+          _edit,
+          _preset,
+          mediaRatio: _media?.aspectRatio ?? 1,
+        ),
       ),
     );
   }
@@ -112,7 +116,11 @@ class _EngineLabScreenState extends ConsumerState<EngineLabScreen> {
     if (media == null) return;
     final bytes = await _engine.renderPhoto(
       media.uri,
-      RenderParams.fromEdit(_edit, _preset),
+      RenderParams.fromEdit(
+        _edit,
+        _preset,
+        mediaRatio: _media?.aspectRatio ?? 1,
+      ),
       maxPx: 1080,
     );
     if (!mounted) return;

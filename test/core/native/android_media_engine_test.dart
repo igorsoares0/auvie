@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:auvie/core/models/adjustment.dart';
 import 'package:auvie/core/models/adjustments.dart';
@@ -47,6 +48,7 @@ void main() {
         fade: 0,
         vignette: 0,
         curveLut: Uint8List(0),
+        geometry: Float64List(6),
       ),
     );
   });
@@ -71,9 +73,10 @@ void main() {
       }
     });
 
-    test('sends the curve LUT', () {
+    test('sends the curve LUT and the geometry', () {
       final params = developParamsFrom(RenderParams.neutral);
       expect(params.curveLut, RenderParams.neutral.curveLut);
+      expect(params.geometry, [1, 0, 0, 1, 0, 0]);
     });
 
     test('the shared shader vectors use the same parameter names', () {

@@ -239,6 +239,9 @@ Tamanho relativo: **P** pequeno · **M** médio · **G** grande.
 
 **Testes:** instrumentado (dimensões por opção de tamanho, formato, EXIF removido/mantido, arquivo visível no MediaStore, imagem 48 MP não estoura memória); unit do cálculo de crop/aspect; widget tests dos estados S3–S5 com engine fake emitindo progresso/erro.
 
+**Estado (2026-10-09):** concluída; testes no aparelho verdes no Redmi Note 10. A geometria (recorte, giros, flip, endireitar) é calculada em Dart (`lib/core/models/crop_geometry.dart`) e aplicada pelo shader, igual no preview e no export. Export em blocos de 2048 px, teto de 32 MP, salvo em `Pictures/Auvie`.
+**Fora por ora:** STORY no S4 (exige App ID da Meta); a faixa de aviso Pro na tela Export entra na M7.
+
 ### M5 — Elements (G)
 - Sistema genérico de elementos (§18): seleção, mover/escalar/rotacionar (gestos), duplicar, excluir, opacidade, z-order.
 - **Texto** (§19): fonte, tamanho, peso, alinhamento, cor, letter spacing, line height, sombra, outline, fundo; text presets (§20).

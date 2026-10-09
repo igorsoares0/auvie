@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:auvie/app/theme/app_theme.dart';
-import 'package:auvie/core/models/adjustment.dart';
 import 'package:auvie/features/editor/adjustments/ruler_scale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,7 +9,8 @@ import 'package:flutter/services.dart';
 /// haptic at 0 and every major tick; double-tap resets.
 class LensRuler extends StatefulWidget {
   const new({
-    required this.adjustment,
+    required this.scale,
+    required this.labels,
     required this.value,
     required this.onPreview,
     required this.onCommit,
@@ -18,7 +18,10 @@ class LensRuler extends StatefulWidget {
     super.key,
   });
 
-  final Adjustment adjustment;
+  final RulerScale scale;
+
+  /// Left, middle and right labels (e.g. "−1.0", "0", "+1.0").
+  final List<String> labels;
   final double value;
   final ValueChanged<double> onPreview;
   final VoidCallback onCommit;
@@ -38,7 +41,7 @@ class _LensRulerState extends State<LensRuler> {
   }
 
   void _drag(DragUpdateDetails details, double width) {
-    final scale = RulerScale(widget.adjustment);
+    final scale = widget.scale;
     final next = scale.drag(_value, details.delta.dx, width);
     if (scale.crossedMajor(_value, next) != null) {
       unawaited(HapticFeedback.selectionClick());
@@ -50,10 +53,8 @@ class _LensRulerState extends State<LensRuler> {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    final scale = RulerScale(widget.adjustment);
-    final labels = widget.adjustment.min < 0
-        ? const ['−1.0', '0', '+1.0']
-        : const ['0', '0.5', '1.0'];
+    final scale = widget.scale;
+    final labels = widget.labels;
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
@@ -152,7 +153,7 @@ class _RulerPainter extends CustomPainter {
   @override
   bool shouldRepaint(_RulerPainter old) =>
       old.value != value ||
-      old.scale.adjustment != scale.adjustment ||
+      old.scale != scale ||
       old.tick != tick ||
       old.accent != accent;
 }

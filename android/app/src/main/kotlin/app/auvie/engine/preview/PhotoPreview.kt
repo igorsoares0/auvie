@@ -25,6 +25,10 @@ class PhotoPreview private constructor(
     val width: Int get() = source.width
     val height: Int get() = source.height
 
+    /** Size of the developed output shown (the crop's aspect). */
+    @Volatile private var outputWidth = source.width
+    @Volatile private var outputHeight = source.height
+
     @Volatile private var settings = DevelopSettings.NEUTRAL
     @Volatile private var showOriginal = false
     @Volatile private var surface: Surface? = null
@@ -45,6 +49,17 @@ class PhotoPreview private constructor(
 
     fun update(settings: DevelopSettings) {
         this.settings = settings
+        scheduler.request()
+    }
+
+    /** Platform thread. The next frame renders at [width]×[height]. */
+    fun resize(width: Int, height: Int) {
+        require(width > 0 && height > 0) { "Preview size must be positive" }
+        if (width == outputWidth && height == outputHeight) return
+        outputWidth = width
+        outputHeight = height
+        producer.setSize(width, height)
+        surface = producer.surface
         scheduler.request()
     }
 
@@ -86,7 +101,7 @@ class PhotoPreview private constructor(
         val egl = eglSurface ?: return
         gl.egl.makeCurrent(egl)
         gl.renderer.draw(
-            source, settings, source.width, source.height,
+            source, settings, outputWidth, outputHeight,
             flipY = true, showOriginal = showOriginal,
         )
         if (!gl.egl.swapBuffers(egl)) releaseEglSurface()

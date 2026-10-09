@@ -25,7 +25,7 @@ enum AdjustmentFamily {
     Adjustment.vignette,
   ]),
 
-  /// Built in M4.
+  /// Crop, rotate, flip and straighten (crop controls, not a ruler).
   crop(AuvieIcons.crop, []);
 
   new(this.icon, this.adjustments);
@@ -33,7 +33,8 @@ enum AdjustmentFamily {
   final AuvieIcons icon;
   final List<Adjustment> adjustments;
 
-  bool get isAvailable => this != crop;
+  /// Families edited with a ruler, one adjustment at a time.
+  bool get usesRuler => adjustments.isNotEmpty;
 
   String get label => name.toUpperCase();
 }
@@ -43,6 +44,10 @@ extension AdjustmentLabel on Adjustment {
   String get label => name[0].toUpperCase() + name.substring(1);
 
   bool get isBipolar => min < 0;
+
+  /// Ruler labels: "−1.0 · 0 · +1.0", or "0 · 0.5 · 1.0".
+  List<String> get rulerLabels =>
+      isBipolar ? const ['−1.0', '0', '+1.0'] : const ['0', '0.5', '1.0'];
 
   /// "−0.34", "+0.20", "0.00"; unipolar values have no sign.
   String format(double value) {

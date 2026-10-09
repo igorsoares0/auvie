@@ -14,9 +14,9 @@ import 'package:auvie/app/widgets/wordmark.dart';
 import 'package:auvie/core/content/catalog.dart';
 import 'package:auvie/core/content/catalog_providers.dart';
 import 'package:auvie/core/models/project.dart';
-import 'package:auvie/core/native/media_engine.dart';
 import 'package:auvie/core/storage/project_repository.dart';
 import 'package:auvie/features/projects/project_providers.dart';
+import 'package:auvie/features/projects/start_project.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,23 +38,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (_starting) return;
     setState(() => _starting = true);
     try {
-      final project = await ref.read(projectStarterProvider).start(type);
-      if (project != null && mounted) _open(project.id, type);
-    } on MediaEngineException {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("That file couldn't be opened.")),
-        );
-      }
+      await startProject(context, ref, type);
     } finally {
       if (mounted) setState(() => _starting = false);
     }
   }
 
-  void _open(String id, MediaType type) => context.push(switch (type) {
-    MediaType.photo => AppRoutes.photoEditor(id),
-    MediaType.video => AppRoutes.videoEditor(id),
-  });
+  void _open(String id, MediaType type) => openProject(context, id, type);
 
   @override
   Widget build(BuildContext context) {

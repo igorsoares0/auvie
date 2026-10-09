@@ -20,7 +20,11 @@ class DevelopSettings(
     val fade: Float = 0f,
     val vignette: Float = 0f,
     curveLut: ByteArray = IDENTITY_LUT,
+    geometry: DoubleArray = Geometry.IDENTITY,
 ) {
+    /** Output uv → source uv, `[a, b, c, d, tx, ty]` (see Geometry). */
+    val geometry: DoubleArray = Geometry.validated(geometry)
+
     /** 256x1 RGBA. */
     val curveLut: ByteArray = curveLut.also {
         require(it.size == LUT_BYTES) { "curveLut must be $LUT_BYTES bytes, was ${it.size}" }
@@ -28,9 +32,11 @@ class DevelopSettings(
 
     override fun equals(other: Any?): Boolean =
         other is DevelopSettings && values() == other.values() &&
-            curveLut.contentEquals(other.curveLut)
+            curveLut.contentEquals(other.curveLut) &&
+            geometry.contentEquals(other.geometry)
 
-    override fun hashCode(): Int = 31 * values().hashCode() + curveLut.contentHashCode()
+    override fun hashCode(): Int =
+        31 * (31 * values().hashCode() + curveLut.contentHashCode()) + geometry.contentHashCode()
 
     override fun toString(): String = "DevelopSettings(${PARAMETERS.zip(values())})"
 
@@ -58,7 +64,11 @@ class DevelopSettings(
         val NEUTRAL = DevelopSettings()
 
         /** Builds settings from named values, clamping each to its range. */
-        fun fromMap(values: Map<String, Double>, curveLut: ByteArray = IDENTITY_LUT): DevelopSettings {
+        fun fromMap(
+            values: Map<String, Double>,
+            curveLut: ByteArray = IDENTITY_LUT,
+            geometry: DoubleArray = Geometry.IDENTITY,
+        ): DevelopSettings {
             val unknown = values.keys - PARAMETERS.toSet()
             require(unknown.isEmpty()) { "Unknown parameters: $unknown" }
             fun v(name: String): Float {
@@ -79,6 +89,7 @@ class DevelopSettings(
                 fade = v("fade"),
                 vignette = v("vignette"),
                 curveLut = curveLut,
+                geometry = geometry,
             )
         }
 
@@ -98,6 +109,7 @@ class DevelopSettings(
                 "vignette" to p.vignette,
             ),
             p.curveLut,
+            p.geometry,
         )
     }
 }

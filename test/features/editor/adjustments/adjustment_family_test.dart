@@ -12,8 +12,9 @@ void main() {
     expect(all, hasLength(Adjustment.values.length));
   });
 
-  test('crop is not available yet; the others are', () {
-    expect(AdjustmentFamily.values.where((f) => !f.isAvailable), [
+  test('curve and crop have their own controls instead of a ruler', () {
+    expect(AdjustmentFamily.values.where((f) => !f.usesRuler), [
+      AdjustmentFamily.curve,
       AdjustmentFamily.crop,
     ]);
   });
@@ -27,8 +28,8 @@ void main() {
   });
 
   group('RulerScale', () {
-    const exposure = RulerScale(Adjustment.exposure);
-    const grain = RulerScale(Adjustment.grain);
+    final exposure = RulerScale.forAdjustment(Adjustment.exposure);
+    final grain = RulerScale.forAdjustment(Adjustment.grain);
 
     test('positions values across the ruler', () {
       expect(exposure.fraction(-1), 0);

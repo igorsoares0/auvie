@@ -26,7 +26,8 @@ Future<Uint8List> presetThumbnail(Ref ref, String uri, String? presetId) async {
       .watch(mediaEngineProvider)
       .renderPhoto(
         uri,
-        RenderParams.fromEdit(edit, preset),
+        // No crop on preset cards, so the media ratio doesn't matter.
+        RenderParams.fromEdit(edit, preset, mediaRatio: 1),
         maxPx: presetThumbnailPx,
       );
 }

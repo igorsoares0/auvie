@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+
+import 'package:auvie/core/models/crop_geometry.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'crop.freezed.dart';
@@ -44,6 +47,9 @@ abstract class NormalizedRect with _$NormalizedRect {
   factory fromJson(Map<String, dynamic> json) => _$NormalizedRectFromJson(json);
 
   static const full = NormalizedRect();
+
+  double get centerX => left + width / 2;
+  double get centerY => top + height / 2;
 }
 
 /// Crop, rotation and flip. Applied before adjustments and elements.
@@ -82,14 +88,22 @@ abstract class CropTransform with _$CropTransform {
     return oriented * rect.width / rect.height;
   }
 
-  /// Selects [newAspect] and resets the crop to the largest centered area.
+  /// Smallest crop, as a fraction of the frame's shorter side.
+  static const minSize = 0.1;
+
+  /// Width / height the crop keeps.
+  double targetRatio(double mediaRatio) =>
+      aspect.ratio ?? orientedRatio(mediaRatio);
+
+  /// Selects [newAspect] and resets the crop to the largest centred area
+  /// that fits the (straightened) image.
   CropTransform withAspect(CropAspect newAspect, {required double mediaRatio}) {
-    final oriented = orientedRatio(mediaRatio);
-    return copyWith(
-      aspect: newAspect,
-      rect: NormalizedRect.centered(
-        targetRatio: newAspect.ratio ?? oriented,
-        sourceRatio: oriented,
+    final next = copyWith(aspect: newAspect);
+    return next.copyWith(
+      rect: CropGeometry.fit(
+        targetRatio: next.targetRatio(mediaRatio),
+        degrees: straighten,
+        orientedRatio: orientedRatio(mediaRatio),
       ),
     );
   }
@@ -100,6 +114,104 @@ abstract class CropTransform with _$CropTransform {
       copyWith(quarterTurns: (quarterTurns + 1) % 4)
           .withAspect(aspect, mediaRatio: mediaRatio);
 
-  CropTransform withStraighten(double degrees) =>
-      copyWith(straighten: degrees.clamp(-maxStraighten, maxStraighten));
+  /// Straightens by [degrees] (clockwise, ±45). The crop keeps its centre
+  /// and grows or shrinks to the largest area with no empty corners.
+  CropTransform withStraighten(double degrees, {required double mediaRatio}) {
+    final angle = degrees.clamp(-maxStraighten, maxStraighten);
+    return copyWith(
+      straighten: angle,
+      rect: CropGeometry.fit(
+        targetRatio: targetRatio(mediaRatio),
+        degrees: angle,
+        orientedRatio: orientedRatio(mediaRatio),
+        centerX: rect.centerX,
+        centerY: rect.centerY,
+      ),
+    );
+  }
+
+  CropTransform flippedHorizontally() =>
+      copyWith(flipHorizontal: !flipHorizontal);
+
+  /// Moves the crop by ([dx], [dy]) in frame fractions, as far as it can
+  /// go on each axis without leaving the image.
+  CropTransform moved(double dx, double dy, {required double mediaRatio}) {
+    final ratio = orientedRatio(mediaRatio);
+    bool fits(NormalizedRect r) => CropGeometry.fits(r, straighten, ratio);
+
+    NormalizedRect slide(NormalizedRect from, double ddx, double ddy) {
+      NormalizedRect at(double t) =>
+          from.copyWith(left: from.left + ddx * t, top: from.top + ddy * t);
+      if (fits(at(1))) return at(1);
+      var (lo, hi) = (0.0, 1.0);
+      for (var i = 0; i < 20; i++) {
+        final mid = (lo + hi) / 2;
+        if (fits(at(mid))) {
+          lo = mid;
+        } else {
+          hi = mid;
+        }
+      }
+      return at(lo);
+    }
+
+    return copyWith(rect: slide(slide(rect, dx, 0), 0, dy));
+  }
+
+  /// Resizes by dragging [corner] by ([dx], [dy]) in frame fractions; the
+  /// opposite corner stays put and the aspect is kept.
+  CropTransform resizedFromCorner(
+    CropCorner corner,
+    double dx,
+    double dy, {
+    required double mediaRatio,
+  }) {
+    final ratio = orientedRatio(mediaRatio);
+    final target = targetRatio(mediaRatio);
+    // Rect height in frame fractions for a given width keeps the aspect.
+    double heightFor(double width) => width * ratio / target;
+
+    final grow = (x: corner.isLeft ? -dx : dx, y: corner.isTop ? -dy : dy);
+    final fromX = rect.width + grow.x;
+    final fromY = (rect.height + grow.y) * target / ratio;
+    final minWidth = math.max(minSize, minSize * target / ratio);
+    final wanted = math.max(minWidth, (fromX + fromY) / 2);
+
+    NormalizedRect sized(double width) {
+      final height = heightFor(width);
+      final right = rect.left + rect.width;
+      final bottom = rect.top + rect.height;
+      return NormalizedRect(
+        left: corner.isLeft ? right - width : rect.left,
+        top: corner.isTop ? bottom - height : rect.top,
+        width: width,
+        height: height,
+      );
+    }
+
+    bool fits(NormalizedRect r) => CropGeometry.fits(r, straighten, ratio);
+    if (fits(sized(wanted))) return copyWith(rect: sized(wanted));
+    // Grow only as far as the image allows.
+    var (lo, hi) = (math.min(rect.width, wanted), math.max(rect.width, wanted));
+    if (!fits(sized(lo))) return this;
+    for (var i = 0; i < 20; i++) {
+      final mid = (lo + hi) / 2;
+      if (fits(sized(mid))) {
+        lo = mid;
+      } else {
+        hi = mid;
+      }
+    }
+    return copyWith(rect: sized(lo));
+  }
+}
+
+enum CropCorner {
+  topLeft,
+  topRight,
+  bottomRight,
+  bottomLeft;
+
+  bool get isLeft => this == topLeft || this == bottomLeft;
+  bool get isTop => this == topLeft || this == topRight;
 }

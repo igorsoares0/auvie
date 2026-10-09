@@ -77,9 +77,11 @@ void main() {
     });
 
     test('straighten is limited to ±45°', () {
-      expect(const CropTransform().withStraighten(60).straighten, 45);
-      expect(const CropTransform().withStraighten(-50).straighten, -45);
-      expect(const CropTransform().withStraighten(12).straighten, 12);
+      CropTransform s(double d) =>
+          const CropTransform().withStraighten(d, mediaRatio: 1.5);
+      expect(s(60).straighten, 45);
+      expect(s(-50).straighten, -45);
+      expect(s(12).straighten, 12);
     });
 
     test('round-trips through JSON', () {

@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/native/media_engine.dart';
 import 'package:auvie/core/native/render_params.dart';
+import 'package:collection/collection.dart';
 
 /// A valid 1×1 PNG, so widgets decoding the engine's images don't fail.
 final onePixelPng = Uint8List.fromList(const [
@@ -27,6 +29,28 @@ class FakeMediaEngine implements MediaEngine {
   final showOriginal = <bool>[];
   final disposed = <int>[];
   final renders = <RenderParams>[];
+  final resized = <(int, int, int)>[];
+  final exports = <ExportJob>[];
+  final cancelled = <String>[];
+  final copied = <String>[];
+
+  /// What [availableBytes] reports.
+  int freeBytes = 1 << 40;
+
+  /// When set, [exportPhoto] waits for it (to observe the running state).
+  Completer<void>? exportGate;
+
+  /// When set, [exportPhoto] fails with it.
+  MediaEngineException? exportError;
+
+  final _progress = StreamController<ExportProgress>.broadcast();
+  final _running = <String, Completer<void>>{};
+
+  /// Sends a progress event for [jobId].
+  void emitProgress(String jobId, double fraction, [String stage = 'render']) =>
+      _progress.add((jobId: jobId, fraction: fraction, stage: stage));
+
+  String? get runningJob => _running.keys.lastOrNull;
   var _nextTexture = 1;
 
   @override
@@ -84,5 +108,60 @@ class FakeMediaEngine implements MediaEngine {
     calls.add('renderPhoto($uri, $maxPx)');
     renders.add(params);
     return onePixelPng;
+  }
+
+  @override
+  Future<void> resizePreview(
+    int textureId, {
+    required int width,
+    required int height,
+  }) async {
+    resized.add((textureId, width, height));
+  }
+
+  @override
+  Future<int> availableBytes() async => freeBytes;
+
+  @override
+  Future<ExportResult> exportPhoto(String jobId, ExportJob job) async {
+    exports.add(job);
+    final done = Completer<void>();
+    _running[jobId] = done;
+    try {
+      final gate = exportGate;
+      if (gate != null) {
+        await Future.any([gate.future, done.future]);
+      }
+      if (cancelled.contains(jobId)) {
+        throw const MediaEngineException(MediaEngineError.cancelled);
+      }
+      final error = exportError;
+      if (error != null) throw error;
+      emitProgress(jobId, 1, 'save');
+      return (
+        mediaUri: 'content://media/external/images/media/1',
+        filePath: '/files/exports/${job.fileName}.jpg',
+        width: job.outputWidth,
+        height: job.outputHeight,
+        bytes: 4800000,
+      );
+    } finally {
+      _running.remove(jobId);
+    }
+  }
+
+  @override
+  Future<void> cancelExport(String jobId) async {
+    cancelled.add(jobId);
+    final running = _running[jobId];
+    if (running != null && !running.isCompleted) running.complete();
+  }
+
+  @override
+  Stream<ExportProgress> get exportProgress => _progress.stream;
+
+  @override
+  Future<void> copyToClipboard(String mediaUri) async {
+    copied.add(mediaUri);
   }
 }

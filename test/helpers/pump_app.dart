@@ -4,6 +4,7 @@ import 'package:auvie/app/settings/app_settings.dart';
 import 'package:auvie/core/content/catalog_providers.dart';
 import 'package:auvie/core/content/catalog_source.dart';
 import 'package:auvie/core/native/media_engine_provider.dart';
+import 'package:auvie/core/platform/share_service.dart';
 import 'package:auvie/core/storage/database.dart';
 import 'package:auvie/core/storage/project_repository.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
@@ -19,6 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'fake_media_engine.dart';
 import 'fake_project_thumbnails.dart';
+import 'fake_share_service.dart';
 
 /// The whole app over in-memory storage and a fake engine.
 ///
@@ -27,12 +29,13 @@ import 'fake_project_thumbnails.dart';
 /// favorite presets) come from fixed streams; one-shot queries use the
 /// in-memory database.
 class TestApp {
-  new _(this.container, this.engine, this.db, this.thumbnails);
+  new _(this.container, this.engine, this.db, this.thumbnails, this.share);
 
   final ProviderContainer container;
   final FakeMediaEngine engine;
   final AuvieDatabase db;
   final FakeProjectThumbnails thumbnails;
+  final FakeShareService share;
 
   SharedPreferences get prefs => container.read(sharedPreferencesProvider);
 
@@ -56,6 +59,7 @@ class TestApp {
     final db = AuvieDatabase(NativeDatabase.memory());
     final fake = engine ?? FakeMediaEngine();
     final thumbnails = FakeProjectThumbnails();
+    final share = FakeShareService();
     final container = ProviderContainer(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
@@ -63,11 +67,12 @@ class TestApp {
         mediaEngineProvider.overrideWithValue(fake),
         catalogProvider.overrideWith((ref) async => catalog),
         projectThumbnailsProvider.overrideWithValue(thumbnails),
+        shareServiceProvider.overrideWithValue(share),
         recentProjectsProvider.overrideWith((ref) => Stream.value(recents)),
         favoritePresetsProvider.overrideWith((ref) => Stream.value(favorites)),
       ],
     );
-    return TestApp._(container, fake, db, thumbnails);
+    return TestApp._(container, fake, db, thumbnails, share);
   }
 
   Future<void> dispose() async {

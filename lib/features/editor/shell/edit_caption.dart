@@ -6,7 +6,9 @@ import 'package:auvie/core/models/preset.dart';
 String describeEdit(EditState edit, Preset? preset) {
   final ref = edit.preset;
   final count =
-      edit.adjustments.values.length + (edit.curves.isIdentity ? 0 : 1);
+      edit.adjustments.values.length +
+      (edit.curves.isIdentity ? 0 : 1) +
+      (edit.crop.isIdentity ? 0 : 1);
   final adjustments = count == 0
       ? null
       : '${_numberWord(count)} adjustment${count == 1 ? '' : 's'}';

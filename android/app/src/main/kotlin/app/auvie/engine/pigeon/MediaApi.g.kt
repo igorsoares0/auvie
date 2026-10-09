@@ -209,6 +209,17 @@ enum class MediaKind(val raw: Int) {
   }
 }
 
+enum class ExportFormat(val raw: Int) {
+  JPEG(0),
+  PNG(1);
+
+  companion object {
+    fun ofRaw(raw: Int): ExportFormat? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
 /** Generated class from Pigeon that represents data sent in messages. */
 data class PickedMedia (
   /** Persisted content:// URI, or a file:// copy when persisting failed. */
@@ -284,7 +295,13 @@ data class DevelopParams (
   val fade: Double,
   val vignette: Double,
   /** 256×1 RGBA (1024 bytes). */
-  val curveLut: ByteArray
+  val curveLut: ByteArray,
+  /**
+   * Output uv → source uv as `[a, b, c, d, tx, ty]`
+   * (`x' = a·x + b·y + tx`, `y' = c·x + d·y + ty`): crop, turns, flips and
+   * straighten (lib/core/models/crop_geometry.dart).
+   */
+  val geometry: DoubleArray
 )
  {
   companion object {
@@ -302,7 +319,8 @@ data class DevelopParams (
       val fade = pigeonVar_list[10] as Double
       val vignette = pigeonVar_list[11] as Double
       val curveLut = pigeonVar_list[12] as ByteArray
-      return DevelopParams(exposure, brightness, contrast, highlights, shadows, saturation, temperature, tint, sharpen, grain, fade, vignette, curveLut)
+      val geometry = pigeonVar_list[13] as DoubleArray
+      return DevelopParams(exposure, brightness, contrast, highlights, shadows, saturation, temperature, tint, sharpen, grain, fade, vignette, curveLut, geometry)
     }
   }
   fun toList(): List<Any?> {
@@ -320,6 +338,7 @@ data class DevelopParams (
       fade,
       vignette,
       curveLut,
+      geometry,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -330,7 +349,7 @@ data class DevelopParams (
       return true
     }
     val other = other as DevelopParams
-    return MediaApiPigeonUtils.deepEquals(this.exposure, other.exposure) && MediaApiPigeonUtils.deepEquals(this.brightness, other.brightness) && MediaApiPigeonUtils.deepEquals(this.contrast, other.contrast) && MediaApiPigeonUtils.deepEquals(this.highlights, other.highlights) && MediaApiPigeonUtils.deepEquals(this.shadows, other.shadows) && MediaApiPigeonUtils.deepEquals(this.saturation, other.saturation) && MediaApiPigeonUtils.deepEquals(this.temperature, other.temperature) && MediaApiPigeonUtils.deepEquals(this.tint, other.tint) && MediaApiPigeonUtils.deepEquals(this.sharpen, other.sharpen) && MediaApiPigeonUtils.deepEquals(this.grain, other.grain) && MediaApiPigeonUtils.deepEquals(this.fade, other.fade) && MediaApiPigeonUtils.deepEquals(this.vignette, other.vignette) && MediaApiPigeonUtils.deepEquals(this.curveLut, other.curveLut)
+    return MediaApiPigeonUtils.deepEquals(this.exposure, other.exposure) && MediaApiPigeonUtils.deepEquals(this.brightness, other.brightness) && MediaApiPigeonUtils.deepEquals(this.contrast, other.contrast) && MediaApiPigeonUtils.deepEquals(this.highlights, other.highlights) && MediaApiPigeonUtils.deepEquals(this.shadows, other.shadows) && MediaApiPigeonUtils.deepEquals(this.saturation, other.saturation) && MediaApiPigeonUtils.deepEquals(this.temperature, other.temperature) && MediaApiPigeonUtils.deepEquals(this.tint, other.tint) && MediaApiPigeonUtils.deepEquals(this.sharpen, other.sharpen) && MediaApiPigeonUtils.deepEquals(this.grain, other.grain) && MediaApiPigeonUtils.deepEquals(this.fade, other.fade) && MediaApiPigeonUtils.deepEquals(this.vignette, other.vignette) && MediaApiPigeonUtils.deepEquals(this.curveLut, other.curveLut) && MediaApiPigeonUtils.deepEquals(this.geometry, other.geometry)
   }
 
   override fun hashCode(): Int {
@@ -348,10 +367,181 @@ data class DevelopParams (
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.fade)
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.vignette)
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.curveLut)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.geometry)
     return result
   }
   override fun toString(): String {
-    return "DevelopParams(exposure=$exposure, brightness=$brightness, contrast=$contrast, highlights=$highlights, shadows=$shadows, saturation=$saturation, temperature=$temperature, tint=$tint, sharpen=$sharpen, grain=$grain, fade=$fade, vignette=$vignette, curveLut=${curveLut.contentToString()})"
+    return "DevelopParams(exposure=$exposure, brightness=$brightness, contrast=$contrast, highlights=$highlights, shadows=$shadows, saturation=$saturation, temperature=$temperature, tint=$tint, sharpen=$sharpen, grain=$grain, fade=$fade, vignette=$vignette, curveLut=${curveLut.contentToString()}, geometry=${geometry.contentToString()})"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class ExportRequest (
+  val uri: String,
+  val params: DevelopParams,
+  val format: ExportFormat,
+  val outputWidth: Long,
+  val outputHeight: Long,
+  /** Longer side to decode the original at (enough detail for the crop). */
+  val decodeMaxPx: Long,
+  /** Copy date, camera and location from the original (JPEG only). */
+  val keepMetadata: Boolean,
+  /** Without extension. */
+  val fileName: String
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): ExportRequest {
+      val uri = pigeonVar_list[0] as String
+      val params = pigeonVar_list[1] as DevelopParams
+      val format = pigeonVar_list[2] as ExportFormat
+      val outputWidth = pigeonVar_list[3] as Long
+      val outputHeight = pigeonVar_list[4] as Long
+      val decodeMaxPx = pigeonVar_list[5] as Long
+      val keepMetadata = pigeonVar_list[6] as Boolean
+      val fileName = pigeonVar_list[7] as String
+      return ExportRequest(uri, params, format, outputWidth, outputHeight, decodeMaxPx, keepMetadata, fileName)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      uri,
+      params,
+      format,
+      outputWidth,
+      outputHeight,
+      decodeMaxPx,
+      keepMetadata,
+      fileName,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as ExportRequest
+    return MediaApiPigeonUtils.deepEquals(this.uri, other.uri) && MediaApiPigeonUtils.deepEquals(this.params, other.params) && MediaApiPigeonUtils.deepEquals(this.format, other.format) && MediaApiPigeonUtils.deepEquals(this.outputWidth, other.outputWidth) && MediaApiPigeonUtils.deepEquals(this.outputHeight, other.outputHeight) && MediaApiPigeonUtils.deepEquals(this.decodeMaxPx, other.decodeMaxPx) && MediaApiPigeonUtils.deepEquals(this.keepMetadata, other.keepMetadata) && MediaApiPigeonUtils.deepEquals(this.fileName, other.fileName)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.uri)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.params)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.format)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.outputWidth)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.outputHeight)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.decodeMaxPx)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.keepMetadata)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.fileName)
+    return result
+  }
+  override fun toString(): String {
+    return "ExportRequest(uri=$uri, params=$params, format=$format, outputWidth=$outputWidth, outputHeight=$outputHeight, decodeMaxPx=$decodeMaxPx, keepMetadata=$keepMetadata, fileName=$fileName)"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class ExportResult (
+  /** content:// URI of the copy saved in Pictures/Auvie. */
+  val mediaUri: String,
+  /** App-private copy, used for sharing. */
+  val filePath: String,
+  val width: Long,
+  val height: Long,
+  val bytes: Long
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): ExportResult {
+      val mediaUri = pigeonVar_list[0] as String
+      val filePath = pigeonVar_list[1] as String
+      val width = pigeonVar_list[2] as Long
+      val height = pigeonVar_list[3] as Long
+      val bytes = pigeonVar_list[4] as Long
+      return ExportResult(mediaUri, filePath, width, height, bytes)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      mediaUri,
+      filePath,
+      width,
+      height,
+      bytes,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as ExportResult
+    return MediaApiPigeonUtils.deepEquals(this.mediaUri, other.mediaUri) && MediaApiPigeonUtils.deepEquals(this.filePath, other.filePath) && MediaApiPigeonUtils.deepEquals(this.width, other.width) && MediaApiPigeonUtils.deepEquals(this.height, other.height) && MediaApiPigeonUtils.deepEquals(this.bytes, other.bytes)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.mediaUri)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.filePath)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.width)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.height)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.bytes)
+    return result
+  }
+  override fun toString(): String {
+    return "ExportResult(mediaUri=$mediaUri, filePath=$filePath, width=$width, height=$height, bytes=$bytes)"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class ExportProgress (
+  val jobId: String,
+  /** 0…1 over the whole export. */
+  val fraction: Double,
+  /** decode, render, encode or save. */
+  val stage: String
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): ExportProgress {
+      val jobId = pigeonVar_list[0] as String
+      val fraction = pigeonVar_list[1] as Double
+      val stage = pigeonVar_list[2] as String
+      return ExportProgress(jobId, fraction, stage)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      jobId,
+      fraction,
+      stage,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as ExportProgress
+    return MediaApiPigeonUtils.deepEquals(this.jobId, other.jobId) && MediaApiPigeonUtils.deepEquals(this.fraction, other.fraction) && MediaApiPigeonUtils.deepEquals(this.stage, other.stage)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.jobId)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.fraction)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.stage)
+    return result
+  }
+  override fun toString(): String {
+    return "ExportProgress(jobId=$jobId, fraction=$fraction, stage=$stage)"
   }
 }
 
@@ -409,16 +599,36 @@ private open class MediaApiPigeonCodec : StandardMessageCodec() {
         }
       }
       130.toByte() -> {
-        return (readValue(buffer) as? List<Any?>)?.let {
-          PickedMedia.fromList(it)
+        return (readValue(buffer) as Long?)?.let {
+          ExportFormat.ofRaw(it.toInt())
         }
       }
       131.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          DevelopParams.fromList(it)
+          PickedMedia.fromList(it)
         }
       }
       132.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          DevelopParams.fromList(it)
+        }
+      }
+      133.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          ExportRequest.fromList(it)
+        }
+      }
+      134.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          ExportResult.fromList(it)
+        }
+      }
+      135.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          ExportProgress.fromList(it)
+        }
+      }
+      136.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
           PreviewInfo.fromList(it)
         }
@@ -432,22 +642,40 @@ private open class MediaApiPigeonCodec : StandardMessageCodec() {
         stream.write(129)
         writeValue(stream, value.raw.toLong())
       }
-      is PickedMedia -> {
+      is ExportFormat -> {
         stream.write(130)
-        writeValue(stream, value.toList())
+        writeValue(stream, value.raw.toLong())
       }
-      is DevelopParams -> {
+      is PickedMedia -> {
         stream.write(131)
         writeValue(stream, value.toList())
       }
-      is PreviewInfo -> {
+      is DevelopParams -> {
         stream.write(132)
+        writeValue(stream, value.toList())
+      }
+      is ExportRequest -> {
+        stream.write(133)
+        writeValue(stream, value.toList())
+      }
+      is ExportResult -> {
+        stream.write(134)
+        writeValue(stream, value.toList())
+      }
+      is ExportProgress -> {
+        stream.write(135)
+        writeValue(stream, value.toList())
+      }
+      is PreviewInfo -> {
+        stream.write(136)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
     }
   }
 }
+
+val MediaApiPigeonMethodCodec = StandardMethodCodec(MediaApiPigeonCodec())
 
 
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
@@ -463,8 +691,20 @@ interface MediaHostApi {
   fun updateEdit(textureId: Long, params: DevelopParams)
   fun setShowOriginal(textureId: Long, original: Boolean)
   fun disposePreview(textureId: Long)
+  /** Sets the preview's pixel size (when the crop's aspect or layout change). */
+  fun resizePreview(textureId: Long, width: Long, height: Long)
   /** Renders offscreen and returns a JPEG whose longer side is ≤ [maxPx]. */
   suspend fun renderPhoto(uri: String, params: DevelopParams, maxPx: Long): ByteArray
+  /** Free bytes where exports are written. */
+  fun availableBytes(): Long
+  /**
+   * Develops at full size, saves to Pictures/Auvie and keeps an app copy.
+   * Progress arrives on [ExportEvents.exportProgress] under [jobId].
+   */
+  suspend fun exportPhoto(jobId: String, request: ExportRequest): ExportResult
+  fun cancelExport(jobId: String)
+  /** Puts the saved image on the clipboard. */
+  suspend fun copyToClipboard(mediaUri: String)
 
   companion object {
     /** The codec used by MediaHostApi. */
@@ -610,6 +850,26 @@ interface MediaHostApi {
         }
       }
       run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.resizePreview$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val textureIdArg = args[0] as Long
+            val widthArg = args[1] as Long
+            val heightArg = args[2] as Long
+            val wrapped: List<Any?> = try {
+              api.resizePreview(textureIdArg, widthArg, heightArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              MediaApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.renderPhoto$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
@@ -630,6 +890,133 @@ interface MediaHostApi {
           channel.setMessageHandler(null)
         }
       }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.availableBytes$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.availableBytes())
+            } catch (exception: Throwable) {
+              MediaApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.exportPhoto$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val jobIdArg = args[0] as String
+            val requestArg = args[1] as ExportRequest
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.exportPhoto(jobIdArg, requestArg))
+              } catch (exception: Throwable) {
+                MediaApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.cancelExport$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val jobIdArg = args[0] as String
+            val wrapped: List<Any?> = try {
+              api.cancelExport(jobIdArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              MediaApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.copyToClipboard$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val mediaUriArg = args[0] as String
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                api.copyToClipboard(mediaUriArg)
+                listOf(null)
+              } catch (exception: Throwable) {
+                MediaApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
     }
   }
 }
+
+private class MediaApiPigeonStreamHandler<T>(
+    val wrapper: MediaApiPigeonEventChannelWrapper<T>
+) : EventChannel.StreamHandler {
+  var pigeonSink: PigeonEventSink<T>? = null
+
+  override fun onListen(p0: Any?, sink: EventChannel.EventSink) {
+    pigeonSink = PigeonEventSink<T>(sink)
+    wrapper.onListen(p0, pigeonSink!!)
+  }
+
+  override fun onCancel(p0: Any?) {
+    pigeonSink = null
+    wrapper.onCancel(p0)
+  }
+}
+
+interface MediaApiPigeonEventChannelWrapper<T> {
+  open fun onListen(p0: Any?, sink: PigeonEventSink<T>) {}
+
+  open fun onCancel(p0: Any?) {}
+}
+
+class PigeonEventSink<T>(private val sink: EventChannel.EventSink) {
+  fun success(value: T) {
+    sink.success(value)
+  }
+
+  fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+    sink.error(errorCode, errorMessage, errorDetails)
+  }
+
+  fun endOfStream() {
+    sink.endOfStream()
+  }
+}
+      
+abstract class ExportProgressStreamHandler : MediaApiPigeonEventChannelWrapper<ExportProgress> {
+  companion object {
+    fun register(messenger: BinaryMessenger, streamHandler: ExportProgressStreamHandler, instanceName: String = "") {
+      var channelName: String = "dev.flutter.pigeon.auvie.ExportEvents.exportProgress"
+      if (instanceName.isNotEmpty()) {
+        channelName += ".$instanceName"
+      }
+      val internalStreamHandler = MediaApiPigeonStreamHandler<ExportProgress>(streamHandler)
+      EventChannel(messenger, channelName, MediaApiPigeonMethodCodec).setStreamHandler(internalStreamHandler)
+    }
+  }
+// Implement methods from MediaApiPigeonEventChannelWrapper
+override fun onListen(p0: Any?, sink: PigeonEventSink<ExportProgress>) {}
+
+override fun onCancel(p0: Any?) {}
+}
+      

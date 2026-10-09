@@ -10,9 +10,11 @@ out vec4 fragColor;
 
 uniform sampler2D uSource;
 uniform sampler2D uCurveLut;   // 256x1 RGBA: preset + user curves (Dart)
+uniform mat3 uGeometry;        // output uv -> source uv: crop, turns, flips, straighten
+uniform vec4 uTile;            // this draw's part of the output: offset.xy, scale.zw
 uniform vec2 uTexel;           // 1 / source texture size
-uniform float uAspect;         // output width / height
-uniform vec2 uGrainGrid;       // grain cells across the output
+uniform float uAspect;         // full output width / height
+uniform vec2 uGrainGrid;       // grain cells across the full output
 uniform float uGrainSeed;
 uniform bool uShowOriginal;
 
@@ -61,7 +63,17 @@ float hash12(vec2 p) {
 }
 
 void main() {
-    vec3 c = texture(uSource, vTexCoord).rgb;
+    // Position in the whole output (exports render it in tiles), then where
+    // that is in the original.
+    vec2 outUv = uTile.xy + vTexCoord * uTile.zw;
+    vec2 src = (uGeometry * vec3(outUv, 1.0)).xy;
+    if (any(lessThan(src, vec2(-0.002))) || any(greaterThan(src, vec2(1.002)))) {
+        // Off the image: only visible around a straightened photo while cropping.
+        fragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        return;
+    }
+
+    vec3 c = texture(uSource, src).rgb;
     if (uShowOriginal) {
         fragColor = vec4(c, 1.0);
         return;
@@ -69,10 +81,10 @@ void main() {
 
     // 1. Sharpen: 4-neighbour unsharp mask.
     if (uSharpen > 0.0) {
-        vec3 blur = (texture(uSource, vTexCoord + vec2(uTexel.x, 0.0)).rgb +
-                     texture(uSource, vTexCoord - vec2(uTexel.x, 0.0)).rgb +
-                     texture(uSource, vTexCoord + vec2(0.0, uTexel.y)).rgb +
-                     texture(uSource, vTexCoord - vec2(0.0, uTexel.y)).rgb) * 0.25;
+        vec3 blur = (texture(uSource, src + vec2(uTexel.x, 0.0)).rgb +
+                     texture(uSource, src - vec2(uTexel.x, 0.0)).rgb +
+                     texture(uSource, src + vec2(0.0, uTexel.y)).rgb +
+                     texture(uSource, src - vec2(0.0, uTexel.y)).rgb) * 0.25;
         c = clamp(c + (c - blur) * uSharpen * SHARPEN_AMOUNT, 0.0, 1.0);
     }
 
@@ -98,14 +110,14 @@ void main() {
     // 5. Film: fade, vignette, grain.
     c += uFade * FADE_LIFT * (1.0 - c);
 
-    vec2 centered = (vTexCoord - 0.5) * vec2(uAspect, 1.0);
+    vec2 centered = (outUv - 0.5) * vec2(uAspect, 1.0);
     float d = length(centered) / length(vec2(uAspect, 1.0) * 0.5);
     float v = smoothstep(VIGNETTE_START, 1.0, d) * VIGNETTE_AMOUNT;
     c = uVignette >= 0.0 ? c * (1.0 - uVignette * v)
                          : c + (-uVignette) * v * (1.0 - c);
 
     if (uGrain > 0.0) {
-        float n = hash12(floor(vTexCoord * uGrainGrid) + uGrainSeed) - 0.5;
+        float n = hash12(floor(outUv * uGrainGrid) + uGrainSeed) - 0.5;
         float midtones = 1.0 - 0.6 * abs(2.0 * dot(c, LUMA) - 1.0);
         c += n * uGrain * GRAIN_AMOUNT * midtones;
     }

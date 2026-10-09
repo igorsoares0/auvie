@@ -12,6 +12,9 @@ object EngineErrors {
     const val PICKER_BUSY = "picker_busy"
     const val INVALID_PARAMS = "invalid_params"
     const val UNKNOWN_TEXTURE = "unknown_texture"
+    const val STORAGE_FULL = "storage_full"
+    const val EXPORT_FAILED = "export_failed"
+    const val CANCELLED = "cancelled"
 
     /** Runs [block] and maps platform exceptions to [FlutterError]s. */
     suspend fun <T> mapping(uri: String, block: suspend () -> T): T =
@@ -24,6 +27,9 @@ object EngineErrors {
         } catch (e: FileNotFoundException) {
             throw FlutterError(MEDIA_UNAVAILABLE, "Missing $uri: ${e.message}")
         } catch (e: IOException) {
+            if (e.message?.contains("ENOSPC") == true || e.message?.contains("No space") == true) {
+                throw FlutterError(STORAGE_FULL, e.message)
+            }
             throw FlutterError(DECODE_FAILED, "Could not read $uri: ${e.message}")
         } catch (e: IllegalArgumentException) {
             throw FlutterError(INVALID_PARAMS, e.message)

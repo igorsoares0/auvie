@@ -26,7 +26,11 @@ class ProjectThumbnails {
     final bytes = switch (project.media.type) {
       MediaType.photo => await _engine.renderPhoto(
         project.media.uri,
-        RenderParams.fromEdit(project.edit, preset),
+        RenderParams.fromEdit(
+          project.edit,
+          preset,
+          mediaRatio: project.media.aspectRatio,
+        ),
         maxPx: maxPx,
       ),
       MediaType.video => await _engine.thumbnail(

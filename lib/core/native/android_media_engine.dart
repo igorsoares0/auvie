@@ -59,11 +59,66 @@ class AndroidMediaEngine implements MediaEngine {
     required int maxPx,
   }) => _guard(() => _api.renderPhoto(uri, developParamsFrom(params), maxPx));
 
+  @override
+  Future<void> resizePreview(
+    int textureId, {
+    required int width,
+    required int height,
+  }) => _guard(() => _api.resizePreview(textureId, width, height));
+
+  @override
+  Future<int> availableBytes() => _guard(_api.availableBytes);
+
+  @override
+  Future<ExportResult> exportPhoto(String jobId, ExportJob job) =>
+      _guard(() async {
+        final result = await _api.exportPhoto(
+          jobId,
+          pigeon.ExportRequest(
+            uri: job.uri,
+            params: developParamsFrom(job.params),
+            format: switch (job.format) {
+              ExportFormat.jpeg => pigeon.ExportFormat.jpeg,
+              ExportFormat.png => pigeon.ExportFormat.png,
+            },
+            outputWidth: job.outputWidth,
+            outputHeight: job.outputHeight,
+            decodeMaxPx: job.decodeMaxPx,
+            keepMetadata: job.keepMetadata,
+            fileName: job.fileName,
+          ),
+        );
+        return (
+          mediaUri: result.mediaUri,
+          filePath: result.filePath,
+          width: result.width,
+          height: result.height,
+          bytes: result.bytes,
+        );
+      });
+
+  @override
+  Future<void> cancelExport(String jobId) =>
+      _guard(() => _api.cancelExport(jobId));
+
+  @override
+  Stream<ExportProgress> get exportProgress => pigeon.exportProgress().map(
+    (e) => (jobId: e.jobId, fraction: e.fraction, stage: e.stage),
+  );
+
+  @override
+  Future<void> copyToClipboard(String mediaUri) =>
+      _guard(() => _api.copyToClipboard(mediaUri));
+
   Future<T> _guard<T>(Future<T> Function() call) async {
     try {
       return await call();
     } on PlatformException catch (e) {
-      throw MediaEngineException(MediaEngineError.fromCode(e.code), e.message);
+      throw MediaEngineException(
+        MediaEngineError.fromCode(e.code),
+        e.message,
+        e.details is int ? e.details as int : null,
+      );
     }
   }
 }
@@ -97,5 +152,6 @@ pigeon.DevelopParams developParamsFrom(RenderParams params) {
     fade: v(Adjustment.fade),
     vignette: v(Adjustment.vignette),
     curveLut: params.curveLut,
+    geometry: params.geometry.toList(),
   );
 }

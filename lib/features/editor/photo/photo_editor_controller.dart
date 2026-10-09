@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:auvie/core/content/catalog_providers.dart';
+import 'package:auvie/core/models/crop.dart';
 import 'package:auvie/core/models/edit_state.dart';
 import 'package:auvie/core/models/preset.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
@@ -69,6 +70,10 @@ class PhotoEditor extends _$PhotoEditor {
     if (save) _scheduleSave();
   }
 
+  /// The crop as of the latest preview, so successive drag events build on
+  /// each other within one frame.
+  CropTransform get currentCrop => _session.edit.crop;
+
   /// The catalog entry of the applied preset, if any.
   Preset? get preset {
     final id = _session.edit.preset?.presetId;
@@ -99,7 +104,6 @@ class PhotoEditor extends _$PhotoEditor {
   }
 
   void selectFamily(AdjustmentFamily family) {
-    if (!family.isAvailable) return;
     _update(_session.copyWith(family: family, parameter: 0), save: false);
   }
 

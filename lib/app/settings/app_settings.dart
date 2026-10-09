@@ -20,6 +20,9 @@ class AppSettings {
 
   static const _onboardingSeen = 'auvie.onboardingSeen';
   static const _framesExposed = 'auvie.framesExposed';
+  static const _exportFormat = 'auvie.export.format';
+  static const _exportSize = 'auvie.export.size';
+  static const _exportMetadata = 'auvie.export.keepMetadata';
 
   /// Frames per roll, like 36-exposure film.
   static const framesPerRoll = 36;
@@ -27,6 +30,23 @@ class AppSettings {
   bool get onboardingSeen => _prefs.getBool(_onboardingSeen) ?? false;
 
   Future<void> markOnboardingSeen() => _prefs.setBool(_onboardingSeen, true);
+
+  /// Last export choices, by enum name (null until the first export).
+  ({String? format, String? size, bool keepMetadata}) get exportChoices => (
+    format: _prefs.getString(_exportFormat),
+    size: _prefs.getString(_exportSize),
+    keepMetadata: _prefs.getBool(_exportMetadata) ?? false,
+  );
+
+  Future<void> saveExportChoices({
+    required String format,
+    required String size,
+    required bool keepMetadata,
+  }) async {
+    await _prefs.setString(_exportFormat, format);
+    await _prefs.setString(_exportSize, size);
+    await _prefs.setBool(_exportMetadata, keepMetadata);
+  }
 
   /// Names the next project like a frame on a roll of film:
   /// "Roll 001 · 01" … "Roll 001 · 36", "Roll 002 · 01" …

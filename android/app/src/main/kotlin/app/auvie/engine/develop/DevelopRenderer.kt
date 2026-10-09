@@ -2,6 +2,7 @@ package app.auvie.engine.develop
 
 import android.content.res.AssetManager
 import android.opengl.GLES30
+import app.auvie.engine.export.Tile
 import app.auvie.engine.gl.GlTexture
 import app.auvie.engine.gl.ShaderProgram
 import java.nio.ByteBuffer
@@ -33,6 +34,9 @@ class DevelopRenderer(assets: AssetManager) {
     }
 
     /**
+     * Draws the [outputWidth]×[outputHeight] developed output, or only its
+     * [tile] when given (into a target of the tile's size).
+     *
      * @param flipY true for window surfaces (bitmap top at the top of the
      *   screen), false for framebuffers read back with glReadPixels.
      */
@@ -44,9 +48,11 @@ class DevelopRenderer(assets: AssetManager) {
         flipY: Boolean,
         showOriginal: Boolean = false,
         grainSeed: Float = 0f,
+        tile: Tile? = null,
     ) {
         setLut(settings.curveLut)
-        GLES30.glViewport(0, 0, outputWidth, outputHeight)
+        val part = tile ?: Tile(0, 0, outputWidth, outputHeight)
+        GLES30.glViewport(0, 0, part.width, part.height)
         program.use()
 
         source.bind(0)
@@ -54,6 +60,16 @@ class DevelopRenderer(assets: AssetManager) {
         lut.bind(1)
         program.set("uCurveLut", 1)
 
+        GLES30.glUniformMatrix3fv(
+            program.uniform("uGeometry"), 1, false, Geometry.toMatrix3(settings.geometry), 0,
+        )
+        GLES30.glUniform4f(
+            program.uniform("uTile"),
+            part.x.toFloat() / outputWidth,
+            part.y.toFloat() / outputHeight,
+            part.width.toFloat() / outputWidth,
+            part.height.toFloat() / outputHeight,
+        )
         program.set("uFlipY", flipY)
         program.set("uShowOriginal", showOriginal)
         program.set("uTexel", 1f / source.width, 1f / source.height)

@@ -5,6 +5,8 @@ import 'package:auvie/app/widgets/auvie_icon.dart';
 import 'package:auvie/features/editor/adjustments/adjustment_family.dart';
 import 'package:auvie/features/editor/adjustments/curve_editor.dart';
 import 'package:auvie/features/editor/adjustments/lens_ruler.dart';
+import 'package:auvie/features/editor/adjustments/ruler_scale.dart';
+import 'package:auvie/features/editor/crop/crop_controls.dart';
 import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,7 +27,9 @@ class AdjustPanel extends ConsumerWidget {
     final family = session.family;
 
     final Widget body;
-    if (family == AdjustmentFamily.curve) {
+    if (family == AdjustmentFamily.crop) {
+      body = CropControls(projectId: projectId);
+    } else if (family == AdjustmentFamily.curve) {
       body = CurveEditor(
         curves: edit.curves,
         onPreview: (c) => controller.preview(edit.copyWith(curves: c)),
@@ -90,7 +94,8 @@ class AdjustPanel extends ConsumerWidget {
               0,
             ),
             child: LensRuler(
-              adjustment: adjustment,
+              scale: RulerScale.forAdjustment(adjustment),
+              labels: adjustment.rulerLabels,
               value: value,
               onPreview: (v) =>
                   controller.preview(edit.withAdjustment(adjustment, v)),
@@ -161,13 +166,12 @@ class _Families extends StatelessWidget {
             Semantics(
               button: true,
               selected: family == active,
-              enabled: family.isAvailable,
               child: GestureDetector(
                 key: Key('family-${family.name}'),
                 behavior: HitTestBehavior.opaque,
-                onTap: family.isAvailable ? () => onSelect(family) : null,
+                onTap: () => onSelect(family),
                 child: Opacity(
-                  opacity: family.isAvailable ? 1 : 0.35,
+                  opacity: 1,
                   child: SizedBox(
                     width: 52,
                     child: Column(

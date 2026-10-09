@@ -99,6 +99,8 @@ int _deepHash(Object? value) {
 
 enum MediaKind { photo, video }
 
+enum ExportFormat { jpeg, png }
+
 class PickedMedia {
   PickedMedia({
     required this.uri,
@@ -182,6 +184,7 @@ class DevelopParams {
     required this.fade,
     required this.vignette,
     required this.curveLut,
+    required this.geometry,
   });
 
   double exposure;
@@ -211,6 +214,11 @@ class DevelopParams {
   /// 256×1 RGBA (1024 bytes).
   Uint8List curveLut;
 
+  /// Output uv → source uv as `[a, b, c, d, tx, ty]`
+  /// (`x' = a·x + b·y + tx`, `y' = c·x + d·y + ty`): crop, turns, flips and
+  /// straighten (lib/core/models/crop_geometry.dart).
+  Float64List geometry;
+
   List<Object?> _toList() {
     return <Object?>[
       exposure,
@@ -226,6 +234,7 @@ class DevelopParams {
       fade,
       vignette,
       curveLut,
+      geometry,
     ];
   }
 
@@ -249,6 +258,7 @@ class DevelopParams {
       fade: result[10]! as double,
       vignette: result[11]! as double,
       curveLut: result[12]! as Uint8List,
+      geometry: result[13]! as Float64List,
     );
   }
 
@@ -273,7 +283,8 @@ class DevelopParams {
         _deepEquals(grain, other.grain) &&
         _deepEquals(fade, other.fade) &&
         _deepEquals(vignette, other.vignette) &&
-        _deepEquals(curveLut, other.curveLut);
+        _deepEquals(curveLut, other.curveLut) &&
+        _deepEquals(geometry, other.geometry);
   }
 
   @override
@@ -282,7 +293,220 @@ class DevelopParams {
 
   @override
   String toString() {
-    return 'DevelopParams(exposure: $exposure, brightness: $brightness, contrast: $contrast, highlights: $highlights, shadows: $shadows, saturation: $saturation, temperature: $temperature, tint: $tint, sharpen: $sharpen, grain: $grain, fade: $fade, vignette: $vignette, curveLut: $curveLut)';
+    return 'DevelopParams(exposure: $exposure, brightness: $brightness, contrast: $contrast, highlights: $highlights, shadows: $shadows, saturation: $saturation, temperature: $temperature, tint: $tint, sharpen: $sharpen, grain: $grain, fade: $fade, vignette: $vignette, curveLut: $curveLut, geometry: $geometry)';
+  }
+}
+
+class ExportRequest {
+  ExportRequest({
+    required this.uri,
+    required this.params,
+    required this.format,
+    required this.outputWidth,
+    required this.outputHeight,
+    required this.decodeMaxPx,
+    required this.keepMetadata,
+    required this.fileName,
+  });
+
+  String uri;
+
+  DevelopParams params;
+
+  ExportFormat format;
+
+  int outputWidth;
+
+  int outputHeight;
+
+  /// Longer side to decode the original at (enough detail for the crop).
+  int decodeMaxPx;
+
+  /// Copy date, camera and location from the original (JPEG only).
+  bool keepMetadata;
+
+  /// Without extension.
+  String fileName;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      uri,
+      params,
+      format,
+      outputWidth,
+      outputHeight,
+      decodeMaxPx,
+      keepMetadata,
+      fileName,
+    ];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static ExportRequest decode(Object result) {
+    result as List<Object?>;
+    return ExportRequest(
+      uri: result[0]! as String,
+      params: result[1]! as DevelopParams,
+      format: result[2]! as ExportFormat,
+      outputWidth: result[3]! as int,
+      outputHeight: result[4]! as int,
+      decodeMaxPx: result[5]! as int,
+      keepMetadata: result[6]! as bool,
+      fileName: result[7]! as String,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! ExportRequest || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(uri, other.uri) &&
+        _deepEquals(params, other.params) &&
+        _deepEquals(format, other.format) &&
+        _deepEquals(outputWidth, other.outputWidth) &&
+        _deepEquals(outputHeight, other.outputHeight) &&
+        _deepEquals(decodeMaxPx, other.decodeMaxPx) &&
+        _deepEquals(keepMetadata, other.keepMetadata) &&
+        _deepEquals(fileName, other.fileName);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'ExportRequest(uri: $uri, params: $params, format: $format, outputWidth: $outputWidth, outputHeight: $outputHeight, decodeMaxPx: $decodeMaxPx, keepMetadata: $keepMetadata, fileName: $fileName)';
+  }
+}
+
+class ExportResult {
+  ExportResult({
+    required this.mediaUri,
+    required this.filePath,
+    required this.width,
+    required this.height,
+    required this.bytes,
+  });
+
+  /// content:// URI of the copy saved in Pictures/Auvie.
+  String mediaUri;
+
+  /// App-private copy, used for sharing.
+  String filePath;
+
+  int width;
+
+  int height;
+
+  int bytes;
+
+  List<Object?> _toList() {
+    return <Object?>[mediaUri, filePath, width, height, bytes];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static ExportResult decode(Object result) {
+    result as List<Object?>;
+    return ExportResult(
+      mediaUri: result[0]! as String,
+      filePath: result[1]! as String,
+      width: result[2]! as int,
+      height: result[3]! as int,
+      bytes: result[4]! as int,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! ExportResult || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(mediaUri, other.mediaUri) &&
+        _deepEquals(filePath, other.filePath) &&
+        _deepEquals(width, other.width) &&
+        _deepEquals(height, other.height) &&
+        _deepEquals(bytes, other.bytes);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'ExportResult(mediaUri: $mediaUri, filePath: $filePath, width: $width, height: $height, bytes: $bytes)';
+  }
+}
+
+class ExportProgress {
+  ExportProgress({
+    required this.jobId,
+    required this.fraction,
+    required this.stage,
+  });
+
+  String jobId;
+
+  /// 0…1 over the whole export.
+  double fraction;
+
+  /// decode, render, encode or save.
+  String stage;
+
+  List<Object?> _toList() {
+    return <Object?>[jobId, fraction, stage];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static ExportProgress decode(Object result) {
+    result as List<Object?>;
+    return ExportProgress(
+      jobId: result[0]! as String,
+      fraction: result[1]! as double,
+      stage: result[2]! as String,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! ExportProgress || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(jobId, other.jobId) &&
+        _deepEquals(fraction, other.fraction) &&
+        _deepEquals(stage, other.stage);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'ExportProgress(jobId: $jobId, fraction: $fraction, stage: $stage)';
   }
 }
 
@@ -351,14 +575,26 @@ class _PigeonCodec extends StandardMessageCodec {
     } else if (value is MediaKind) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    } else if (value is PickedMedia) {
+    } else if (value is ExportFormat) {
       buffer.putUint8(130);
-      writeValue(buffer, value.encode());
-    } else if (value is DevelopParams) {
+      writeValue(buffer, value.index);
+    } else if (value is PickedMedia) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    } else if (value is PreviewInfo) {
+    } else if (value is DevelopParams) {
       buffer.putUint8(132);
+      writeValue(buffer, value.encode());
+    } else if (value is ExportRequest) {
+      buffer.putUint8(133);
+      writeValue(buffer, value.encode());
+    } else if (value is ExportResult) {
+      buffer.putUint8(134);
+      writeValue(buffer, value.encode());
+    } else if (value is ExportProgress) {
+      buffer.putUint8(135);
+      writeValue(buffer, value.encode());
+    } else if (value is PreviewInfo) {
+      buffer.putUint8(136);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -372,16 +608,29 @@ class _PigeonCodec extends StandardMessageCodec {
         final value = readValue(buffer) as int?;
         return value == null ? null : MediaKind.values[value];
       case 130:
-        return PickedMedia.decode(readValue(buffer)!);
+        final value = readValue(buffer) as int?;
+        return value == null ? null : ExportFormat.values[value];
       case 131:
-        return DevelopParams.decode(readValue(buffer)!);
+        return PickedMedia.decode(readValue(buffer)!);
       case 132:
+        return DevelopParams.decode(readValue(buffer)!);
+      case 133:
+        return ExportRequest.decode(readValue(buffer)!);
+      case 134:
+        return ExportResult.decode(readValue(buffer)!);
+      case 135:
+        return ExportProgress.decode(readValue(buffer)!);
+      case 136:
         return PreviewInfo.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
   }
 }
+
+const StandardMethodCodec pigeonMethodCodec = StandardMethodCodec(
+  _PigeonCodec(),
+);
 
 class MediaHostApi {
   /// Constructor for [MediaHostApi]. The [binaryMessenger] named argument is
@@ -548,6 +797,27 @@ class MediaHostApi {
     );
   }
 
+  /// Sets the preview's pixel size (when the crop's aspect or layout change).
+  Future<void> resizePreview(int textureId, int width, int height) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.resizePreview$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[textureId, width, height],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
+  }
+
   /// Renders offscreen and returns a JPEG whose longer side is ≤ [maxPx].
   Future<Uint8List> renderPhoto(
     String uri,
@@ -573,4 +843,107 @@ class MediaHostApi {
     );
     return pigeonVar_replyValue! as Uint8List;
   }
+
+  /// Free bytes where exports are written.
+  Future<int> availableBytes() async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.availableBytes$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as int;
+  }
+
+  /// Develops at full size, saves to Pictures/Auvie and keeps an app copy.
+  /// Progress arrives on [ExportEvents.exportProgress] under [jobId].
+  Future<ExportResult> exportPhoto(String jobId, ExportRequest request) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.exportPhoto$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[jobId, request],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as ExportResult;
+  }
+
+  Future<void> cancelExport(String jobId) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.cancelExport$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[jobId],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
+  }
+
+  /// Puts the saved image on the clipboard.
+  Future<void> copyToClipboard(String mediaUri) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.copyToClipboard$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[mediaUri],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
+  }
+}
+
+/// Returns a broadcast [Stream] of events from the `exportProgress` event channel.
+///
+/// Each call to this method creates a new [EventChannel], so it should
+/// not be called multiple times for the same `instanceName`. To deliver
+/// events to multiple listeners, call this method once and listen to the
+/// returned broadcast stream multiple times instead.
+Stream<ExportProgress> exportProgress({String instanceName = ''}) {
+  if (instanceName.isNotEmpty) {
+    instanceName = '.$instanceName';
+  }
+  final EventChannel exportProgressChannel = EventChannel(
+    'dev.flutter.pigeon.auvie.ExportEvents.exportProgress$instanceName',
+    pigeonMethodCodec,
+  );
+  return exportProgressChannel.receiveBroadcastStream().map((dynamic event) {
+    return event as ExportProgress;
+  });
 }
