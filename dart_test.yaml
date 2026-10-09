@@ -1,0 +1,6 @@
+tags:
+  golden:
+    description: >-
+      Pixel comparisons of whole screens. Regenerate with
+      `flutter test --update-goldens --tags golden` (on the machine whose
+      rendering is the reference).

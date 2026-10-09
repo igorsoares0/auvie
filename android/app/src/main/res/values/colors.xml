@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paper: browsing screens are paper in both system themes. -->
+    <color name="paper">#F3EEE5</color>
+</resources>

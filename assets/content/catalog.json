@@ -1,0 +1,129 @@
+{
+  "catalogVersion": 1,
+  "collections": [
+    { "id": "film", "name": "Film", "order": 0 },
+    { "id": "vintage", "name": "Vintage", "order": 1 },
+    { "id": "moody", "name": "Moody", "order": 2 },
+    { "id": "clean", "name": "Clean", "order": 3 },
+    { "id": "night", "name": "Night", "order": 4 }
+  ],
+  "presets": [
+    {
+      "id": "ektar_02",
+      "name": "Ektar 02",
+      "collectionId": "film",
+      "stock": "Colour neg.",
+      "iso": 100,
+      "tone": { "highlight": "#e9c9a0", "mid": "#b4674a", "shadow": "#3b2a22" },
+      "settings": {
+        "contrast": 0.12,
+        "highlights": -0.1,
+        "shadows": 0.05,
+        "saturation": 0.18,
+        "temperature": 0.08,
+        "grain": 0.12,
+        "vignette": 0.08
+      }
+    },
+    {
+      "id": "portra_04",
+      "name": "Portra 04",
+      "collectionId": "film",
+      "stock": "Colour neg.",
+      "iso": 400,
+      "tone": { "highlight": "#efe0cc", "mid": "#c49a80", "shadow": "#3d3530" },
+      "settings": {
+        "exposure": 0.04,
+        "contrast": -0.06,
+        "highlights": -0.15,
+        "shadows": 0.1,
+        "saturation": -0.08,
+        "temperature": 0.06,
+        "tint": 0.03,
+        "grain": 0.18,
+        "fade": 0.05
+      }
+    },
+    {
+      "id": "cendre_11",
+      "name": "Cendre 11",
+      "collectionId": "moody",
+      "stock": "Muted neg.",
+      "iso": 400,
+      "tone": { "highlight": "#d6d2ca", "mid": "#8c8a86", "shadow": "#2c2d2f" },
+      "settings": {
+        "contrast": 0.1,
+        "saturation": -0.65,
+        "temperature": -0.05,
+        "grain": 0.22,
+        "fade": 0.1
+      }
+    },
+    {
+      "id": "vitrine",
+      "name": "Vitrine",
+      "collectionId": "clean",
+      "stock": "Slide",
+      "iso": 100,
+      "tone": { "highlight": "#d7e1dc", "mid": "#6f8c90", "shadow": "#1f2a2e" },
+      "settings": {
+        "exposure": 0.06,
+        "contrast": -0.04,
+        "saturation": -0.1,
+        "temperature": -0.06,
+        "tint": -0.04,
+        "fade": 0.04
+      }
+    },
+    {
+      "id": "portra_fade",
+      "name": "Portra Fade",
+      "collectionId": "vintage",
+      "isPremium": true,
+      "stock": "Colour neg.",
+      "iso": 400,
+      "tone": { "highlight": "#efe0cc", "mid": "#c49a80", "shadow": "#4a3f38" },
+      "settings": {
+        "exposure": 0.05,
+        "contrast": -0.18,
+        "highlights": -0.12,
+        "shadows": 0.18,
+        "saturation": -0.15,
+        "temperature": 0.1,
+        "grain": 0.2,
+        "fade": 0.22,
+        "vignette": 0.1
+      },
+      "curves": {
+        "master": {
+          "points": [
+            { "x": 0, "y": 0.08 },
+            { "x": 0.5, "y": 0.52 },
+            { "x": 1, "y": 0.96 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "nocturne_19",
+      "name": "Nocturne 19",
+      "collectionId": "night",
+      "isPremium": true,
+      "stock": "Tungsten",
+      "iso": 800,
+      "tone": { "highlight": "#b9a98a", "mid": "#3d4f66", "shadow": "#121a26" },
+      "settings": {
+        "exposure": -0.05,
+        "contrast": 0.15,
+        "highlights": -0.2,
+        "shadows": -0.1,
+        "saturation": -0.15,
+        "temperature": -0.25,
+        "tint": 0.05,
+        "grain": 0.3,
+        "vignette": 0.25
+      }
+    }
+  ],
+  "assets": []
+}

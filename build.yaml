@@ -1,0 +1,11 @@
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          # Nested freezed models must serialize as JSON, not as objects.
+          explicit_to_json: true
+      drift_dev:
+        options:
+          # ISO-8601 text keeps milliseconds (the default is unix seconds).
+          store_date_time_values_as_text: true
