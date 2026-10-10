@@ -4,7 +4,7 @@ import 'package:auvie/app/router/routes.dart';
 import 'package:auvie/core/models/crop_geometry.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
-import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
+import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -44,7 +44,7 @@ void main() {
       tester.widget<Text>(find.byKey(const Key('editor-caption'))).data!;
 
   Future<void> settle(WidgetTester tester) =>
-      tester.pump(PhotoEditor.saveDelay); // Let the autosave run.
+      tester.pump(EditorController.saveDelay); // Let the autosave run.
 
   testWidgets('crop mode shows the whole photo with the frame over it', (
     tester,
@@ -107,7 +107,7 @@ void main() {
     await openCrop(tester);
     await tapKey(tester, 'aspect-square');
     double left() => app.container
-        .read(photoEditorProvider(project.id))
+        .read(editorControllerProvider(project.id))
         .requireValue
         .edit
         .crop

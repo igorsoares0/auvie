@@ -12,16 +12,20 @@ class ExportErrorSheet extends StatelessWidget {
   const new({
     required this.failed,
     required this.smaller,
-    required this.smallerPixels,
     required this.onSmaller,
     required this.onRetry,
     required this.onDismiss,
+    this.subject = 'photo',
     super.key,
   });
 
+  /// "photo" or "video".
+  final String subject;
+
   final ExportFailed failed;
-  final ExportSize? smaller;
-  final ({int width, int height})? smallerPixels;
+
+  /// The smaller export offered, e.g. "LARGE · 12 MP" (null: none).
+  final String? smaller;
   final VoidCallback onSmaller;
   final VoidCallback onRetry;
   final VoidCallback onDismiss;
@@ -34,7 +38,7 @@ class ExportErrorSheet extends StatelessWidget {
         ? missing == null
               ? 'Your phone needs *more space.*'
               : 'Your phone needs *${megabytes(missing)}* more space.'
-        : "The photo couldn't be *saved.*";
+        : "The $subject couldn't be *saved.*";
     final body = storage
         ? 'Your edit is safe. Free up space, or export a smaller copy now — '
               'you can always export the original later.'
@@ -91,14 +95,11 @@ class ExportErrorSheet extends StatelessWidget {
                         const SizedBox(height: AuvieSpacing.s10),
                         Text(body, style: context.type.body),
                         const SizedBox(height: AuvieSpacing.s18),
-                        if (storage && smaller != null && smallerPixels != null)
+                        if (storage && smaller != null)
                           FilledButton(
                             key: const Key('export-smaller'),
                             onPressed: onSmaller,
-                            child: Text(
-                              'EXPORT ${smaller!.label.toUpperCase()} · '
-                              '${megapixels(smallerPixels!)}',
-                            ),
+                            child: Text('EXPORT $smaller'),
                           ),
                         const SizedBox(height: AuvieSpacing.s6),
                         TextButton(

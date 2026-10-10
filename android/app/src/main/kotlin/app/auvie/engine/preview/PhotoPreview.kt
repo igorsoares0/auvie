@@ -20,8 +20,8 @@ class PhotoPreview private constructor(
     private val producer: SurfaceProducer,
     private val engine: GlEngine,
     private val source: GlTexture,
-) : SurfaceProducer.Callback {
-    val id: Long get() = producer.id()
+) : Preview, SurfaceProducer.Callback {
+    override val id: Long get() = producer.id()
     val width: Int get() = source.width
     val height: Int get() = source.height
 
@@ -47,13 +47,12 @@ class PhotoPreview private constructor(
         scheduler.request()
     }
 
-    fun update(settings: DevelopSettings) {
+    override fun update(settings: DevelopSettings) {
         this.settings = settings
         scheduler.request()
     }
 
-    /** Platform thread. The next frame renders at [width]×[height]. */
-    fun resize(width: Int, height: Int) {
+    override fun resize(width: Int, height: Int) {
         require(width > 0 && height > 0) { "Preview size must be positive" }
         if (width == outputWidth && height == outputHeight) return
         outputWidth = width
@@ -63,7 +62,7 @@ class PhotoPreview private constructor(
         scheduler.request()
     }
 
-    fun setShowOriginal(original: Boolean) {
+    override fun setShowOriginal(original: Boolean) {
         showOriginal = original
         scheduler.request()
     }
@@ -78,7 +77,7 @@ class PhotoPreview private constructor(
         engine.thread.runBlocking { releaseEglSurface() }
     }
 
-    fun dispose() {
+    override fun dispose() {
         disposed = true
         producer.setCallback(null)
         surface = null

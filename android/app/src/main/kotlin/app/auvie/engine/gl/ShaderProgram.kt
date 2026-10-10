@@ -2,14 +2,17 @@ package app.auvie.engine.gl
 
 import android.opengl.GLES30
 
-/** A linked GLSL program with cached uniform locations. GL thread only. */
-class ShaderProgram(vertexSource: String, fragmentSource: String) {
+/**
+ * A linked GLSL program with cached uniform locations. [defines] are added
+ * to both shaders right after `#version`. GL thread only.
+ */
+class ShaderProgram(vertexSource: String, fragmentSource: String, defines: List<String> = emptyList()) {
     val id: Int
     private val uniforms = HashMap<String, Int>()
 
     init {
-        val vertex = compile(GLES30.GL_VERTEX_SHADER, vertexSource)
-        val fragment = compile(GLES30.GL_FRAGMENT_SHADER, fragmentSource)
+        val vertex = compile(GLES30.GL_VERTEX_SHADER, withDefines(vertexSource, defines))
+        val fragment = compile(GLES30.GL_FRAGMENT_SHADER, withDefines(fragmentSource, defines))
         id = GLES30.glCreateProgram()
         GLES30.glAttachShader(id, vertex)
         GLES30.glAttachShader(id, fragment)
@@ -41,6 +44,9 @@ class ShaderProgram(vertexSource: String, fragmentSource: String) {
 
     fun set(name: String, value: Boolean) = set(name, if (value) 1 else 0)
 
+    fun setMatrix4(name: String, value: FloatArray) =
+        GLES30.glUniformMatrix4fv(uniform(name), 1, false, value, 0)
+
     fun release() = GLES30.glDeleteProgram(id)
 
     private fun compile(type: Int, source: String): Int {
@@ -56,5 +62,17 @@ class ShaderProgram(vertexSource: String, fragmentSource: String) {
             error("$kind shader compile failed: $log")
         }
         return shader
+    }
+
+    companion object {
+        /** [source] with `#define NAME` lines inserted after its `#version` line. */
+        fun withDefines(source: String, defines: List<String>): String {
+            if (defines.isEmpty()) return source
+            val lines = defines.joinToString("") { "#define $it\n" }
+            val version = Regex("^\\s*#version[^\\n]*\\n").find(source)
+                ?: return lines + source
+            return source.substring(0, version.range.last + 1) + lines +
+                source.substring(version.range.last + 1)
+        }
     }
 }

@@ -3,35 +3,26 @@ package app.auvie.engine.develop
 import android.content.res.AssetManager
 import android.opengl.GLES30
 import app.auvie.engine.export.Tile
+import app.auvie.engine.gl.FullScreenQuad
 import app.auvie.engine.gl.GlTexture
 import app.auvie.engine.gl.ShaderProgram
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import app.auvie.engine.gl.SourceTexture
 
 /**
  * Draws a source texture through develop.frag into the bound target
- * (window surface or framebuffer). GL thread only.
+ * (window surface or framebuffer). Photos and Media3 frames are 2D
+ * textures; preview video frames are external (OES) textures, drawn by a
+ * second build of the same shader. GL thread only (any thread with the
+ * context it was created on current).
  */
 class DevelopRenderer(assets: AssetManager) {
-    private val program = ShaderProgram(
-        assets.open("shaders/develop.vert").bufferedReader().use { it.readText() },
-        assets.open("shaders/develop.frag").bufferedReader().use { it.readText() },
-    )
+    private val vertexSource = assets.open("shaders/develop.vert").bufferedReader().use { it.readText() }
+    private val fragmentSource = assets.open("shaders/develop.frag").bufferedReader().use { it.readText() }
+    private val program2d = ShaderProgram(vertexSource, fragmentSource)
+    private var programExternal: ShaderProgram? = null
     private val lut = GlTexture.empty(256, 1)
     private var uploadedLut: ByteArray? = null
-    private val quad: Int
-
-    init {
-        val vertices = floatArrayOf(-1f, -1f, 1f, -1f, -1f, 1f, 1f, 1f)
-        val buffer = ByteBuffer.allocateDirect(vertices.size * 4).order(ByteOrder.nativeOrder())
-            .asFloatBuffer().put(vertices).also { it.rewind() }
-        val ids = IntArray(1)
-        GLES30.glGenBuffers(1, ids, 0)
-        quad = ids[0]
-        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, quad)
-        GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER, vertices.size * 4, buffer, GLES30.GL_STATIC_DRAW)
-        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0)
-    }
+    private val quad = FullScreenQuad()
 
     /**
      * Draws the [outputWidth]×[outputHeight] developed output, or only its
@@ -49,16 +40,29 @@ class DevelopRenderer(assets: AssetManager) {
         showOriginal: Boolean = false,
         grainSeed: Float = 0f,
         tile: Tile? = null,
+    ) = draw(source.asSource(), settings, outputWidth, outputHeight, flipY, showOriginal, grainSeed, tile)
+
+    fun draw(
+        source: SourceTexture,
+        settings: DevelopSettings,
+        outputWidth: Int,
+        outputHeight: Int,
+        flipY: Boolean,
+        showOriginal: Boolean = false,
+        grainSeed: Float = 0f,
+        tile: Tile? = null,
     ) {
         setLut(settings.curveLut)
         val part = tile ?: Tile(0, 0, outputWidth, outputHeight)
         GLES30.glViewport(0, 0, part.width, part.height)
+        val program = if (source.isExternal) external() else program2d
         program.use()
 
         source.bind(0)
         program.set("uSource", 0)
         lut.bind(1)
         program.set("uCurveLut", 1)
+        program.setMatrix4("uSourceTransform", source.transform)
 
         GLES30.glUniformMatrix3fv(
             program.uniform("uGeometry"), 1, false, Geometry.toMatrix3(settings.geometry), 0,
@@ -91,20 +95,19 @@ class DevelopRenderer(assets: AssetManager) {
         program.set("uFade", settings.fade)
         program.set("uVignette", settings.vignette)
 
-        val position = program.attribute("aPosition")
-        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, quad)
-        GLES30.glEnableVertexAttribArray(position)
-        GLES30.glVertexAttribPointer(position, 2, GLES30.GL_FLOAT, false, 0, 0)
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, 4)
-        GLES30.glDisableVertexAttribArray(position)
-        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0)
+        quad.draw(program)
     }
 
     fun release() {
-        program.release()
+        program2d.release()
+        programExternal?.release()
         lut.release()
-        GLES30.glDeleteBuffers(1, intArrayOf(quad), 0)
+        quad.release()
     }
+
+    private fun external(): ShaderProgram =
+        programExternal ?: ShaderProgram(vertexSource, fragmentSource, listOf("EXTERNAL_SOURCE"))
+            .also { programExternal = it }
 
     private fun setLut(bytes: ByteArray) {
         if (uploadedLut?.contentEquals(bytes) == true) return

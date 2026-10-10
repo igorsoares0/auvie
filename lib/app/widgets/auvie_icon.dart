@@ -17,6 +17,8 @@ enum AuvieIcons {
   flip,
   grain,
   light,
+  mute,
+  pause,
   photo,
   play,
   redo,

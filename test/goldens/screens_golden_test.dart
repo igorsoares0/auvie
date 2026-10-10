@@ -6,7 +6,7 @@ import 'dart:async';
 import 'package:auvie/app/router/routes.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
-import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
+import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -86,7 +86,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       await expectScreen('editor_adjust_${brightness.name}');
-      await tester.pump(PhotoEditor.saveDelay);
+      await tester.pump(EditorController.saveDelay);
     });
   }
 
@@ -119,7 +119,7 @@ void main() {
     await tap(tester, 'family-crop');
     await tap(tester, 'aspect-portrait4x5');
     await expectScreen('editor_crop_dark');
-    await tester.pump(PhotoEditor.saveDelay);
+    await tester.pump(EditorController.saveDelay);
   });
 
   for (final brightness in Brightness.values) {

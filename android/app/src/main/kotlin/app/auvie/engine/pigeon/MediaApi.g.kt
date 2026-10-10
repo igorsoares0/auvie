@@ -405,7 +405,13 @@ data class ExportLayer (
   val height: Double,
   val blend: LayerBlend,
   /** 0…1. */
-  val opacity: Double
+  val opacity: Double,
+  /**
+   * Videos: when the layer shows, in ms of the original clip (null =
+   * always). Photos ignore them.
+   */
+  val startMs: Long? = null,
+  val endMs: Long? = null
 )
  {
   companion object {
@@ -417,7 +423,9 @@ data class ExportLayer (
       val height = pigeonVar_list[4] as Double
       val blend = pigeonVar_list[5] as LayerBlend
       val opacity = pigeonVar_list[6] as Double
-      return ExportLayer(path, left, top, width, height, blend, opacity)
+      val startMs = pigeonVar_list[7] as Long?
+      val endMs = pigeonVar_list[8] as Long?
+      return ExportLayer(path, left, top, width, height, blend, opacity, startMs, endMs)
     }
   }
   fun toList(): List<Any?> {
@@ -429,6 +437,8 @@ data class ExportLayer (
       height,
       blend,
       opacity,
+      startMs,
+      endMs,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -439,7 +449,7 @@ data class ExportLayer (
       return true
     }
     val other = other as ExportLayer
-    return MediaApiPigeonUtils.deepEquals(this.path, other.path) && MediaApiPigeonUtils.deepEquals(this.left, other.left) && MediaApiPigeonUtils.deepEquals(this.top, other.top) && MediaApiPigeonUtils.deepEquals(this.width, other.width) && MediaApiPigeonUtils.deepEquals(this.height, other.height) && MediaApiPigeonUtils.deepEquals(this.blend, other.blend) && MediaApiPigeonUtils.deepEquals(this.opacity, other.opacity)
+    return MediaApiPigeonUtils.deepEquals(this.path, other.path) && MediaApiPigeonUtils.deepEquals(this.left, other.left) && MediaApiPigeonUtils.deepEquals(this.top, other.top) && MediaApiPigeonUtils.deepEquals(this.width, other.width) && MediaApiPigeonUtils.deepEquals(this.height, other.height) && MediaApiPigeonUtils.deepEquals(this.blend, other.blend) && MediaApiPigeonUtils.deepEquals(this.opacity, other.opacity) && MediaApiPigeonUtils.deepEquals(this.startMs, other.startMs) && MediaApiPigeonUtils.deepEquals(this.endMs, other.endMs)
   }
 
   override fun hashCode(): Int {
@@ -451,10 +461,12 @@ data class ExportLayer (
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.height)
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.blend)
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.opacity)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.startMs)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.endMs)
     return result
   }
   override fun toString(): String {
-    return "ExportLayer(path=$path, left=$left, top=$top, width=$width, height=$height, blend=$blend, opacity=$opacity)"
+    return "ExportLayer(path=$path, left=$left, top=$top, width=$width, height=$height, blend=$blend, opacity=$opacity, startMs=$startMs, endMs=$endMs)"
   }
 }
 
@@ -531,15 +543,99 @@ data class ExportRequest (
   }
 }
 
+/**
+ * A video export: develop, crop and scale to [outputWidth]×[outputHeight]
+ * (even), keep [trimStartMs]…[trimEndMs] of the original, composite the
+ * layers in their time ranges and encode H.264 / AAC MP4.
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class VideoExportRequest (
+  val uri: String,
+  val params: DevelopParams,
+  val outputWidth: Long,
+  val outputHeight: Long,
+  val trimStartMs: Long,
+  val trimEndMs: Long,
+  val includeAudio: Boolean,
+  /** Bits per second. */
+  val videoBitrate: Long,
+  /** Without extension. */
+  val fileName: String,
+  /** Elements in z-order, bottom first, with their time ranges. */
+  val layers: List<ExportLayer>
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): VideoExportRequest {
+      val uri = pigeonVar_list[0] as String
+      val params = pigeonVar_list[1] as DevelopParams
+      val outputWidth = pigeonVar_list[2] as Long
+      val outputHeight = pigeonVar_list[3] as Long
+      val trimStartMs = pigeonVar_list[4] as Long
+      val trimEndMs = pigeonVar_list[5] as Long
+      val includeAudio = pigeonVar_list[6] as Boolean
+      val videoBitrate = pigeonVar_list[7] as Long
+      val fileName = pigeonVar_list[8] as String
+      val layers = pigeonVar_list[9] as List<ExportLayer>
+      return VideoExportRequest(uri, params, outputWidth, outputHeight, trimStartMs, trimEndMs, includeAudio, videoBitrate, fileName, layers)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      uri,
+      params,
+      outputWidth,
+      outputHeight,
+      trimStartMs,
+      trimEndMs,
+      includeAudio,
+      videoBitrate,
+      fileName,
+      layers,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as VideoExportRequest
+    return MediaApiPigeonUtils.deepEquals(this.uri, other.uri) && MediaApiPigeonUtils.deepEquals(this.params, other.params) && MediaApiPigeonUtils.deepEquals(this.outputWidth, other.outputWidth) && MediaApiPigeonUtils.deepEquals(this.outputHeight, other.outputHeight) && MediaApiPigeonUtils.deepEquals(this.trimStartMs, other.trimStartMs) && MediaApiPigeonUtils.deepEquals(this.trimEndMs, other.trimEndMs) && MediaApiPigeonUtils.deepEquals(this.includeAudio, other.includeAudio) && MediaApiPigeonUtils.deepEquals(this.videoBitrate, other.videoBitrate) && MediaApiPigeonUtils.deepEquals(this.fileName, other.fileName) && MediaApiPigeonUtils.deepEquals(this.layers, other.layers)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.uri)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.params)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.outputWidth)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.outputHeight)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.trimStartMs)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.trimEndMs)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.includeAudio)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.videoBitrate)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.fileName)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.layers)
+    return result
+  }
+  override fun toString(): String {
+    return "VideoExportRequest(uri=$uri, params=$params, outputWidth=$outputWidth, outputHeight=$outputHeight, trimStartMs=$trimStartMs, trimEndMs=$trimEndMs, includeAudio=$includeAudio, videoBitrate=$videoBitrate, fileName=$fileName, layers=$layers)"
+  }
+}
+
 /** Generated class from Pigeon that represents data sent in messages. */
 data class ExportResult (
-  /** content:// URI of the copy saved in Pictures/Auvie. */
+  /** content:// URI of the copy saved in Pictures/Auvie or Movies/Auvie. */
   val mediaUri: String,
   /** App-private copy, used for sharing. */
   val filePath: String,
   val width: Long,
   val height: Long,
-  val bytes: Long
+  val bytes: Long,
+  /** Videos only. */
+  val durationMs: Long? = null
 )
  {
   companion object {
@@ -549,7 +645,8 @@ data class ExportResult (
       val width = pigeonVar_list[2] as Long
       val height = pigeonVar_list[3] as Long
       val bytes = pigeonVar_list[4] as Long
-      return ExportResult(mediaUri, filePath, width, height, bytes)
+      val durationMs = pigeonVar_list[5] as Long?
+      return ExportResult(mediaUri, filePath, width, height, bytes, durationMs)
     }
   }
   fun toList(): List<Any?> {
@@ -559,6 +656,7 @@ data class ExportResult (
       width,
       height,
       bytes,
+      durationMs,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -569,7 +667,7 @@ data class ExportResult (
       return true
     }
     val other = other as ExportResult
-    return MediaApiPigeonUtils.deepEquals(this.mediaUri, other.mediaUri) && MediaApiPigeonUtils.deepEquals(this.filePath, other.filePath) && MediaApiPigeonUtils.deepEquals(this.width, other.width) && MediaApiPigeonUtils.deepEquals(this.height, other.height) && MediaApiPigeonUtils.deepEquals(this.bytes, other.bytes)
+    return MediaApiPigeonUtils.deepEquals(this.mediaUri, other.mediaUri) && MediaApiPigeonUtils.deepEquals(this.filePath, other.filePath) && MediaApiPigeonUtils.deepEquals(this.width, other.width) && MediaApiPigeonUtils.deepEquals(this.height, other.height) && MediaApiPigeonUtils.deepEquals(this.bytes, other.bytes) && MediaApiPigeonUtils.deepEquals(this.durationMs, other.durationMs)
   }
 
   override fun hashCode(): Int {
@@ -579,10 +677,11 @@ data class ExportResult (
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.width)
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.height)
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.bytes)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.durationMs)
     return result
   }
   override fun toString(): String {
-    return "ExportResult(mediaUri=$mediaUri, filePath=$filePath, width=$width, height=$height, bytes=$bytes)"
+    return "ExportResult(mediaUri=$mediaUri, filePath=$filePath, width=$width, height=$height, bytes=$bytes, durationMs=$durationMs)"
   }
 }
 
@@ -678,6 +777,110 @@ data class PreviewInfo (
     return "PreviewInfo(textureId=$textureId, width=$width, height=$height)"
   }
 }
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class VideoPreviewInfo (
+  val textureId: Long,
+  /** Upright size of the video. */
+  val width: Long,
+  val height: Long,
+  val durationMs: Long,
+  val hasAudio: Boolean
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): VideoPreviewInfo {
+      val textureId = pigeonVar_list[0] as Long
+      val width = pigeonVar_list[1] as Long
+      val height = pigeonVar_list[2] as Long
+      val durationMs = pigeonVar_list[3] as Long
+      val hasAudio = pigeonVar_list[4] as Boolean
+      return VideoPreviewInfo(textureId, width, height, durationMs, hasAudio)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      textureId,
+      width,
+      height,
+      durationMs,
+      hasAudio,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as VideoPreviewInfo
+    return MediaApiPigeonUtils.deepEquals(this.textureId, other.textureId) && MediaApiPigeonUtils.deepEquals(this.width, other.width) && MediaApiPigeonUtils.deepEquals(this.height, other.height) && MediaApiPigeonUtils.deepEquals(this.durationMs, other.durationMs) && MediaApiPigeonUtils.deepEquals(this.hasAudio, other.hasAudio)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.textureId)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.width)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.height)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.durationMs)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.hasAudio)
+    return result
+  }
+  override fun toString(): String {
+    return "VideoPreviewInfo(textureId=$textureId, width=$width, height=$height, durationMs=$durationMs, hasAudio=$hasAudio)"
+  }
+}
+
+/**
+ * Where a video preview is: sent about 30 times a second while playing,
+ * and on every play, pause and seek.
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class PlaybackState (
+  val textureId: Long,
+  val positionMs: Long,
+  val playing: Boolean
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): PlaybackState {
+      val textureId = pigeonVar_list[0] as Long
+      val positionMs = pigeonVar_list[1] as Long
+      val playing = pigeonVar_list[2] as Boolean
+      return PlaybackState(textureId, positionMs, playing)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      textureId,
+      positionMs,
+      playing,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as PlaybackState
+    return MediaApiPigeonUtils.deepEquals(this.textureId, other.textureId) && MediaApiPigeonUtils.deepEquals(this.positionMs, other.positionMs) && MediaApiPigeonUtils.deepEquals(this.playing, other.playing)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.textureId)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.positionMs)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.playing)
+    return result
+  }
+  override fun toString(): String {
+    return "PlaybackState(textureId=$textureId, positionMs=$positionMs, playing=$playing)"
+  }
+}
 private open class MediaApiPigeonCodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
@@ -718,17 +921,32 @@ private open class MediaApiPigeonCodec : StandardMessageCodec() {
       }
       136.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          ExportResult.fromList(it)
+          VideoExportRequest.fromList(it)
         }
       }
       137.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          ExportProgress.fromList(it)
+          ExportResult.fromList(it)
         }
       }
       138.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
+          ExportProgress.fromList(it)
+        }
+      }
+      139.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
           PreviewInfo.fromList(it)
+        }
+      }
+      140.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          VideoPreviewInfo.fromList(it)
+        }
+      }
+      141.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          PlaybackState.fromList(it)
         }
       }
       else -> super.readValueOfType(type, buffer)
@@ -764,16 +982,28 @@ private open class MediaApiPigeonCodec : StandardMessageCodec() {
         stream.write(135)
         writeValue(stream, value.toList())
       }
-      is ExportResult -> {
+      is VideoExportRequest -> {
         stream.write(136)
         writeValue(stream, value.toList())
       }
-      is ExportProgress -> {
+      is ExportResult -> {
         stream.write(137)
         writeValue(stream, value.toList())
       }
-      is PreviewInfo -> {
+      is ExportProgress -> {
         stream.write(138)
+        writeValue(stream, value.toList())
+      }
+      is PreviewInfo -> {
+        stream.write(139)
+        writeValue(stream, value.toList())
+      }
+      is VideoPreviewInfo -> {
+        stream.write(140)
+        writeValue(stream, value.toList())
+      }
+      is PlaybackState -> {
+        stream.write(141)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -793,14 +1023,37 @@ interface MediaHostApi {
   suspend fun thumbnail(uri: String, maxPx: Long): ByteArray
   /** Decodes the photo (longer side ≤ [maxPx]) and shows it in a texture. */
   suspend fun createPhotoPreview(uri: String, maxPx: Long): PreviewInfo
+  /**
+   * Opens the video paused at its first frame, shown in a texture rendered
+   * at most [maxPx] on the longer side. The texture works with
+   * [updateEdit], [setShowOriginal], [resizePreview] and [disposePreview].
+   */
+  suspend fun createVideoPreview(uri: String, maxPx: Long): VideoPreviewInfo
+  fun playVideo(textureId: Long)
+  fun pauseVideo(textureId: Long)
+  /** [exact] false seeks to the nearest key frame (fast, for scrubbing). */
+  fun seekVideo(textureId: Long, positionMs: Long, exact: Boolean)
+  /** Playback loops inside [startMs]…[endMs] (the trim). */
+  fun setPlaybackRange(textureId: Long, startMs: Long, endMs: Long)
+  fun setVideoMuted(textureId: Long, muted: Boolean)
+  /** [count] JPEG frames evenly spread over the video, longer side ≤ [maxPx]. */
+  suspend fun videoFrames(uri: String, count: Long, maxPx: Long): List<ByteArray>
+  /**
+   * Peak level (0…1) of the sound in each of [buckets] equal slices. Null
+   * when the video has no sound.
+   */
+  suspend fun waveform(uri: String, buckets: Long): DoubleArray?
   /** Coalesced: only the latest params are rendered on the next frame. */
   fun updateEdit(textureId: Long, params: DevelopParams)
   fun setShowOriginal(textureId: Long, original: Boolean)
   fun disposePreview(textureId: Long)
   /** Sets the preview's pixel size (when the crop's aspect or layout change). */
   fun resizePreview(textureId: Long, width: Long, height: Long)
-  /** Renders offscreen and returns a JPEG whose longer side is ≤ [maxPx]. */
-  suspend fun renderPhoto(uri: String, params: DevelopParams, maxPx: Long): ByteArray
+  /**
+   * Renders offscreen and returns a JPEG whose longer side is ≤ [maxPx]:
+   * the photo, or the video's frame at [timeMs].
+   */
+  suspend fun renderFrame(uri: String, params: DevelopParams, maxPx: Long, timeMs: Long?): ByteArray
   /** Free bytes where exports are written. */
   fun availableBytes(): Long
   /**
@@ -808,7 +1061,15 @@ interface MediaHostApi {
    * Progress arrives on [ExportEvents.exportProgress] under [jobId].
    */
   suspend fun exportPhoto(jobId: String, request: ExportRequest): ExportResult
+  /**
+   * Exports in a background job with a progress notification, saves to
+   * Movies/Auvie and keeps an app copy. Progress arrives like photos'.
+   */
+  suspend fun exportVideo(jobId: String, request: VideoExportRequest): ExportResult
+  /** Photos and videos. */
   fun cancelExport(jobId: String)
+  /** Asks to show notifications (Android 13+). True when allowed. */
+  suspend fun requestNotificationPermission(): Boolean
   /** Puts the saved image on the clipboard. */
   suspend fun copyToClipboard(mediaUri: String)
 
@@ -900,6 +1161,162 @@ interface MediaHostApi {
         }
       }
       run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.createVideoPreview$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val uriArg = args[0] as String
+            val maxPxArg = args[1] as Long
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.createVideoPreview(uriArg, maxPxArg))
+              } catch (exception: Throwable) {
+                MediaApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.playVideo$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val textureIdArg = args[0] as Long
+            val wrapped: List<Any?> = try {
+              api.playVideo(textureIdArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              MediaApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.pauseVideo$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val textureIdArg = args[0] as Long
+            val wrapped: List<Any?> = try {
+              api.pauseVideo(textureIdArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              MediaApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.seekVideo$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val textureIdArg = args[0] as Long
+            val positionMsArg = args[1] as Long
+            val exactArg = args[2] as Boolean
+            val wrapped: List<Any?> = try {
+              api.seekVideo(textureIdArg, positionMsArg, exactArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              MediaApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.setPlaybackRange$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val textureIdArg = args[0] as Long
+            val startMsArg = args[1] as Long
+            val endMsArg = args[2] as Long
+            val wrapped: List<Any?> = try {
+              api.setPlaybackRange(textureIdArg, startMsArg, endMsArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              MediaApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.setVideoMuted$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val textureIdArg = args[0] as Long
+            val mutedArg = args[1] as Boolean
+            val wrapped: List<Any?> = try {
+              api.setVideoMuted(textureIdArg, mutedArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              MediaApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.videoFrames$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val uriArg = args[0] as String
+            val countArg = args[1] as Long
+            val maxPxArg = args[2] as Long
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.videoFrames(uriArg, countArg, maxPxArg))
+              } catch (exception: Throwable) {
+                MediaApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.waveform$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val uriArg = args[0] as String
+            val bucketsArg = args[1] as Long
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.waveform(uriArg, bucketsArg))
+              } catch (exception: Throwable) {
+                MediaApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.updateEdit$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
@@ -976,16 +1393,17 @@ interface MediaHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.renderPhoto$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.renderFrame$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val uriArg = args[0] as String
             val paramsArg = args[1] as DevelopParams
             val maxPxArg = args[2] as Long
+            val timeMsArg = args[3] as Long?
             CoroutineScope(Dispatchers.Main).launch {
               val wrapped: List<Any?> = try {
-                listOf(api.renderPhoto(uriArg, paramsArg, maxPxArg))
+                listOf(api.renderFrame(uriArg, paramsArg, maxPxArg, timeMsArg))
               } catch (exception: Throwable) {
                 MediaApiPigeonUtils.wrapError(exception)
               }
@@ -1032,6 +1450,26 @@ interface MediaHostApi {
         }
       }
       run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.exportVideo$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val jobIdArg = args[0] as String
+            val requestArg = args[1] as VideoExportRequest
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.exportVideo(jobIdArg, requestArg))
+              } catch (exception: Throwable) {
+                MediaApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.cancelExport$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
@@ -1044,6 +1482,23 @@ interface MediaHostApi {
               MediaApiPigeonUtils.wrapError(exception)
             }
             reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.requestNotificationPermission$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.requestNotificationPermission())
+              } catch (exception: Throwable) {
+                MediaApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
           }
         } else {
           channel.setMessageHandler(null)
@@ -1122,6 +1577,23 @@ abstract class ExportProgressStreamHandler : MediaApiPigeonEventChannelWrapper<E
   }
 // Implement methods from MediaApiPigeonEventChannelWrapper
 override fun onListen(p0: Any?, sink: PigeonEventSink<ExportProgress>) {}
+
+override fun onCancel(p0: Any?) {}
+}
+      
+abstract class PlaybackStateStreamHandler : MediaApiPigeonEventChannelWrapper<PlaybackState> {
+  companion object {
+    fun register(messenger: BinaryMessenger, streamHandler: PlaybackStateStreamHandler, instanceName: String = "") {
+      var channelName: String = "dev.flutter.pigeon.auvie.ExportEvents.playbackState"
+      if (instanceName.isNotEmpty()) {
+        channelName += ".$instanceName"
+      }
+      val internalStreamHandler = MediaApiPigeonStreamHandler<PlaybackState>(streamHandler)
+      EventChannel(messenger, channelName, MediaApiPigeonMethodCodec).setStreamHandler(internalStreamHandler)
+    }
+  }
+// Implement methods from MediaApiPigeonEventChannelWrapper
+override fun onListen(p0: Any?, sink: PigeonEventSink<PlaybackState>) {}
 
 override fun onCancel(p0: Any?) {}
 }

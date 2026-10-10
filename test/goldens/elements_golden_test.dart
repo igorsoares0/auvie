@@ -12,7 +12,7 @@ import 'package:auvie/features/editor/elements/element_assets.dart';
 import 'package:auvie/features/editor/elements/element_assets_provider.dart';
 import 'package:auvie/features/editor/elements/elements_painter.dart';
 import 'package:auvie/features/editor/elements/frame_renderer.dart';
-import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
+import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -75,7 +75,7 @@ void main() {
       );
       await tap(tester, 'typing-done');
       await expectScreen('editor_type_${brightness.name}');
-      await tester.pump(PhotoEditor.saveDelay);
+      await tester.pump(EditorController.saveDelay);
     });
   }
 
@@ -88,7 +88,7 @@ void main() {
     await tap(tester, 'ink-ffe0573c');
     await drawWave(tester, area, dy: 40);
     await expectScreen('editor_brush_dark');
-    await tester.pump(PhotoEditor.saveDelay);
+    await tester.pump(EditorController.saveDelay);
   });
 
   testWidgets('add, every tab', (tester) async {
@@ -102,7 +102,7 @@ void main() {
     await tap(tester, 'add-tab-Frames');
     await tap(tester, 'asset-frame_film35');
     await expectScreen('editor_add_frames_dark');
-    await tester.pump(PhotoEditor.saveDelay);
+    await tester.pump(EditorController.saveDelay);
   });
 
   group('drawing', () {

@@ -79,4 +79,102 @@ void main() {
       defaultExportOptions,
     );
   });
+
+  group('video sizes', () {
+    Project video({CropTransform crop = const CropTransform()}) => Project(
+      id: 'v',
+      media: videoMedia, // 1080 × 1920
+      createdAt: DateTime.utc(2026),
+      updatedAt: DateTime.utc(2026),
+      edit: EditState(crop: crop),
+    );
+
+    test('720p and 1080p set the shorter side; original keeps it', () {
+      expect(videoExportPixels(video(), VideoExportSize.p720), (
+        width: 720,
+        height: 1280,
+      ));
+      expect(videoExportPixels(video(), VideoExportSize.p1080), (
+        width: 1080,
+        height: 1920,
+      ));
+      expect(videoExportPixels(video(), VideoExportSize.original), (
+        width: 1080,
+        height: 1920,
+      ));
+    });
+
+    test('a square crop at 720p is 720 × 720', () {
+      final square = video(
+        crop: const CropTransform().withAspect(
+          CropAspect.square,
+          mediaRatio: videoMedia.aspectRatio,
+        ),
+      );
+      expect(videoExportPixels(square, VideoExportSize.p720), (
+        width: 720,
+        height: 720,
+      ));
+    });
+
+    test('sizes are even and never upscaled', () {
+      const odd = MediaRef(
+        uri: 'content://v',
+        type: MediaType.video,
+        width: 641,
+        height: 361,
+        durationMs: 3000,
+      );
+      final small = video().copyWith(media: odd);
+      expect(videoExportPixels(small, VideoExportSize.p1080), (
+        width: 640,
+        height: 360,
+      ));
+      expect(videoSizeAvailable(small, VideoExportSize.p720), isFalse);
+      expect(videoSizeAvailable(small, VideoExportSize.original), isTrue);
+      expect(videoSizeAvailable(video(), VideoExportSize.p1080), isTrue);
+    });
+
+    test('original stops at 4K', () {
+      const huge = MediaRef(
+        uri: 'content://v',
+        type: MediaType.video,
+        width: 7680,
+        height: 4320,
+        durationMs: 3000,
+      );
+      final pixels = videoExportPixels(
+        video().copyWith(media: huge),
+        VideoExportSize.original,
+      );
+      expect(pixels, (width: maxVideoSide, height: 2160));
+    });
+
+    test('bitrate grows with the picture', () {
+      expect(videoBitrate((width: 720, height: 1280)), 5529600);
+      expect(videoBitrate((width: 1080, height: 1920)), 12441600);
+      expect(videoBitrate((width: 3840, height: 2160)), 49766400);
+      expect(videoBitrate((width: 2, height: 2)), 1000000);
+    });
+
+    test('needed room covers both copies of the file', () {
+      // 8 Mbps + 128 kbps for 10 s = 10.16 MB, twice, plus 10%.
+      expect(
+        requiredVideoBytes(
+          videoBitrate: 8000000,
+          durationMs: 10000,
+          includeAudio: true,
+        ),
+        22352000,
+      );
+      expect(
+        requiredVideoBytes(
+          videoBitrate: 8000000,
+          durationMs: 10000,
+          includeAudio: false,
+        ),
+        22000000,
+      );
+    });
+  });
 }

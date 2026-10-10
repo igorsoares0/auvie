@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'elements.freezed.dart';
@@ -42,6 +44,29 @@ abstract class TimeRange with _$TimeRange {
   factory fromJson(Map<String, dynamic> json) => _$TimeRangeFromJson(json);
 
   bool contains(int ms) => ms >= startMs && ms < endMs;
+
+  int get durationMs => endMs - startMs;
+
+  /// Shortest range the timeline handles allow.
+  static const minDurationMs = 300;
+
+  /// Shifted by [deltaMs], kept inside the clip, length unchanged.
+  TimeRange moved(int deltaMs, {required int durationMs}) {
+    final length = math.min(this.durationMs, durationMs);
+    final start = (startMs + deltaMs).clamp(0, durationMs - length);
+    return TimeRange(startMs: start, endMs: start + length);
+  }
+
+  /// Moves one end to [startMs] or [endMs], inside the clip and at least
+  /// [minDurationMs] long.
+  TimeRange resized({required int durationMs, int? startMs, int? endMs}) {
+    final minimum = math.min(minDurationMs, durationMs);
+    var start = startMs ?? this.startMs;
+    var end = endMs ?? this.endMs;
+    if (startMs != null) start = start.clamp(0, end - minimum);
+    if (endMs != null) end = end.clamp(start + minimum, durationMs);
+    return TimeRange(startMs: start, endMs: end);
+  }
 }
 
 @freezed
@@ -186,4 +211,28 @@ sealed class EditElement with _$EditElement {
       FrameElement;
 
   factory fromJson(Map<String, dynamic> json) => _$EditElementFromJson(json);
+}
+
+/// When elements show in a video (spec §23). Frames always cover the
+/// whole clip.
+extension ElementTiming on EditElement {
+  TimeRange? get time => switch (this) {
+    TextElement(:final time) ||
+    TextPathElement(:final time) ||
+    BrushElement(:final time) ||
+    StickerElement(:final time) ||
+    OverlayElement(:final time) => time,
+    FrameElement() => null,
+  };
+
+  bool visibleAt(int ms) => time?.contains(ms) ?? true;
+
+  EditElement withTime(TimeRange? time) => switch (this) {
+    final TextElement e => e.copyWith(time: time),
+    final TextPathElement e => e.copyWith(time: time),
+    final BrushElement e => e.copyWith(time: time),
+    final StickerElement e => e.copyWith(time: time),
+    final OverlayElement e => e.copyWith(time: time),
+    final FrameElement e => e,
+  };
 }

@@ -25,6 +25,8 @@ class FakeElementRasterizer implements ElementLayerRasterizer {
           height: output.height.toDouble(),
           blend: layerBlendOf(e),
           opacity: 1,
+          startMs: e.time?.startMs,
+          endMs: e.time?.endMs,
         ),
     ];
   }

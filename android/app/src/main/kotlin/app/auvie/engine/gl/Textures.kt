@@ -1,13 +1,45 @@
 package app.auvie.engine.gl
 
 import android.graphics.Bitmap
+import android.opengl.GLES11Ext
 import android.opengl.GLES30
 import android.opengl.GLUtils
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+/**
+ * What the develop shader samples: a 2D texture or a video frame
+ * (GL_TEXTURE_EXTERNAL_OES). [width]×[height] is the upright image size and
+ * [transform] (column-major 4×4) maps its uv, top-left origin, to texture
+ * coordinates.
+ */
+class SourceTexture(
+    val id: Int,
+    val target: Int,
+    val width: Int,
+    val height: Int,
+    val transform: FloatArray = IDENTITY,
+) {
+    val isExternal: Boolean get() = target == GLES11Ext.GL_TEXTURE_EXTERNAL_OES
+
+    fun bind(unit: Int) {
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE0 + unit)
+        GLES30.glBindTexture(target, id)
+    }
+
+    companion object {
+        val IDENTITY = floatArrayOf(1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f)
+
+        /** uv → (u, 1 − v): for textures whose first row is the image's bottom. */
+        val FLIP_Y = floatArrayOf(1f, 0f, 0f, 0f, 0f, -1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 1f, 0f, 1f)
+    }
+}
+
 /** An RGBA8 texture. GL thread only. */
 class GlTexture private constructor(val id: Int, val width: Int, val height: Int) {
+    /** As a develop source (row 0 is the image's top). */
+    fun asSource() = SourceTexture(id, GLES30.GL_TEXTURE_2D, width, height)
+
     fun bind(unit: Int) {
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0 + unit)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, id)
@@ -58,7 +90,10 @@ class GlTexture private constructor(val id: Int, val width: Int, val height: Int
 /** An offscreen render target whose pixels can be read back. GL thread only. */
 class Framebuffer(val width: Int, val height: Int) {
     private val texture = GlTexture.empty(width, height)
-    private val id: Int
+    val id: Int
+
+    /** What was drawn, as a texture (first row = bottom, GL convention). */
+    val textureId: Int get() = texture.id
 
     init {
         val ids = IntArray(1)
@@ -91,4 +126,24 @@ class Framebuffer(val width: Int, val height: Int) {
         GLES30.glDeleteFramebuffers(1, intArrayOf(id), 0)
         texture.release()
     }
+}
+
+/** A texture a SurfaceTexture streams video frames into. GL thread only. */
+class OesTexture {
+    val id: Int
+
+    init {
+        val ids = IntArray(1)
+        GLES30.glGenTextures(1, ids, 0)
+        id = ids[0]
+        val target = GLES11Ext.GL_TEXTURE_EXTERNAL_OES
+        GLES30.glBindTexture(target, id)
+        GLES30.glTexParameteri(target, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR)
+        GLES30.glTexParameteri(target, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
+        GLES30.glTexParameteri(target, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE)
+        GLES30.glTexParameteri(target, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE)
+        GLES30.glBindTexture(target, 0)
+    }
+
+    fun release() = GLES30.glDeleteTextures(1, intArrayOf(id), 0)
 }

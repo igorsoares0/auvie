@@ -18,7 +18,12 @@ final onePixelPng = Uint8List.fromList(const [
 
 /// In-memory [MediaEngine] that records what the UI asked for.
 class FakeMediaEngine implements MediaEngine {
-  new({this.picked, this.previewSize = (width: 400, height: 300)});
+  new({
+    this.picked,
+    this.previewSize = (width: 400, height: 300),
+    this.videoDurationMs = 10000,
+    this.videoHasAudio = true,
+  });
 
   /// What [pickMedia] returns (null = the user cancelled).
   MediaRef? picked;
@@ -31,6 +36,16 @@ class FakeMediaEngine implements MediaEngine {
   final renders = <RenderParams>[];
   final resized = <(int, int, int)>[];
   final exports = <ExportJob>[];
+  final videoExports = <VideoExportJob>[];
+
+  /// Player calls: play, pause, seek(ms, exact), range(start, end), muted(b).
+  final player = <String>[];
+  int videoDurationMs;
+  bool videoHasAudio;
+
+  /// What [requestNotificationPermission] answers; counts the requests.
+  bool notificationsAllowed = true;
+  int notificationRequests = 0;
   final cancelled = <String>[];
   final copied = <String>[];
 
@@ -44,6 +59,15 @@ class FakeMediaEngine implements MediaEngine {
   MediaEngineException? exportError;
 
   final _progress = StreamController<ExportProgress>.broadcast();
+  final _playback = StreamController<PlaybackState>.broadcast();
+
+  /// Sends a playback event (as the player does while playing).
+  void emitPlayback(int textureId, int positionMs, {bool playing = false}) =>
+      _playback.add((
+        textureId: textureId,
+        positionMs: positionMs,
+        playing: playing,
+      ));
   final _running = <String, Completer<void>>{};
 
   /// Sends a progress event for [jobId].
@@ -111,6 +135,77 @@ class FakeMediaEngine implements MediaEngine {
   }
 
   @override
+  Future<Uint8List> renderVideoFrame(
+    String uri,
+    RenderParams params, {
+    required int maxPx,
+    required int timeMs,
+  }) async {
+    calls.add('renderVideoFrame($uri, $maxPx, $timeMs)');
+    renders.add(params);
+    return onePixelPng;
+  }
+
+  @override
+  Future<VideoPreview> createVideoPreview(
+    String uri, {
+    required int maxPx,
+  }) async {
+    calls.add('createVideoPreview($uri, $maxPx)');
+    return (
+      textureId: _nextTexture++,
+      width: previewSize.width,
+      height: previewSize.height,
+      durationMs: videoDurationMs,
+      hasAudio: videoHasAudio,
+    );
+  }
+
+  @override
+  Future<void> playVideo(int textureId) async => player.add('play');
+
+  @override
+  Future<void> pauseVideo(int textureId) async => player.add('pause');
+
+  @override
+  Future<void> seekVideo(
+    int textureId,
+    int positionMs, {
+    bool exact = true,
+  }) async => player.add('seek($positionMs, $exact)');
+
+  @override
+  Future<void> setPlaybackRange(
+    int textureId, {
+    required int startMs,
+    required int endMs,
+  }) async => player.add('range($startMs, $endMs)');
+
+  @override
+  Future<void> setVideoMuted(int textureId, {required bool muted}) async =>
+      player.add('muted($muted)');
+
+  @override
+  Stream<PlaybackState> get playbackStates => _playback.stream;
+
+  @override
+  Future<List<Uint8List>> videoFrames(
+    String uri, {
+    required int count,
+    required int maxPx,
+  }) async {
+    calls.add('videoFrames($uri, $count)');
+    return List.filled(count, onePixelPng);
+  }
+
+  @override
+  Future<List<double>?> waveform(String uri, {required int buckets}) async {
+    calls.add('waveform($uri, $buckets)');
+    if (!videoHasAudio) return null;
+    return [for (var i = 0; i < buckets; i++) (i % 7) / 6];
+  }
+
+  @override
   Future<void> resizePreview(
     int textureId, {
     required int width,
@@ -125,6 +220,39 @@ class FakeMediaEngine implements MediaEngine {
   @override
   Future<ExportResult> exportPhoto(String jobId, ExportJob job) async {
     exports.add(job);
+    return await _export(
+      jobId,
+      filePath: '/files/exports/${job.fileName}.jpg',
+      width: job.outputWidth,
+      height: job.outputHeight,
+    );
+  }
+
+  @override
+  Future<ExportResult> exportVideo(String jobId, VideoExportJob job) async {
+    videoExports.add(job);
+    return await _export(
+      jobId,
+      filePath: '/files/exports/${job.fileName}.mp4',
+      width: job.outputWidth,
+      height: job.outputHeight,
+      durationMs: job.trimEndMs - job.trimStartMs,
+    );
+  }
+
+  @override
+  Future<bool> requestNotificationPermission() async {
+    notificationRequests++;
+    return notificationsAllowed;
+  }
+
+  Future<ExportResult> _export(
+    String jobId, {
+    required String filePath,
+    required int width,
+    required int height,
+    int? durationMs,
+  }) async {
     final done = Completer<void>();
     _running[jobId] = done;
     try {
@@ -139,11 +267,14 @@ class FakeMediaEngine implements MediaEngine {
       if (error != null) throw error;
       emitProgress(jobId, 1, 'save');
       return (
-        mediaUri: 'content://media/external/images/media/1',
-        filePath: '/files/exports/${job.fileName}.jpg',
-        width: job.outputWidth,
-        height: job.outputHeight,
+        mediaUri: durationMs == null
+            ? 'content://media/external/images/media/1'
+            : 'content://media/external/video/media/1',
+        filePath: filePath,
+        width: width,
+        height: height,
         bytes: 4800000,
+        durationMs: durationMs,
       );
     } finally {
       _running.remove(jobId);

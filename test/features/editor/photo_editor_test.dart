@@ -2,7 +2,7 @@ import 'package:auvie/app/router/routes.dart';
 import 'package:auvie/core/models/adjustment.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
-import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
+import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:auvie/features/home/home_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
@@ -58,7 +58,7 @@ void main() {
     final params = app.engine.updates.last.$2;
     expect(params.adjustments[Adjustment.saturation], closeTo(0.18, 1e-9));
     expect(find.byKey(const Key('intensity-slider')), findsOneWidget);
-    await tester.pump(PhotoEditor.saveDelay); // Let the autosave run.
+    await tester.pump(EditorController.saveDelay); // Let the autosave run.
   });
 
   testWidgets('intensity is one undo step per drag', (tester) async {
@@ -78,7 +78,7 @@ void main() {
     expect(caption(tester), 'Original');
     await tapKey(tester, 'editor-redo');
     expect(caption(tester), 'Ektar, at 100%');
-    await tester.pump(PhotoEditor.saveDelay); // Let the autosave run.
+    await tester.pump(EditorController.saveDelay); // Let the autosave run.
   });
 
   testWidgets('ADJUST: ruler, reset, swipe and families', (tester) async {
@@ -127,7 +127,7 @@ void main() {
 
     await tapKey(tester, 'tool-film');
     expect(caption(tester), 'Ektar 100%, one adjustment');
-    await tester.pump(PhotoEditor.saveDelay); // Let the autosave run.
+    await tester.pump(EditorController.saveDelay); // Let the autosave run.
   });
 
   testWidgets('every tool opens its panel', (tester) async {
@@ -154,7 +154,9 @@ void main() {
   testWidgets('edits autosave shortly after the last change', (tester) async {
     await openEditor(tester);
     await tapKey(tester, 'preset-ektar_02');
-    await tester.pump(PhotoEditor.saveDelay + const Duration(milliseconds: 50));
+    await tester.pump(
+      EditorController.saveDelay + const Duration(milliseconds: 50),
+    );
 
     final saved = await tester.runAsync(
       () => app.container.read(projectRepositoryProvider).find(project.id),

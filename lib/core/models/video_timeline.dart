@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:auvie/core/models/elements.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'video_timeline.freezed.dart';
@@ -43,5 +44,18 @@ abstract class VideoTimeline with _$VideoTimeline {
       trimStartMs: start,
       trimEndMs: end == durationMs ? null : end,
     );
+  }
+
+  /// When a new element shows (decision M6): from the playhead to the end
+  /// of the trim, starting earlier if less than [TimeRange.minDurationMs]
+  /// is left.
+  TimeRange defaultElementTime({
+    required int playheadMs,
+    required int durationMs,
+  }) {
+    final end = endMs(durationMs);
+    final minimum = math.min(TimeRange.minDurationMs, end - trimStartMs);
+    final start = playheadMs.clamp(trimStartMs, end - minimum);
+    return TimeRange(startMs: start, endMs: end);
   }
 }

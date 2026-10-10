@@ -1,3 +1,4 @@
+import 'package:auvie/core/models/elements.dart';
 import 'package:auvie/core/models/video_timeline.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -82,5 +83,34 @@ void main() {
   test('round-trips through JSON', () {
     const t = VideoTimeline(trimStartMs: 100, trimEndMs: 900, muted: true);
     expect(VideoTimeline.fromJson(t.toJson()), t);
+  });
+
+  group('defaultElementTime', () {
+    const trimmed = VideoTimeline(trimStartMs: 1000, trimEndMs: 8000);
+
+    test('runs from the playhead to the end of the trim', () {
+      expect(
+        trimmed.defaultElementTime(playheadMs: 3000, durationMs: duration),
+        const TimeRange(startMs: 3000, endMs: 8000),
+      );
+      expect(
+        timeline.defaultElementTime(playheadMs: 0, durationMs: duration),
+        const TimeRange(startMs: 0, endMs: duration),
+      );
+    });
+
+    test('a playhead outside the trim starts inside it', () {
+      expect(
+        trimmed.defaultElementTime(playheadMs: 200, durationMs: duration),
+        const TimeRange(startMs: 1000, endMs: 8000),
+      );
+    });
+
+    test('near the end it starts earlier to stay visible', () {
+      expect(
+        trimmed.defaultElementTime(playheadMs: 7900, durationMs: duration),
+        const TimeRange(startMs: 7700, endMs: 8000),
+      );
+    });
   });
 }

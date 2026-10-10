@@ -23,6 +23,8 @@ class AppSettings {
   static const _exportFormat = 'auvie.export.format';
   static const _exportSize = 'auvie.export.size';
   static const _exportMetadata = 'auvie.export.keepMetadata';
+  static const _videoExportSize = 'auvie.export.videoSize';
+  static const _notificationsAsked = 'auvie.notificationsAsked';
 
   /// Frames per roll, like 36-exposure film.
   static const framesPerRoll = 36;
@@ -47,6 +49,18 @@ class AppSettings {
     await _prefs.setString(_exportSize, size);
     await _prefs.setBool(_exportMetadata, keepMetadata);
   }
+
+  /// Last video export size, by enum name.
+  String? get videoExportSize => _prefs.getString(_videoExportSize);
+
+  Future<void> saveVideoExportSize(String size) =>
+      _prefs.setString(_videoExportSize, size);
+
+  /// Whether the first video export already asked to show notifications.
+  bool get notificationsAsked => _prefs.getBool(_notificationsAsked) ?? false;
+
+  Future<void> markNotificationsAsked() =>
+      _prefs.setBool(_notificationsAsked, true);
 
   /// Names the next project like a frame on a roll of film:
   /// "Roll 001 · 01" … "Roll 001 · 36", "Roll 002 · 01" …

@@ -7,15 +7,17 @@ import 'package:auvie/features/editor/elements/element_assets_provider.dart';
 import 'package:auvie/features/editor/elements/element_geometry.dart';
 import 'package:auvie/features/editor/elements/elements_painter.dart';
 import 'package:auvie/features/editor/elements/stroke_smoothing.dart';
-import 'package:auvie/features/editor/photo/editor_session.dart';
-import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
+import 'package:auvie/features/editor/shell/editor_controller.dart';
+import 'package:auvie/features/editor/shell/editor_session.dart';
 import 'package:auvie/features/editor/text/path_text_painter.dart';
+import 'package:auvie/features/editor/video/video_playback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Elements over the photo, and the gestures that edit them: tap to select
 /// (or to add text in TYPE), drag / pinch / twist the selection, draw with
-/// BRUSH or TEXT BRUSH.
+/// BRUSH or TEXT BRUSH. On a video, only the elements visible at the
+/// playhead show and respond.
 class ElementsLayer extends ConsumerStatefulWidget {
   const new({required this.projectId, super.key});
 
@@ -37,8 +39,8 @@ class _ElementsLayerState extends ConsumerState<ElementsLayer> {
   double _lastScale = 1;
   double _lastRotation = 0;
 
-  PhotoEditor get _controller =>
-      ref.read(photoEditorProvider(widget.projectId).notifier);
+  EditorController get _controller =>
+      ref.read(editorControllerProvider(widget.projectId).notifier);
 
   static bool _drawing(EditorSession s) =>
       s.editingElementId == null &&
@@ -102,8 +104,14 @@ class _ElementsLayerState extends ConsumerState<ElementsLayer> {
     }
   }
 
-  void _tap(Offset at, Size size, EditorSession s, ElementAssets assets) {
-    final hit = ElementGeometry.hit(s.edit.elements, at, size, assets);
+  void _tap(
+    Offset at,
+    Size size,
+    EditorSession s,
+    List<EditElement> elements,
+    ElementAssets assets,
+  ) {
+    final hit = ElementGeometry.hit(elements, at, size, assets);
     if (hit != null) {
       _controller.selectElement(hit);
     } else if (s.tool == EditorTool.type && s.typeMode == TypeMode.setType) {
@@ -119,15 +127,11 @@ class _ElementsLayerState extends ConsumerState<ElementsLayer> {
     ScaleStartDetails d,
     Size size,
     EditorSession s,
+    List<EditElement> elements,
     ElementAssets assets,
   ) {
-    final hit = ElementGeometry.hit(
-      s.edit.elements,
-      d.localFocalPoint,
-      size,
-      assets,
-    );
-    final selected = s.selected;
+    final hit = ElementGeometry.hit(elements, d.localFocalPoint, size, assets);
+    final selected = elements.contains(s.selected) ? s.selected : null;
     final onSelected =
         selected != null &&
         (ElementGeometry.of(
@@ -163,16 +167,29 @@ class _ElementsLayerState extends ConsumerState<ElementsLayer> {
   @override
   Widget build(BuildContext context) {
     final session = ref
-        .watch(photoEditorProvider(widget.projectId))
+        .watch(editorControllerProvider(widget.projectId))
         .requireValue;
     final assets = ref.watch(elementAssetsProvider).value;
     if (assets == null) return const SizedBox.shrink();
     final drawing = _drawing(session);
+    final timeMs = session.isVideo
+        ? ref.watch(
+            videoPlaybackProvider(widget.projectId).select((p) => p.positionMs),
+          )
+        : null;
+    final elements = timeMs == null
+        ? session.edit.elements
+        : [
+            for (final e in session.edit.elements)
+              if (e.visibleAt(timeMs) || e.id == session.editingElementId) e,
+          ];
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = constraints.biggest;
-        final selected = session.editingElementId == null
+        final selected =
+            session.editingElementId == null &&
+                elements.contains(session.selected)
             ? session.selected
             : null;
         final frame = selected == null
@@ -185,10 +202,7 @@ class _ElementsLayerState extends ConsumerState<ElementsLayer> {
               child: IgnorePointer(
                 child: CustomPaint(
                   key: const Key('elements-paint'),
-                  painter: ElementsPainter(
-                    elements: session.edit.elements,
-                    assets: assets,
-                  ),
+                  painter: ElementsPainter(elements: elements, assets: assets),
                 ),
               ),
             ),
@@ -237,10 +251,15 @@ class _ElementsLayerState extends ConsumerState<ElementsLayer> {
                   : GestureDetector(
                       key: const Key('elements-gestures'),
                       behavior: HitTestBehavior.translucent,
-                      onTapUp: (d) =>
-                          _tap(d.localPosition, size, session, assets),
+                      onTapUp: (d) => _tap(
+                        d.localPosition,
+                        size,
+                        session,
+                        elements,
+                        assets,
+                      ),
                       onScaleStart: (d) =>
-                          _scaleStart(d, size, session, assets),
+                          _scaleStart(d, size, session, elements, assets),
                       onScaleUpdate: (d) => _scaleUpdate(d, size),
                       onScaleEnd: (_) => _scaleEnd(),
                     ),

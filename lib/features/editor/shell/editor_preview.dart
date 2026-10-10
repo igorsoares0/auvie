@@ -8,13 +8,15 @@ import 'package:auvie/core/native/render_params.dart';
 import 'package:auvie/features/editor/adjustments/adjustment_family.dart';
 import 'package:auvie/features/editor/crop/crop_overlay.dart';
 import 'package:auvie/features/editor/elements/elements_layer.dart';
-import 'package:auvie/features/editor/photo/editor_session.dart';
-import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
+import 'package:auvie/features/editor/shell/editor_controller.dart';
+import 'package:auvie/features/editor/shell/editor_session.dart';
+import 'package:auvie/features/editor/video/video_playback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// The developed photo, rendered by the engine at its on-screen size.
-/// Hold it to see the original.
+/// The developed photo or video, rendered by the engine at its on-screen
+/// size. Hold it to see the original. A video preview plays through
+/// [VideoPlayback], looping inside the trim.
 class EditorPreview extends ConsumerStatefulWidget {
   const new({required this.projectId, super.key});
 
@@ -31,6 +33,8 @@ class _EditorPreviewState extends ConsumerState<EditorPreview> {
   MediaEngineException? _error;
   RenderParams? _sent;
   ({int width, int height})? _sentSize;
+  ({int start, int end, bool muted})? _sentTimeline;
+  VideoPlayback? _playback;
 
   @override
   void initState() {
@@ -41,19 +45,42 @@ class _EditorPreviewState extends ConsumerState<EditorPreview> {
   @override
   void dispose() {
     final preview = _preview;
-    if (preview != null) unawaited(_engine.disposePreview(preview.textureId));
+    if (preview != null) {
+      _playback?.detach(preview.textureId);
+      unawaited(_engine.disposePreview(preview.textureId));
+    }
     super.dispose();
+  }
+
+  Future<PhotoPreview> _open(EditorSession session, int maxPx) async {
+    final uri = session.project.media.uri;
+    if (!session.isVideo) {
+      return await _engine.createPhotoPreview(uri, maxPx: maxPx);
+    }
+    final video = await _engine.createVideoPreview(uri, maxPx: maxPx);
+    if (mounted) {
+      final playback = ref.read(
+        videoPlaybackProvider(widget.projectId).notifier,
+      );
+      _playback = playback;
+      playback.attach(video);
+    }
+    return (
+      textureId: video.textureId,
+      width: video.width,
+      height: video.height,
+    );
   }
 
   Future<void> _create(Size box) async {
     if (_preview != null || _creating || box.isEmpty) return;
-    final session = ref.read(photoEditorProvider(widget.projectId)).value;
+    final session = ref.read(editorControllerProvider(widget.projectId)).value;
     if (session == null) return;
     _creating = true;
     try {
-      final preview = await _engine.createPhotoPreview(
-        session.project.media.uri,
-        maxPx: previewMaxPx(
+      final preview = await _open(
+        session,
+        previewMaxPx(
           media: session.project.media,
           box: box,
           devicePixelRatio: MediaQuery.devicePixelRatioOf(context),
@@ -88,7 +115,7 @@ class _EditorPreviewState extends ConsumerState<EditorPreview> {
   /// Keeps the engine's preview at the size it is shown at.
   void _resize(Size box) {
     final preview = _preview;
-    final session = ref.read(photoEditorProvider(widget.projectId)).value;
+    final session = ref.read(editorControllerProvider(widget.projectId)).value;
     if (preview == null || session == null || box.isEmpty) return;
     final size = previewPixelSize(
       aspectRatio: _shownRatio(session),
@@ -109,7 +136,7 @@ class _EditorPreviewState extends ConsumerState<EditorPreview> {
   /// Sends the current edit to the engine, skipping unchanged params.
   void _push() {
     final preview = _preview;
-    final provider = photoEditorProvider(widget.projectId);
+    final provider = editorControllerProvider(widget.projectId);
     final session = ref.read(provider).value;
     if (preview == null || session == null) return;
     final params = RenderParams.fromEdit(
@@ -118,9 +145,38 @@ class _EditorPreviewState extends ConsumerState<EditorPreview> {
       mediaRatio: session.project.media.aspectRatio,
       cropping: _cropping(session),
     );
-    if (params == _sent) return;
-    _sent = params;
-    unawaited(_engine.updateEdit(preview.textureId, params));
+    if (params != _sent) {
+      _sent = params;
+      unawaited(_engine.updateEdit(preview.textureId, params));
+    }
+    if (session.isVideo) _pushTimeline(preview.textureId, session);
+  }
+
+  /// Keeps the player looping inside the trim, with the sound as edited.
+  void _pushTimeline(int textureId, EditorSession session) {
+    final duration = session.durationMs;
+    if (duration <= 0) return;
+    final timeline = session.timeline;
+    final next = (
+      start: timeline.trimStartMs,
+      end: timeline.endMs(duration),
+      muted: timeline.muted,
+    );
+    final sent = _sentTimeline;
+    if (next == sent) return;
+    _sentTimeline = next;
+    if (sent == null || sent.start != next.start || sent.end != next.end) {
+      unawaited(
+        _engine.setPlaybackRange(
+          textureId,
+          startMs: next.start,
+          endMs: next.end,
+        ),
+      );
+    }
+    if (sent == null || sent.muted != next.muted) {
+      unawaited(_engine.setVideoMuted(textureId, muted: next.muted));
+    }
   }
 
   void _compare({required bool original}) {
@@ -131,7 +187,7 @@ class _EditorPreviewState extends ConsumerState<EditorPreview> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = photoEditorProvider(widget.projectId);
+    final provider = editorControllerProvider(widget.projectId);
     ref.listen(provider, (_, _) => _push());
     final session = ref.watch(provider).value;
 
@@ -147,7 +203,9 @@ class _EditorPreviewState extends ConsumerState<EditorPreview> {
             child: _error == null
                 ? const SizedBox.shrink()
                 : Text(
-                    "This photo can't be opened. Your edit is safe.",
+                    session?.isVideo ?? false
+                        ? "This video can't be played. Your edit is safe."
+                        : "This photo can't be opened. Your edit is safe.",
                     style: context.type.body,
                     textAlign: TextAlign.center,
                   ),

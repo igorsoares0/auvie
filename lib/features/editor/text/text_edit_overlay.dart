@@ -2,7 +2,7 @@ import 'package:auvie/app/theme/app_theme.dart';
 import 'package:auvie/app/theme/spacing.dart';
 import 'package:auvie/core/models/elements.dart';
 import 'package:auvie/features/editor/elements/text_renderer.dart';
-import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
+import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,7 +27,7 @@ class _TextEditOverlayState extends ConsumerState<TextEditOverlay> {
   void initState() {
     super.initState();
     final session = ref
-        .read(photoEditorProvider(widget.projectId))
+        .read(editorControllerProvider(widget.projectId))
         .requireValue;
     final initial = switch (session.element(session.editingElementId)) {
       final TextElement e => e.text,
@@ -46,7 +46,7 @@ class _TextEditOverlayState extends ConsumerState<TextEditOverlay> {
   @override
   Widget build(BuildContext context) {
     final session = ref
-        .watch(photoEditorProvider(widget.projectId))
+        .watch(editorControllerProvider(widget.projectId))
         .requireValue;
     final editing = session.element(session.editingElementId);
     final style = switch (editing) {
@@ -83,7 +83,7 @@ class _TextEditOverlayState extends ConsumerState<TextEditOverlay> {
               ),
             ),
             onChanged: ref
-                .read(photoEditorProvider(widget.projectId).notifier)
+                .read(editorControllerProvider(widget.projectId).notifier)
                 .typeText,
           ),
         ),

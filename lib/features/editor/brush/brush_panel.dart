@@ -3,7 +3,7 @@ import 'package:auvie/app/theme/spacing.dart';
 import 'package:auvie/core/models/elements.dart';
 import 'package:auvie/features/editor/elements/brush_renderer.dart';
 import 'package:auvie/features/editor/elements/text_presets.dart';
-import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
+import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:auvie/features/editor/shell/panel_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,7 +20,7 @@ class BrushPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = photoEditorProvider(projectId);
+    final provider = editorControllerProvider(projectId);
     final brush = ref.watch(provider.select((s) => s.requireValue.brush));
     final controller = ref.read(provider.notifier);
 

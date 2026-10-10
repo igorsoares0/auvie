@@ -3,7 +3,7 @@ import 'package:auvie/app/theme/spacing.dart';
 import 'package:auvie/app/theme/typography.dart';
 import 'package:auvie/app/widgets/auvie_icon.dart';
 import 'package:auvie/app/widgets/caps_link.dart';
-import 'package:auvie/features/editor/photo/editor_session.dart';
+import 'package:auvie/features/editor/shell/editor_session.dart';
 import 'package:flutter/material.dart';
 
 /// CLOSE / "Roll 014 · 07" / EXPORT, or CANCEL / title / DONE while
@@ -188,14 +188,27 @@ class EditorCaption extends StatelessWidget {
   }
 }
 
-/// FILM / ADJUST / TYPE / BRUSH / ADD.
+/// FILM / ADJUST / TYPE / BRUSH / ADD, with TRIM first for videos.
 class EditorToolbar extends StatelessWidget {
-  const new({required this.active, required this.onSelect, super.key});
+  const new({
+    required this.active,
+    required this.onSelect,
+    this.tools = const [
+      EditorTool.film,
+      EditorTool.adjust,
+      EditorTool.type,
+      EditorTool.brush,
+      EditorTool.add,
+    ],
+    super.key,
+  });
 
   final EditorTool active;
   final ValueChanged<EditorTool> onSelect;
+  final List<EditorTool> tools;
 
   static const Map<EditorTool, AuvieIcons> _icons = {
+    EditorTool.trim: AuvieIcons.trim,
     EditorTool.film: AuvieIcons.film,
     EditorTool.adjust: AuvieIcons.adjust,
     EditorTool.type: AuvieIcons.type,
@@ -214,7 +227,7 @@ class EditorToolbar extends StatelessWidget {
         padding: const EdgeInsets.only(top: 10, bottom: 4),
         child: Row(
           children: [
-            for (final tool in EditorTool.values)
+            for (final tool in tools)
               Expanded(
                 child: Semantics(
                   button: true,

@@ -310,6 +310,8 @@ class ExportLayer {
     required this.height,
     required this.blend,
     required this.opacity,
+    this.startMs,
+    this.endMs,
   });
 
   /// PNG file.
@@ -329,8 +331,24 @@ class ExportLayer {
   /// 0…1.
   double opacity;
 
+  /// Videos: when the layer shows, in ms of the original clip (null =
+  /// always). Photos ignore them.
+  int? startMs;
+
+  int? endMs;
+
   List<Object?> _toList() {
-    return <Object?>[path, left, top, width, height, blend, opacity];
+    return <Object?>[
+      path,
+      left,
+      top,
+      width,
+      height,
+      blend,
+      opacity,
+      startMs,
+      endMs,
+    ];
   }
 
   Object encode() {
@@ -347,6 +365,8 @@ class ExportLayer {
       height: result[4]! as double,
       blend: result[5]! as LayerBlend,
       opacity: result[6]! as double,
+      startMs: result[7] as int?,
+      endMs: result[8] as int?,
     );
   }
 
@@ -365,7 +385,9 @@ class ExportLayer {
         _deepEquals(width, other.width) &&
         _deepEquals(height, other.height) &&
         _deepEquals(blend, other.blend) &&
-        _deepEquals(opacity, other.opacity);
+        _deepEquals(opacity, other.opacity) &&
+        _deepEquals(startMs, other.startMs) &&
+        _deepEquals(endMs, other.endMs);
   }
 
   @override
@@ -374,7 +396,7 @@ class ExportLayer {
 
   @override
   String toString() {
-    return 'ExportLayer(path: $path, left: $left, top: $top, width: $width, height: $height, blend: $blend, opacity: $opacity)';
+    return 'ExportLayer(path: $path, left: $left, top: $top, width: $width, height: $height, blend: $blend, opacity: $opacity, startMs: $startMs, endMs: $endMs)';
   }
 }
 
@@ -476,6 +498,112 @@ class ExportRequest {
   }
 }
 
+/// A video export: develop, crop and scale to [outputWidth]×[outputHeight]
+/// (even), keep [trimStartMs]…[trimEndMs] of the original, composite the
+/// layers in their time ranges and encode H.264 / AAC MP4.
+class VideoExportRequest {
+  VideoExportRequest({
+    required this.uri,
+    required this.params,
+    required this.outputWidth,
+    required this.outputHeight,
+    required this.trimStartMs,
+    required this.trimEndMs,
+    required this.includeAudio,
+    required this.videoBitrate,
+    required this.fileName,
+    required this.layers,
+  });
+
+  String uri;
+
+  DevelopParams params;
+
+  int outputWidth;
+
+  int outputHeight;
+
+  int trimStartMs;
+
+  int trimEndMs;
+
+  bool includeAudio;
+
+  /// Bits per second.
+  int videoBitrate;
+
+  /// Without extension.
+  String fileName;
+
+  /// Elements in z-order, bottom first, with their time ranges.
+  List<ExportLayer> layers;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      uri,
+      params,
+      outputWidth,
+      outputHeight,
+      trimStartMs,
+      trimEndMs,
+      includeAudio,
+      videoBitrate,
+      fileName,
+      layers,
+    ];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static VideoExportRequest decode(Object result) {
+    result as List<Object?>;
+    return VideoExportRequest(
+      uri: result[0]! as String,
+      params: result[1]! as DevelopParams,
+      outputWidth: result[2]! as int,
+      outputHeight: result[3]! as int,
+      trimStartMs: result[4]! as int,
+      trimEndMs: result[5]! as int,
+      includeAudio: result[6]! as bool,
+      videoBitrate: result[7]! as int,
+      fileName: result[8]! as String,
+      layers: (result[9]! as List<Object?>).cast<ExportLayer>(),
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! VideoExportRequest || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(uri, other.uri) &&
+        _deepEquals(params, other.params) &&
+        _deepEquals(outputWidth, other.outputWidth) &&
+        _deepEquals(outputHeight, other.outputHeight) &&
+        _deepEquals(trimStartMs, other.trimStartMs) &&
+        _deepEquals(trimEndMs, other.trimEndMs) &&
+        _deepEquals(includeAudio, other.includeAudio) &&
+        _deepEquals(videoBitrate, other.videoBitrate) &&
+        _deepEquals(fileName, other.fileName) &&
+        _deepEquals(layers, other.layers);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'VideoExportRequest(uri: $uri, params: $params, outputWidth: $outputWidth, outputHeight: $outputHeight, trimStartMs: $trimStartMs, trimEndMs: $trimEndMs, includeAudio: $includeAudio, videoBitrate: $videoBitrate, fileName: $fileName, layers: $layers)';
+  }
+}
+
 class ExportResult {
   ExportResult({
     required this.mediaUri,
@@ -483,9 +611,10 @@ class ExportResult {
     required this.width,
     required this.height,
     required this.bytes,
+    this.durationMs,
   });
 
-  /// content:// URI of the copy saved in Pictures/Auvie.
+  /// content:// URI of the copy saved in Pictures/Auvie or Movies/Auvie.
   String mediaUri;
 
   /// App-private copy, used for sharing.
@@ -497,8 +626,11 @@ class ExportResult {
 
   int bytes;
 
+  /// Videos only.
+  int? durationMs;
+
   List<Object?> _toList() {
-    return <Object?>[mediaUri, filePath, width, height, bytes];
+    return <Object?>[mediaUri, filePath, width, height, bytes, durationMs];
   }
 
   Object encode() {
@@ -513,6 +645,7 @@ class ExportResult {
       width: result[2]! as int,
       height: result[3]! as int,
       bytes: result[4]! as int,
+      durationMs: result[5] as int?,
     );
   }
 
@@ -529,7 +662,8 @@ class ExportResult {
         _deepEquals(filePath, other.filePath) &&
         _deepEquals(width, other.width) &&
         _deepEquals(height, other.height) &&
-        _deepEquals(bytes, other.bytes);
+        _deepEquals(bytes, other.bytes) &&
+        _deepEquals(durationMs, other.durationMs);
   }
 
   @override
@@ -538,7 +672,7 @@ class ExportResult {
 
   @override
   String toString() {
-    return 'ExportResult(mediaUri: $mediaUri, filePath: $filePath, width: $width, height: $height, bytes: $bytes)';
+    return 'ExportResult(mediaUri: $mediaUri, filePath: $filePath, width: $width, height: $height, bytes: $bytes, durationMs: $durationMs)';
   }
 }
 
@@ -653,6 +787,127 @@ class PreviewInfo {
   }
 }
 
+class VideoPreviewInfo {
+  VideoPreviewInfo({
+    required this.textureId,
+    required this.width,
+    required this.height,
+    required this.durationMs,
+    required this.hasAudio,
+  });
+
+  int textureId;
+
+  /// Upright size of the video.
+  int width;
+
+  int height;
+
+  int durationMs;
+
+  bool hasAudio;
+
+  List<Object?> _toList() {
+    return <Object?>[textureId, width, height, durationMs, hasAudio];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static VideoPreviewInfo decode(Object result) {
+    result as List<Object?>;
+    return VideoPreviewInfo(
+      textureId: result[0]! as int,
+      width: result[1]! as int,
+      height: result[2]! as int,
+      durationMs: result[3]! as int,
+      hasAudio: result[4]! as bool,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! VideoPreviewInfo || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(textureId, other.textureId) &&
+        _deepEquals(width, other.width) &&
+        _deepEquals(height, other.height) &&
+        _deepEquals(durationMs, other.durationMs) &&
+        _deepEquals(hasAudio, other.hasAudio);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'VideoPreviewInfo(textureId: $textureId, width: $width, height: $height, durationMs: $durationMs, hasAudio: $hasAudio)';
+  }
+}
+
+/// Where a video preview is: sent about 30 times a second while playing,
+/// and on every play, pause and seek.
+class PlaybackState {
+  PlaybackState({
+    required this.textureId,
+    required this.positionMs,
+    required this.playing,
+  });
+
+  int textureId;
+
+  int positionMs;
+
+  bool playing;
+
+  List<Object?> _toList() {
+    return <Object?>[textureId, positionMs, playing];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static PlaybackState decode(Object result) {
+    result as List<Object?>;
+    return PlaybackState(
+      textureId: result[0]! as int,
+      positionMs: result[1]! as int,
+      playing: result[2]! as bool,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! PlaybackState || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(textureId, other.textureId) &&
+        _deepEquals(positionMs, other.positionMs) &&
+        _deepEquals(playing, other.playing);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'PlaybackState(textureId: $textureId, positionMs: $positionMs, playing: $playing)';
+  }
+}
+
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -681,14 +936,23 @@ class _PigeonCodec extends StandardMessageCodec {
     } else if (value is ExportRequest) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
-    } else if (value is ExportResult) {
+    } else if (value is VideoExportRequest) {
       buffer.putUint8(136);
       writeValue(buffer, value.encode());
-    } else if (value is ExportProgress) {
+    } else if (value is ExportResult) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
-    } else if (value is PreviewInfo) {
+    } else if (value is ExportProgress) {
       buffer.putUint8(138);
+      writeValue(buffer, value.encode());
+    } else if (value is PreviewInfo) {
+      buffer.putUint8(139);
+      writeValue(buffer, value.encode());
+    } else if (value is VideoPreviewInfo) {
+      buffer.putUint8(140);
+      writeValue(buffer, value.encode());
+    } else if (value is PlaybackState) {
+      buffer.putUint8(141);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -716,11 +980,17 @@ class _PigeonCodec extends StandardMessageCodec {
       case 135:
         return ExportRequest.decode(readValue(buffer)!);
       case 136:
-        return ExportResult.decode(readValue(buffer)!);
+        return VideoExportRequest.decode(readValue(buffer)!);
       case 137:
-        return ExportProgress.decode(readValue(buffer)!);
+        return ExportResult.decode(readValue(buffer)!);
       case 138:
+        return ExportProgress.decode(readValue(buffer)!);
+      case 139:
         return PreviewInfo.decode(readValue(buffer)!);
+      case 140:
+        return VideoPreviewInfo.decode(readValue(buffer)!);
+      case 141:
+        return PlaybackState.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -835,6 +1105,177 @@ class MediaHostApi {
     return pigeonVar_replyValue! as PreviewInfo;
   }
 
+  /// Opens the video paused at its first frame, shown in a texture rendered
+  /// at most [maxPx] on the longer side. The texture works with
+  /// [updateEdit], [setShowOriginal], [resizePreview] and [disposePreview].
+  Future<VideoPreviewInfo> createVideoPreview(String uri, int maxPx) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.createVideoPreview$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[uri, maxPx],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as VideoPreviewInfo;
+  }
+
+  Future<void> playVideo(int textureId) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.playVideo$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[textureId],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
+  }
+
+  Future<void> pauseVideo(int textureId) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.pauseVideo$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[textureId],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
+  }
+
+  /// [exact] false seeks to the nearest key frame (fast, for scrubbing).
+  Future<void> seekVideo(int textureId, int positionMs, bool exact) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.seekVideo$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[textureId, positionMs, exact],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
+  }
+
+  /// Playback loops inside [startMs]…[endMs] (the trim).
+  Future<void> setPlaybackRange(int textureId, int startMs, int endMs) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.setPlaybackRange$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[textureId, startMs, endMs],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
+  }
+
+  Future<void> setVideoMuted(int textureId, bool muted) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.setVideoMuted$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[textureId, muted],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
+  }
+
+  /// [count] JPEG frames evenly spread over the video, longer side ≤ [maxPx].
+  Future<List<Uint8List>> videoFrames(String uri, int count, int maxPx) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.videoFrames$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[uri, count, maxPx],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return (pigeonVar_replyValue! as List<Object?>).cast<Uint8List>();
+  }
+
+  /// Peak level (0…1) of the sound in each of [buckets] equal slices. Null
+  /// when the video has no sound.
+  Future<Float64List?> waveform(String uri, int buckets) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.waveform$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[uri, buckets],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
+    return pigeonVar_replyValue as Float64List?;
+  }
+
   /// Coalesced: only the latest params are rendered on the next frame.
   Future<void> updateEdit(int textureId, DevelopParams params) async {
     final pigeonVar_channelName =
@@ -917,21 +1358,23 @@ class MediaHostApi {
     );
   }
 
-  /// Renders offscreen and returns a JPEG whose longer side is ≤ [maxPx].
-  Future<Uint8List> renderPhoto(
+  /// Renders offscreen and returns a JPEG whose longer side is ≤ [maxPx]:
+  /// the photo, or the video's frame at [timeMs].
+  Future<Uint8List> renderFrame(
     String uri,
     DevelopParams params,
     int maxPx,
+    int? timeMs,
   ) async {
     final pigeonVar_channelName =
-        'dev.flutter.pigeon.auvie.MediaHostApi.renderPhoto$pigeonVar_messageChannelSuffix';
+        'dev.flutter.pigeon.auvie.MediaHostApi.renderFrame$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[uri, params, maxPx],
+      <Object?>[uri, params, maxPx, timeMs],
     );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
@@ -986,6 +1429,33 @@ class MediaHostApi {
     return pigeonVar_replyValue! as ExportResult;
   }
 
+  /// Exports in a background job with a progress notification, saves to
+  /// Movies/Auvie and keeps an app copy. Progress arrives like photos'.
+  Future<ExportResult> exportVideo(
+    String jobId,
+    VideoExportRequest request,
+  ) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.exportVideo$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[jobId, request],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as ExportResult;
+  }
+
+  /// Photos and videos.
   Future<void> cancelExport(String jobId) async {
     final pigeonVar_channelName =
         'dev.flutter.pigeon.auvie.MediaHostApi.cancelExport$pigeonVar_messageChannelSuffix';
@@ -1004,6 +1474,26 @@ class MediaHostApi {
       pigeonVar_channelName,
       isNullValid: true,
     );
+  }
+
+  /// Asks to show notifications (Android 13+). True when allowed.
+  Future<bool> requestNotificationPermission() async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.requestNotificationPermission$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as bool;
   }
 
   /// Puts the saved image on the clipboard.
@@ -1044,5 +1534,24 @@ Stream<ExportProgress> exportProgress({String instanceName = ''}) {
   );
   return exportProgressChannel.receiveBroadcastStream().map((dynamic event) {
     return event as ExportProgress;
+  });
+}
+
+/// Returns a broadcast [Stream] of events from the `playbackState` event channel.
+///
+/// Each call to this method creates a new [EventChannel], so it should
+/// not be called multiple times for the same `instanceName`. To deliver
+/// events to multiple listeners, call this method once and listen to the
+/// returned broadcast stream multiple times instead.
+Stream<PlaybackState> playbackState({String instanceName = ''}) {
+  if (instanceName.isNotEmpty) {
+    instanceName = '.$instanceName';
+  }
+  final EventChannel playbackStateChannel = EventChannel(
+    'dev.flutter.pigeon.auvie.ExportEvents.playbackState$instanceName',
+    pigeonMethodCodec,
+  );
+  return playbackStateChannel.receiveBroadcastStream().map((dynamic event) {
+    return event as PlaybackState;
   });
 }

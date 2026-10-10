@@ -267,6 +267,13 @@ Tamanho relativo: **P** pequeno · **M** médio · **G** grande.
 
 > ✅ Ao fim da M6: MVP de vídeo (spec §68, itens 10–17).
 
+**Estado (2026-10-09):** concluída; testes verdes (429 Dart, 50 Kotlin JVM, 38 instrumentados no Redmi Note 10) e aprovada no teste manual no aparelho.
+- **Preview:** ExoPlayer decodifica numa `SurfaceTexture` (OES) do nosso `GlThread`, desenhada pelo mesmo `develop.frag` (variante `EXTERNAL_SOURCE`). Pausado, mexer num ajuste redesenha o último quadro.
+- **Export:** Media3 Transformer com dois efeitos próprios: `DevelopEffect` (ajustes, crop e escala numa passada) e `LayerEffect` (camadas dos elementos com modo de mesclagem e intervalo de tempo). Roda num `VideoExportWorker` (WorkManager, foreground `mediaProcessing`/`dataSync`) com notificação e CANCEL. Salva em `Movies/Auvie`.
+- **Tempo dos elementos:** em tempo do clipe original; o Media3 conta o pts a partir do início do trim (confirmado no teste instrumentado).
+- **Editor:** `PhotoEditor` virou `EditorController`, compartilhado entre foto e vídeo. `EditorScreen` serve às duas telas. O vídeo ganha TRIM, linha de transporte e timeline com as faixas FILM/TYPE/BRUSH/ADD/SOUND.
+- **Limite conhecido:** o preview de vídeo HDR pode ficar lavado (o export converte para SDR).
+
 ### M7 — UX restante + Monetização (M)
 - Archive (catálogo), favoritos (presets/coleções/stickers), coleção em destaque.
 - RevenueCat: `Purchases.configure`, entitlement `pro`, produtos `monthly`/`yearly`(/`lifetime`, ver Q6); paywall custom do design (trial, restore, termos); "I already have Pro" → restore.
@@ -340,6 +347,10 @@ Tamanho relativo: **P** pequeno · **M** médio · **G** grande.
 | D3 | Marca d'água no export free | **Não** (o benefício "watermark-free" sai do paywall) |
 | D4 | HEIF no export | **Removido** do produto: só JPEG e PNG |
 | D5 | Versionamento | Manual, pelo dono do projeto |
+| D7 | ADD no vídeo (design × spec §16) | **Entra**: 6 ferramentas (TRIM · FILM · ADJUST · TYPE · BRUSH · ADD) e faixa ADD na timeline; molduras valem o vídeo inteiro |
+| D8 | Duração inicial de um elemento no vídeo | Do playhead até o fim do trecho cortado |
+| D9 | Permissão de notificação (Android 13+) | Pedida uma vez, no primeiro export de vídeo; negar não impede o export |
+| D10 | Controle de som | Só no editor (mute na faixa SOUND/transporte); o Export mostra "Sound on" / "Muted" |
 | D6 | Referência à mídia (era Q5) | URI do Photo Picker com acesso persistido (`takePersistableUriPermission`); se o provedor recusar, o arquivo é copiado para `files/projects/media/` (M2) |
 
 ## 8. Questões em aberto (decidir antes da fase indicada)

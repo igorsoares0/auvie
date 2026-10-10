@@ -3,8 +3,8 @@ import 'package:auvie/app/theme/spacing.dart';
 import 'package:auvie/core/models/elements.dart';
 import 'package:auvie/features/editor/elements/text_presets.dart';
 import 'package:auvie/features/editor/elements/text_renderer.dart';
-import 'package:auvie/features/editor/photo/editor_session.dart';
-import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
+import 'package:auvie/features/editor/shell/editor_controller.dart';
+import 'package:auvie/features/editor/shell/editor_session.dart';
 import 'package:auvie/features/editor/shell/panel_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,7 +21,7 @@ class TypePanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = photoEditorProvider(projectId);
+    final provider = editorControllerProvider(projectId);
     final session = ref.watch(provider).requireValue;
     final controller = ref.read(provider.notifier);
     final selected = session.selected;

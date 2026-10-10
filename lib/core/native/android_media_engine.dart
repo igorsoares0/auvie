@@ -57,7 +57,72 @@ class AndroidMediaEngine implements MediaEngine {
     String uri,
     RenderParams params, {
     required int maxPx,
-  }) => _guard(() => _api.renderPhoto(uri, developParamsFrom(params), maxPx));
+  }) => _guard(
+    () => _api.renderFrame(uri, developParamsFrom(params), maxPx, null),
+  );
+
+  @override
+  Future<Uint8List> renderVideoFrame(
+    String uri,
+    RenderParams params, {
+    required int maxPx,
+    required int timeMs,
+  }) => _guard(
+    () => _api.renderFrame(uri, developParamsFrom(params), maxPx, timeMs),
+  );
+
+  @override
+  Future<VideoPreview> createVideoPreview(String uri, {required int maxPx}) =>
+      _guard(() async {
+        final info = await _api.createVideoPreview(uri, maxPx);
+        return (
+          textureId: info.textureId,
+          width: info.width,
+          height: info.height,
+          durationMs: info.durationMs,
+          hasAudio: info.hasAudio,
+        );
+      });
+
+  @override
+  Future<void> playVideo(int textureId) =>
+      _guard(() => _api.playVideo(textureId));
+
+  @override
+  Future<void> pauseVideo(int textureId) =>
+      _guard(() => _api.pauseVideo(textureId));
+
+  @override
+  Future<void> seekVideo(int textureId, int positionMs, {bool exact = true}) =>
+      _guard(() => _api.seekVideo(textureId, positionMs, exact));
+
+  @override
+  Future<void> setPlaybackRange(
+    int textureId, {
+    required int startMs,
+    required int endMs,
+  }) => _guard(() => _api.setPlaybackRange(textureId, startMs, endMs));
+
+  @override
+  Future<void> setVideoMuted(int textureId, {required bool muted}) =>
+      _guard(() => _api.setVideoMuted(textureId, muted));
+
+  @override
+  Stream<PlaybackState> get playbackStates => pigeon.playbackState().map(
+    (e) =>
+        (textureId: e.textureId, positionMs: e.positionMs, playing: e.playing),
+  );
+
+  @override
+  Future<List<Uint8List>> videoFrames(
+    String uri, {
+    required int count,
+    required int maxPx,
+  }) => _guard(() => _api.videoFrames(uri, count, maxPx));
+
+  @override
+  Future<List<double>?> waveform(String uri, {required int buckets}) =>
+      _guard(() => _api.waveform(uri, buckets));
 
   @override
   Future<void> resizePreview(
@@ -86,28 +151,36 @@ class AndroidMediaEngine implements MediaEngine {
             decodeMaxPx: job.decodeMaxPx,
             keepMetadata: job.keepMetadata,
             fileName: job.fileName,
-            layers: [
-              for (final l in job.layers)
-                pigeon.ExportLayer(
-                  path: l.path,
-                  left: l.left,
-                  top: l.top,
-                  width: l.width,
-                  height: l.height,
-                  blend: pigeon.LayerBlend.values.byName(l.blend.name),
-                  opacity: l.opacity,
-                ),
-            ],
+            layers: [for (final l in job.layers) exportLayerFrom(l)],
           ),
         );
-        return (
-          mediaUri: result.mediaUri,
-          filePath: result.filePath,
-          width: result.width,
-          height: result.height,
-          bytes: result.bytes,
-        );
+        return exportResultFrom(result);
       });
+
+  @override
+  Future<ExportResult> exportVideo(String jobId, VideoExportJob job) =>
+      _guard(() async {
+        final result = await _api.exportVideo(
+          jobId,
+          pigeon.VideoExportRequest(
+            uri: job.uri,
+            params: developParamsFrom(job.params),
+            outputWidth: job.outputWidth,
+            outputHeight: job.outputHeight,
+            trimStartMs: job.trimStartMs,
+            trimEndMs: job.trimEndMs,
+            includeAudio: job.includeAudio,
+            videoBitrate: job.videoBitrate,
+            fileName: job.fileName,
+            layers: [for (final l in job.layers) exportLayerFrom(l)],
+          ),
+        );
+        return exportResultFrom(result);
+      });
+
+  @override
+  Future<bool> requestNotificationPermission() =>
+      _guard(_api.requestNotificationPermission);
 
   @override
   Future<void> cancelExport(String jobId) =>
@@ -145,6 +218,28 @@ MediaRef mediaRefFromPigeon(pigeon.PickedMedia media) => MediaRef(
   width: media.width,
   height: media.height,
   durationMs: media.durationMs,
+);
+
+@visibleForTesting
+pigeon.ExportLayer exportLayerFrom(ExportLayerSpec l) => pigeon.ExportLayer(
+  path: l.path,
+  left: l.left,
+  top: l.top,
+  width: l.width,
+  height: l.height,
+  blend: pigeon.LayerBlend.values.byName(l.blend.name),
+  opacity: l.opacity,
+  startMs: l.startMs,
+  endMs: l.endMs,
+);
+
+ExportResult exportResultFrom(pigeon.ExportResult result) => (
+  mediaUri: result.mediaUri,
+  filePath: result.filePath,
+  width: result.width,
+  height: result.height,
+  bytes: result.bytes,
+  durationMs: result.durationMs,
 );
 
 @visibleForTesting

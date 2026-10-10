@@ -7,7 +7,7 @@ import 'package:auvie/features/editor/adjustments/curve_editor.dart';
 import 'package:auvie/features/editor/adjustments/lens_ruler.dart';
 import 'package:auvie/features/editor/adjustments/ruler_scale.dart';
 import 'package:auvie/features/editor/crop/crop_controls.dart';
-import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
+import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,7 +20,7 @@ class AdjustPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = photoEditorProvider(projectId);
+    final provider = editorControllerProvider(projectId);
     final session = ref.watch(provider).requireValue;
     final controller = ref.read(provider.notifier);
     final edit = session.edit;

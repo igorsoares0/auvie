@@ -2,7 +2,8 @@ import 'package:auvie/core/models/edit_state.dart';
 import 'package:auvie/core/models/preset.dart';
 
 /// The italic line under the photo: "Ektar, at 72%",
-/// "Ektar 72%, three adjustments", "Two adjustments", "Original".
+/// "Ektar 72%, three adjustments", "Two adjustments", "Original". Videos
+/// add "trimmed" and "muted".
 String describeEdit(EditState edit, Preset? preset) {
   final ref = edit.preset;
   final count =
@@ -11,9 +12,13 @@ String describeEdit(EditState edit, Preset? preset) {
       (edit.crop.isIdentity ? 0 : 1);
   String? counted(int n, String noun) =>
       n == 0 ? null : '${_numberWord(n)} $noun${n == 1 ? '' : 's'}';
+  final video = edit.video;
   final rest = [
     ?counted(count, 'adjustment'),
     ?counted(edit.elements.length, 'element'),
+    if (video != null && (video.trimStartMs > 0 || video.trimEndMs != null))
+      'trimmed',
+    if (video?.muted ?? false) 'muted',
   ].join(', ');
 
   if (ref == null || preset == null) {

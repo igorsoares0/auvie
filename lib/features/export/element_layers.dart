@@ -109,6 +109,8 @@ class FlutterElementRasterizer implements ElementLayerRasterizer {
         height: plan.bounds.height,
         blend: layerBlendOf(element),
         opacity: opacityOf(element),
+        startMs: element.time?.startMs,
+        endMs: element.time?.endMs,
       ));
     }
     return layers;

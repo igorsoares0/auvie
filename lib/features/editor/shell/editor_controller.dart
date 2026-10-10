@@ -5,19 +5,21 @@ import 'package:auvie/core/models/crop.dart';
 import 'package:auvie/core/models/edit_state.dart';
 import 'package:auvie/core/models/elements.dart';
 import 'package:auvie/core/models/preset.dart';
+import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
 import 'package:auvie/features/editor/adjustments/adjustment_family.dart';
 import 'package:auvie/features/editor/elements/element_geometry.dart';
 import 'package:auvie/features/editor/elements/text_presets.dart';
 import 'package:auvie/features/editor/history/edit_history.dart';
-import 'package:auvie/features/editor/photo/editor_session.dart';
+import 'package:auvie/features/editor/shell/editor_session.dart';
+import 'package:auvie/features/editor/video/video_playback.dart';
 import 'package:auvie/features/projects/project_providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 
-part 'photo_editor_controller.g.dart';
+part 'editor_controller.g.dart';
 
 class ProjectNotFoundException implements Exception {
   const new(this.id);
@@ -36,10 +38,11 @@ String Function() elementIds(Ref ref) => const Uuid().v4;
 /// A missing or unreadable project won't appear by retrying.
 Duration? _noRetry(int retryCount, Object error) => null;
 
-/// State and actions of the photo editor for one project. Edits autosave
-/// [saveDelay] after the last change (spec: errors never discard an edit).
+/// State and actions of the photo and video editors for one project.
+/// Edits autosave [saveDelay] after the last change (spec: errors never
+/// discard an edit).
 @Riverpod(retry: _noRetry)
-class PhotoEditor extends _$PhotoEditor {
+class EditorController extends _$EditorController {
   static const saveDelay = Duration(milliseconds: 500);
 
   Timer? _saveTimer;
@@ -68,6 +71,9 @@ class PhotoEditor extends _$PhotoEditor {
     return _latest = EditorSession(
       project: project,
       history: EditHistory(project.edit),
+      tool: project.media.type == MediaType.video
+          ? EditorTool.trim
+          : EditorTool.film,
       category: catalog.sortedCollections.firstOrNull?.id ?? savedCategory,
     );
   }
@@ -133,6 +139,20 @@ class PhotoEditor extends _$PhotoEditor {
 
   String _newId() => ref.read(elementIdsProvider)();
 
+  /// A new element of a video shows from the playhead to the end of the
+  /// trim (decision M6); photos ignore time.
+  EditElement _timed(EditElement element) {
+    final session = _session;
+    if (!session.isVideo || session.durationMs <= 0) return element;
+    final playhead = ref.read(videoPlaybackProvider(projectId)).positionMs;
+    return element.withTime(
+      session.timeline.defaultElementTime(
+        playheadMs: playhead,
+        durationMs: session.durationMs,
+      ),
+    );
+  }
+
   void selectElement(String? id) =>
       _update(_session.copyWith(selectedElementId: id), save: false);
 
@@ -151,12 +171,14 @@ class PhotoEditor extends _$PhotoEditor {
   /// Adds a text at [center] (output fractions) and opens the keyboard.
   void addText({Offset center = const Offset(0.5, 0.5)}) {
     final id = _newId();
-    final element = EditElement.text(
-      id: id,
-      text: '',
-      style: _newTextStyle,
-      textPresetId: _session.textPreset.name,
-      transform: ElementTransform(x: center.dx, y: center.dy),
+    final element = _timed(
+      EditElement.text(
+        id: id,
+        text: '',
+        style: _newTextStyle,
+        textPresetId: _session.textPreset.name,
+        transform: ElementTransform(x: center.dx, y: center.dy),
+      ),
     );
     _update(
       _session.copyWith(
@@ -172,11 +194,8 @@ class PhotoEditor extends _$PhotoEditor {
   void addTextPath(List<StrokePoint> path) {
     if (path.length < 2) return;
     final id = _newId();
-    final element = EditElement.textPath(
-      id: id,
-      text: '',
-      path: path,
-      style: _newTextStyle,
+    final element = _timed(
+      EditElement.textPath(id: id, text: '', path: path, style: _newTextStyle),
     );
     _update(
       _session.copyWith(
@@ -351,7 +370,11 @@ class PhotoEditor extends _$PhotoEditor {
     final active = _session.element(_session.activeBrushId);
     final stroke = BrushStroke(points: [point]);
     final brush = _session.brush;
-    if (active is BrushElement) {
+    // On a video, strokes drawn after moving the playhead out of the
+    // current drawing start a new one.
+    final playhead = ref.read(videoPlaybackProvider(projectId)).positionMs;
+    final visible = !_session.isVideo || (active?.visibleAt(playhead) ?? true);
+    if (active is BrushElement && visible) {
       preview(
         _session.edit.replaceElement(
           active.copyWith(strokes: [...active.strokes, stroke]),
@@ -362,13 +385,15 @@ class PhotoEditor extends _$PhotoEditor {
     final id = _newId();
     preview(
       _session.edit.addElement(
-        EditElement.brush(
-          id: id,
-          brushType: brush.type,
-          size: brush.size,
-          color: brush.color,
-          opacity: brush.opacity,
-          strokes: [stroke],
+        _timed(
+          EditElement.brush(
+            id: id,
+            brushType: brush.type,
+            size: brush.size,
+            color: brush.color,
+            opacity: brush.opacity,
+            strokes: [stroke],
+          ),
         ),
       ),
     );
@@ -399,10 +424,12 @@ class PhotoEditor extends _$PhotoEditor {
     final id = _newId();
     record(
       _session.edit.addElement(
-        EditElement.sticker(
-          id: id,
-          assetId: assetId,
-          color: _session.textColor,
+        _timed(
+          EditElement.sticker(
+            id: id,
+            assetId: assetId,
+            color: _session.textColor,
+          ),
         ),
       ),
     );
@@ -425,11 +452,13 @@ class PhotoEditor extends _$PhotoEditor {
     }
     record(
       _session.edit.addElement(
-        EditElement.overlay(
-          id: _newId(),
-          assetId: assetId,
-          blend: blend,
-          opacity: opacity,
+        _timed(
+          EditElement.overlay(
+            id: _newId(),
+            assetId: assetId,
+            blend: blend,
+            opacity: opacity,
+          ),
         ),
       ),
     );
@@ -465,6 +494,40 @@ class PhotoEditor extends _$PhotoEditor {
       edit = edit.addElement(EditElement.frame(id: _newId(), assetId: assetId));
     }
     record(edit);
+  }
+
+  // Video timeline (spec §16–17, §23).
+
+  /// Moves a trim handle during a drag; end the gesture with [commit].
+  void previewTrim({int? startMs, int? endMs}) {
+    final session = _session;
+    if (!session.isVideo) return;
+    preview(
+      session.edit.copyWith(
+        video: session.timeline.withTrim(
+          durationMs: session.durationMs,
+          startMs: startMs,
+          endMs: endMs,
+        ),
+      ),
+    );
+  }
+
+  void toggleMute() {
+    final session = _session;
+    if (!session.isVideo) return;
+    final timeline = session.timeline;
+    record(
+      session.edit.copyWith(video: timeline.copyWith(muted: !timeline.muted)),
+    );
+  }
+
+  /// Changes when element [id] shows during a drag on its lane bar; end
+  /// the gesture with [commit].
+  void previewElementTime(String id, TimeRange time) {
+    final element = _session.element(id);
+    if (element == null || element is FrameElement) return;
+    preview(_session.edit.replaceElement(element.withTime(time)));
   }
 
   // Saving.

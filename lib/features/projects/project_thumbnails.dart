@@ -29,24 +29,32 @@ class ProjectThumbnails {
   final Future<AppPaths> _paths;
   final Future<ElementAssets> _assets;
 
-  /// Renders [project] as edited (photos) or its first frame (videos).
+  /// Renders [project] as edited: the photo, or the first frame the
+  /// video's trim keeps, with the elements showing at that moment.
   Future<void> refresh(Project project, Preset? preset) async {
+    final params = RenderParams.fromEdit(
+      project.edit,
+      preset,
+      mediaRatio: project.media.aspectRatio,
+    );
+    final poster = posterTimeMs(project);
     final bytes = switch (project.media.type) {
       MediaType.photo => await _engine.renderPhoto(
         project.media.uri,
-        RenderParams.fromEdit(
-          project.edit,
-          preset,
-          mediaRatio: project.media.aspectRatio,
-        ),
+        params,
         maxPx: maxPx,
       ),
-      MediaType.video => await _engine.thumbnail(
+      MediaType.video => await _engine.renderVideoFrame(
         project.media.uri,
+        params,
         maxPx: maxPx,
+        timeMs: poster,
       ),
     };
-    final elements = project.edit.elements;
+    final elements = [
+      for (final e in project.edit.elements)
+        if (e.visibleAt(poster)) e,
+    ];
     final out = elements.isEmpty ? bytes : await _withElements(bytes, elements);
     final file = (await _paths).previewFor(project.id);
     await file.writeAsBytes(out, flush: true);

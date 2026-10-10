@@ -3,16 +3,26 @@
 // (from M6) video. Parameters are normalized as in lib/core/models/adjustment.dart.
 // DevelopReference.kt (src/sharedTest) mirrors steps 2-5 on the CPU for tests:
 // keep both in sync.
+// EXTERNAL_SOURCE (defined by DevelopRenderer) samples a video frame from a
+// SurfaceTexture instead of a 2D texture.
+#ifdef EXTERNAL_SOURCE
+#extension GL_OES_EGL_image_external_essl3 : require
+#endif
 precision highp float;
 
 in vec2 vTexCoord;
 out vec4 fragColor;
 
+#ifdef EXTERNAL_SOURCE
+uniform samplerExternalOES uSource;
+#else
 uniform sampler2D uSource;
+#endif
+uniform mat4 uSourceTransform; // source uv (top-left origin) -> texture coordinates
 uniform sampler2D uCurveLut;   // 256x1 RGBA: preset + user curves (Dart)
 uniform mat3 uGeometry;        // output uv -> source uv: crop, turns, flips, straighten
 uniform vec4 uTile;            // this draw's part of the output: offset.xy, scale.zw
-uniform vec2 uTexel;           // 1 / source texture size
+uniform vec2 uTexel;           // 1 / source image size
 uniform float uAspect;         // full output width / height
 uniform vec2 uGrainGrid;       // grain cells across the full output
 uniform float uGrainSeed;
@@ -51,6 +61,10 @@ vec3 toSrgb(vec3 c) {
     return mix(c * 12.92, 1.055 * pow(c, vec3(1.0 / 2.4)) - 0.055, step(0.0031308, c));
 }
 
+vec3 source(vec2 uv) {
+    return texture(uSource, (uSourceTransform * vec4(uv, 0.0, 1.0)).xy).rgb;
+}
+
 float curve(float v, int channel) {
     return texture(uCurveLut, vec2((v * 255.0 + 0.5) / 256.0, 0.5))[channel];
 }
@@ -73,7 +87,7 @@ void main() {
         return;
     }
 
-    vec3 c = texture(uSource, src).rgb;
+    vec3 c = source(src);
     if (uShowOriginal) {
         fragColor = vec4(c, 1.0);
         return;
@@ -81,10 +95,10 @@ void main() {
 
     // 1. Sharpen: 4-neighbour unsharp mask.
     if (uSharpen > 0.0) {
-        vec3 blur = (texture(uSource, src + vec2(uTexel.x, 0.0)).rgb +
-                     texture(uSource, src - vec2(uTexel.x, 0.0)).rgb +
-                     texture(uSource, src + vec2(0.0, uTexel.y)).rgb +
-                     texture(uSource, src - vec2(0.0, uTexel.y)).rgb) * 0.25;
+        vec3 blur = (source(src + vec2(uTexel.x, 0.0)) +
+                     source(src - vec2(uTexel.x, 0.0)) +
+                     source(src + vec2(0.0, uTexel.y)) +
+                     source(src - vec2(0.0, uTexel.y))) * 0.25;
         c = clamp(c + (c - blur) * uSharpen * SHARPEN_AMOUNT, 0.0, 1.0);
     }
 

@@ -33,22 +33,35 @@ double _field(pigeon.DevelopParams p, Adjustment a) => switch (a) {
 void main() {
   setUpAll(() {
     registerFallbackValue(pigeon.MediaKind.photo);
+    final params = pigeon.DevelopParams(
+      exposure: 0,
+      brightness: 0,
+      contrast: 0,
+      highlights: 0,
+      shadows: 0,
+      saturation: 0,
+      temperature: 0,
+      tint: 0,
+      sharpen: 0,
+      grain: 0,
+      fade: 0,
+      vignette: 0,
+      curveLut: Uint8List(0),
+      geometry: Float64List(6),
+    );
+    registerFallbackValue(params);
     registerFallbackValue(
-      pigeon.DevelopParams(
-        exposure: 0,
-        brightness: 0,
-        contrast: 0,
-        highlights: 0,
-        shadows: 0,
-        saturation: 0,
-        temperature: 0,
-        tint: 0,
-        sharpen: 0,
-        grain: 0,
-        fade: 0,
-        vignette: 0,
-        curveLut: Uint8List(0),
-        geometry: Float64List(6),
+      pigeon.VideoExportRequest(
+        uri: '',
+        params: params,
+        outputWidth: 2,
+        outputHeight: 2,
+        trimStartMs: 0,
+        trimEndMs: 1,
+        includeAudio: true,
+        videoBitrate: 1,
+        fileName: '',
+        layers: [],
       ),
     );
   });
@@ -195,7 +208,7 @@ void main() {
     });
 
     test('renders offscreen', () async {
-      when(() => api.renderPhoto(any(), any(), any()))
+      when(() => api.renderFrame(any(), any(), any(), any()))
           .thenAnswer((_) async => Uint8List.fromList([1, 2, 3]));
       expect(
         await engine.renderPhoto(
@@ -205,6 +218,84 @@ void main() {
         ),
         [1, 2, 3],
       );
+      verify(() => api.renderFrame('content://p', any(), 1080, null));
+    });
+
+    test('renders a video frame at a time', () async {
+      when(() => api.renderFrame(any(), any(), any(), any()))
+          .thenAnswer((_) async => Uint8List.fromList([4]));
+      await engine.renderVideoFrame(
+        'content://v',
+        RenderParams.neutral,
+        maxPx: 720,
+        timeMs: 1500,
+      );
+      verify(() => api.renderFrame('content://v', any(), 720, 1500));
+    });
+
+    test('opens a video preview', () async {
+      when(() => api.createVideoPreview(any(), any())).thenAnswer(
+        (_) async => pigeon.VideoPreviewInfo(
+          textureId: 7,
+          width: 1080,
+          height: 1920,
+          durationMs: 8000,
+          hasAudio: false,
+        ),
+      );
+      expect(await engine.createVideoPreview('content://v', maxPx: 1280), (
+        textureId: 7,
+        width: 1080,
+        height: 1920,
+        durationMs: 8000,
+        hasAudio: false,
+      ));
+    });
+
+    test('sends video layers with their time ranges', () async {
+      when(() => api.exportVideo(any(), any())).thenAnswer(
+        (_) async => pigeon.ExportResult(
+          mediaUri: 'content://media/video/1',
+          filePath: '/f/a.mp4',
+          width: 720,
+          height: 1280,
+          bytes: 99,
+          durationMs: 2000,
+        ),
+      );
+      final result = await engine.exportVideo('job', (
+        uri: 'content://v',
+        params: RenderParams.neutral,
+        outputWidth: 720,
+        outputHeight: 1280,
+        trimStartMs: 500,
+        trimEndMs: 2500,
+        includeAudio: false,
+        videoBitrate: 6000000,
+        fileName: 'Film',
+        layers: [
+          (
+            path: '/l/0.png',
+            left: 1,
+            top: 2,
+            width: 3,
+            height: 4,
+            blend: LayerBlend.screen,
+            opacity: 0.5,
+            startMs: 1000,
+            endMs: 2000,
+          ),
+        ],
+      ));
+      expect(result.durationMs, 2000);
+      final request =
+          verify(() => api.exportVideo('job', captureAny())).captured.single
+              as pigeon.VideoExportRequest;
+      expect(request.trimStartMs, 500);
+      expect(request.includeAudio, isFalse);
+      expect(request.layers.single.startMs, 1000);
+      expect(request.layers.single.endMs, 2000);
+      expect(request.layers.single.blend, pigeon.LayerBlend.screen);
     });
   });
 

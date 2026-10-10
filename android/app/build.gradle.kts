@@ -66,6 +66,11 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.exifinterface)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.media3.common)
+    implementation(libs.media3.effect)
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.transformer)
+    implementation(libs.androidx.work.runtime.ktx)
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
@@ -74,4 +79,5 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.androidx.work.testing)
 }

@@ -1,6 +1,7 @@
 import 'package:auvie/core/models/edit_state.dart';
 import 'package:auvie/core/models/elements.dart';
 import 'package:auvie/core/models/project.dart';
+import 'package:auvie/core/models/video_timeline.dart';
 import 'package:auvie/features/editor/adjustments/adjustment_family.dart';
 import 'package:auvie/features/editor/elements/text_presets.dart';
 import 'package:auvie/features/editor/history/edit_history.dart';
@@ -8,8 +9,9 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'editor_session.freezed.dart';
 
-/// Tools of the photo editor toolbar.
+/// Tools of the editor toolbar. Videos add TRIM (the timeline) first.
 enum EditorTool {
+  trim,
   film,
   adjust,
 
@@ -18,6 +20,11 @@ enum EditorTool {
   add;
 
   bool get isAvailable => true;
+
+  static List<EditorTool> forMedia(MediaType media) => switch (media) {
+    MediaType.photo => const [film, adjust, type, brush, add],
+    MediaType.video => values,
+  };
 }
 
 /// TYPE's two modes (handoff 04).
@@ -40,7 +47,8 @@ const ({int color, double opacity, double size, BrushType type}) defaultBrush =
 /// Special FILM category listing favorites.
 const savedCategory = 'saved';
 
-/// Everything on screen in the photo editor, besides the pixels.
+/// Everything on screen in the editor, besides the pixels (and, for
+/// videos, the playhead: see VideoPlayback).
 @freezed
 abstract class EditorSession with _$EditorSession {
   const factory({
@@ -80,4 +88,12 @@ abstract class EditorSession with _$EditorSession {
       id == null ? null : edit.elements.where((e) => e.id == id).firstOrNull;
 
   EditElement? get selected => element(selectedElementId);
+
+  bool get isVideo => project.media.type == MediaType.video;
+
+  /// The trim and sound of a video (default for photos, unused).
+  VideoTimeline get timeline => edit.video ?? const VideoTimeline();
+
+  /// Length of the original clip; 0 for photos.
+  int get durationMs => project.media.durationMs ?? 0;
 }

@@ -8,12 +8,14 @@ part of 'export_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The edited, cropped photo shown on the Export screens.
+/// The edited, cropped photo (or video's first kept frame) shown on the
+/// Export screens.
 
 @ProviderFor(exportPreview)
 final exportPreviewProvider = ExportPreviewFamily._();
 
-/// The edited, cropped photo shown on the Export screens.
+/// The edited, cropped photo (or video's first kept frame) shown on the
+/// Export screens.
 
 final class ExportPreviewProvider
     extends
@@ -23,7 +25,8 @@ final class ExportPreviewProvider
           FutureOr<Uint8List>
         >
     with $FutureModifier<Uint8List>, $FutureProvider<Uint8List> {
-  /// The edited, cropped photo shown on the Export screens.
+  /// The edited, cropped photo (or video's first kept frame) shown on the
+  /// Export screens.
   ExportPreviewProvider._({
     required ExportPreviewFamily super.from,
     required String super.argument,
@@ -67,9 +70,10 @@ final class ExportPreviewProvider
   }
 }
 
-String _$exportPreviewHash() => r'6a079f35659e42729da90597ddc805b635ffbed4';
+String _$exportPreviewHash() => r'71b7f9c64b32d7e5c7c96a114108e3201a30cd75';
 
-/// The edited, cropped photo shown on the Export screens.
+/// The edited, cropped photo (or video's first kept frame) shown on the
+/// Export screens.
 
 final class ExportPreviewFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<Uint8List>, String> {
@@ -82,7 +86,8 @@ final class ExportPreviewFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// The edited, cropped photo shown on the Export screens.
+  /// The edited, cropped photo (or video's first kept frame) shown on the
+  /// Export screens.
 
   ExportPreviewProvider call(String projectId) =>
       ExportPreviewProvider._(argument: projectId, from: this);

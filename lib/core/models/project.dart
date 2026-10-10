@@ -43,3 +43,7 @@ abstract class Project with _$Project {
 
   factory fromJson(Map<String, dynamic> json) => _$ProjectFromJson(json);
 }
+
+/// The video frame that stands for a project (thumbnails, Export): the
+/// first frame kept by the trim. 0 for photos.
+int posterTimeMs(Project project) => project.edit.video?.trimStartMs ?? 0;

@@ -4,7 +4,7 @@ import 'package:auvie/app/router/routes.dart';
 import 'package:auvie/core/models/elements.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
-import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
+import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -28,7 +28,7 @@ void main() {
   }
 
   List<EditElement> elements() => app.container
-      .read(photoEditorProvider(project.id))
+      .read(editorControllerProvider(project.id))
       .requireValue
       .edit
       .elements;
@@ -37,7 +37,7 @@ void main() {
       tester.widget<Text>(find.byKey(const Key('editor-caption'))).data!;
 
   Future<void> settle(WidgetTester tester) =>
-      tester.pump(PhotoEditor.saveDelay); // Let the autosave run.
+      tester.pump(EditorController.saveDelay); // Let the autosave run.
 
   Future<void> addText(WidgetTester tester, String text) async {
     await tapKey(tester, 'tool-type');

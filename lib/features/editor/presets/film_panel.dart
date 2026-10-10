@@ -9,10 +9,10 @@ import 'package:auvie/core/content/catalog_providers.dart';
 import 'package:auvie/core/models/preset.dart';
 import 'package:auvie/core/storage/database.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
-import 'package:auvie/features/editor/photo/editor_session.dart';
-import 'package:auvie/features/editor/photo/photo_editor_controller.dart';
 import 'package:auvie/features/editor/presets/preset_providers.dart';
 import 'package:auvie/features/editor/shell/edit_caption.dart';
+import 'package:auvie/features/editor/shell/editor_controller.dart';
+import 'package:auvie/features/editor/shell/editor_session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,7 +26,7 @@ class FilmPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = photoEditorProvider(projectId);
+    final provider = editorControllerProvider(projectId);
     final session = ref.watch(provider).requireValue;
     final controller = ref.read(provider.notifier);
     final catalog = ref.watch(catalogProvider).value;

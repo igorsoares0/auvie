@@ -8,7 +8,7 @@ import 'package:auvie/app/theme/typography.dart';
 import 'package:auvie/app/widgets/auvie_icon.dart';
 import 'package:auvie/app/widgets/caps_link.dart';
 import 'package:auvie/app/widgets/emphasis_text.dart';
-import 'package:auvie/app/widgets/pending_screen.dart';
+import 'package:auvie/core/models/elements.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/native/media_engine.dart';
 import 'package:auvie/core/native/media_engine_provider.dart';
@@ -16,6 +16,7 @@ import 'package:auvie/core/platform/share_service.dart';
 import 'package:auvie/features/editor/elements/element_assets_provider.dart';
 import 'package:auvie/features/editor/elements/elements_painter.dart';
 import 'package:auvie/features/editor/shell/edit_caption.dart';
+import 'package:auvie/features/editor/video/timeline_scale.dart';
 import 'package:auvie/features/export/export_controller.dart';
 import 'package:auvie/features/export/export_error_sheet.dart';
 import 'package:auvie/features/export/export_options.dart';
@@ -39,7 +40,7 @@ class ExportScreen extends ConsumerWidget {
       final phase = next.value?.phase;
       final before = previous?.value?.phase;
       if (phase is ExportDone && phase.thenShare && before is! ExportDone) {
-        unawaited(_share(ref, phase.result, next.requireValue.options.format));
+        unawaited(_share(ref, phase.result, next.requireValue.mimeType));
       }
     });
     final async = ref.watch(provider);
@@ -54,9 +55,6 @@ class ExportScreen extends ConsumerWidget {
       child: Scaffold(
         body: SafeArea(
           child: switch (async) {
-            AsyncData(value: final s)
-                when s.project.media.type == MediaType.video =>
-              const PendingScreen(title: 'Export', milestone: 'M6'),
             AsyncData(value: final s) => switch (s.phase) {
               ExportRunning() => _Exporting(projectId: projectId, session: s),
               ExportDone(:final result) => _Done(
@@ -70,10 +68,8 @@ class ExportScreen extends ConsumerWidget {
                   if (s.phase case final ExportFailed failed)
                     ExportErrorSheet(
                       failed: failed,
-                      smaller: s.options.size.smaller,
-                      smallerPixels: s.options.size.smaller == null
-                          ? null
-                          : s.pixels(s.options.size.smaller),
+                      subject: s.isVideo ? 'video' : 'photo',
+                      smaller: _smallerLabel(s),
                       onSmaller: () =>
                           ref.read(provider.notifier).retrySmaller(),
                       onRetry: () => ref.read(provider.notifier).start(),
@@ -98,10 +94,29 @@ class ExportScreen extends ConsumerWidget {
   static Future<void> _share(
     WidgetRef ref,
     ExportResult result,
-    ExportFormat format,
+    String mimeType,
   ) => ref
       .read(shareServiceProvider)
-      .shareFile(result.filePath, mimeType: format.mimeType);
+      .shareFile(result.filePath, mimeType: mimeType);
+
+  /// "LARGE · 12 MP" / "720P · 720 × 1280": the export offered when
+  /// storage is short.
+  static String? _smallerLabel(ExportSession s) {
+    if (s.isVideo) {
+      final smaller = s.videoSize.smaller;
+      if (smaller == null) return null;
+      final pixels = s.videoPixels(smaller);
+      return '${smaller.label.toUpperCase()} · '
+          '${pixels.width} × ${pixels.height}';
+    }
+    final smaller = s.options.size.smaller;
+    if (smaller == null) return null;
+    return '${smaller.label.toUpperCase()} · ${megapixels(s.pixels(smaller))}';
+  }
+}
+
+extension on ExportSession {
+  String get mimeType => isVideo ? 'video/mp4' : options.format.mimeType;
 }
 
 /// The developed, cropped photo with its elements.
@@ -129,7 +144,12 @@ class _Photo extends ConsumerWidget {
             if (assets != null)
               CustomPaint(
                 painter: ElementsPainter(
-                  elements: project.edit.elements,
+                  elements: [
+                    for (final e in project.edit.elements)
+                      if (!session.isVideo ||
+                          e.visibleAt(posterTimeMs(project)))
+                        e,
+                  ],
                   assets: assets,
                 ),
               ),
@@ -176,7 +196,8 @@ class _Options extends ConsumerWidget {
     final palette = context.palette;
     final options = session.options;
     final project = session.project;
-    final pixels = session.pixels();
+    final video = session.isVideo;
+    final pixels = video ? session.videoPixels() : session.pixels();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AuvieSpacing.gutter),
@@ -221,8 +242,12 @@ class _Options extends ConsumerWidget {
                     ),
                     const SizedBox(height: AuvieSpacing.s6),
                     Text(
-                      '${pixels.width} × ${pixels.height} · '
-                      '${aspectLabel(pixels.width, pixels.height)}',
+                      video
+                          ? '${pixels.width} × ${pixels.height} · '
+                                '${shortTime(session.videoDurationMs)} · '
+                                '≈ ${megabytes(session.videoBytes)}'
+                          : '${pixels.width} × ${pixels.height} · '
+                                '${aspectLabel(pixels.width, pixels.height)}',
                       key: const Key('export-dimensions'),
                       style: context.type.tag,
                     ),
@@ -231,80 +256,133 @@ class _Options extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: AuvieSpacing.s22),
-          Text('FORMAT', style: context.type.label),
-          const SizedBox(height: AuvieSpacing.s8),
-          _Segmented(
-            keyPrefix: 'format',
-            items: [
-              for (final f in ExportFormat.values) (f.name, f.label, f.note),
-            ],
-            selected: options.format.name,
-            italicNote: true,
-            onSelect: (name) => controller.setOptions((
-              format: ExportFormat.values.byName(name),
-              size: options.size,
-              keepMetadata: options.keepMetadata,
-            )),
-          ),
-          const SizedBox(height: AuvieSpacing.s18),
-          Text('SIZE', style: context.type.label),
-          const SizedBox(height: AuvieSpacing.s8),
-          _Segmented(
-            keyPrefix: 'size',
-            items: [
-              for (final s in ExportSize.values)
-                (s.name, s.label.toUpperCase(), megapixels(session.pixels(s))),
-            ],
-            selected: options.size.name,
-            onSelect: (name) => controller.setOptions((
-              format: options.format,
-              size: ExportSize.values.byName(name),
-              keepMetadata: options.keepMetadata,
-            )),
-          ),
-          const SizedBox(height: AuvieSpacing.s18),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Keep location & camera data',
-                      style: AuvieTypography.serif(
-                        16,
-                        color: palette.foreground,
+          if (video) ...[
+            const SizedBox(height: AuvieSpacing.s22),
+            Text('SIZE', style: context.type.label),
+            const SizedBox(height: AuvieSpacing.s8),
+            _Segmented(
+              keyPrefix: 'video-size',
+              items: [
+                for (final s in VideoExportSize.values)
+                  (
+                    s.name,
+                    s.label.toUpperCase(),
+                    videoSizeNote(session.videoPixels(s)),
+                  ),
+              ],
+              disabled: {
+                for (final s in VideoExportSize.values)
+                  if (!videoSizeAvailable(project, s)) s.name,
+              },
+              selected: session.videoSize.name,
+              onSelect: (name) =>
+                  controller.setVideoSize(VideoExportSize.values.byName(name)),
+            ),
+            const SizedBox(height: AuvieSpacing.s18),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        session.includesAudio ? 'Sound on' : 'Muted',
+                        key: const Key('export-sound'),
+                        style: AuvieTypography.serif(
+                          16,
+                          color: palette.foreground,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      options.format == ExportFormat.png
-                          ? 'JPEG ONLY'
-                          : 'EXIF · GPS',
-                      style: context.type.tag,
-                    ),
-                  ],
+                      const SizedBox(height: 2),
+                      Text(
+                        'MP4 · H.264 · SET IN THE EDITOR',
+                        style: context.type.tag,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Switch(
-                key: const Key('export-metadata'),
-                value: options.keepMetadata,
-                activeThumbColor: palette.background,
-                activeTrackColor: palette.foreground,
-                inactiveThumbColor: palette.muted,
-                inactiveTrackColor: Colors.transparent,
-                trackOutlineColor: WidgetStatePropertyAll(
-                  palette.hairlineStrong,
+              ],
+            ),
+          ] else ...[
+            const SizedBox(height: AuvieSpacing.s22),
+            Text('FORMAT', style: context.type.label),
+            const SizedBox(height: AuvieSpacing.s8),
+            _Segmented(
+              keyPrefix: 'format',
+              items: [
+                for (final f in ExportFormat.values) (f.name, f.label, f.note),
+              ],
+              selected: options.format.name,
+              italicNote: true,
+              onSelect: (name) => controller.setOptions((
+                format: ExportFormat.values.byName(name),
+                size: options.size,
+                keepMetadata: options.keepMetadata,
+              )),
+            ),
+            const SizedBox(height: AuvieSpacing.s18),
+            Text('SIZE', style: context.type.label),
+            const SizedBox(height: AuvieSpacing.s8),
+            _Segmented(
+              keyPrefix: 'size',
+              items: [
+                for (final s in ExportSize.values)
+                  (
+                    s.name,
+                    s.label.toUpperCase(),
+                    megapixels(session.pixels(s)),
+                  ),
+              ],
+              selected: options.size.name,
+              onSelect: (name) => controller.setOptions((
+                format: options.format,
+                size: ExportSize.values.byName(name),
+                keepMetadata: options.keepMetadata,
+              )),
+            ),
+            const SizedBox(height: AuvieSpacing.s18),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Keep location & camera data',
+                        style: AuvieTypography.serif(
+                          16,
+                          color: palette.foreground,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        options.format == ExportFormat.png
+                            ? 'JPEG ONLY'
+                            : 'EXIF · GPS',
+                        style: context.type.tag,
+                      ),
+                    ],
+                  ),
                 ),
-                onChanged: (v) => controller.setOptions((
-                  format: options.format,
-                  size: options.size,
-                  keepMetadata: v,
-                )),
-              ),
-            ],
-          ),
+                Switch(
+                  key: const Key('export-metadata'),
+                  value: options.keepMetadata,
+                  activeThumbColor: palette.background,
+                  activeTrackColor: palette.foreground,
+                  inactiveThumbColor: palette.muted,
+                  inactiveTrackColor: Colors.transparent,
+                  trackOutlineColor: WidgetStatePropertyAll(
+                    palette.hairlineStrong,
+                  ),
+                  onChanged: (v) => controller.setOptions((
+                    format: options.format,
+                    size: options.size,
+                    keepMetadata: v,
+                  )),
+                ),
+              ],
+            ),
+          ],
           const Spacer(),
           FilledButton(
             key: const Key('export-save'),
@@ -338,6 +416,7 @@ class _Segmented extends StatelessWidget {
     required this.selected,
     required this.onSelect,
     this.italicNote = false,
+    this.disabled = const {},
   });
 
   final String keyPrefix;
@@ -347,6 +426,9 @@ class _Segmented extends StatelessWidget {
   final String selected;
   final ValueChanged<String> onSelect;
   final bool italicNote;
+
+  /// Ids shown dimmed that can't be chosen.
+  final Set<String> disabled;
 
   @override
   Widget build(BuildContext context) {
@@ -364,44 +446,48 @@ class _Segmented extends StatelessWidget {
               child: Semantics(
                 button: true,
                 selected: id == selected,
+                enabled: !disabled.contains(id),
                 child: GestureDetector(
                   key: Key('$keyPrefix-$id'),
                   behavior: HitTestBehavior.opaque,
-                  onTap: () => onSelect(id),
-                  child: ColoredBox(
-                    color: id == selected
-                        ? palette.foreground
-                        : Colors.transparent,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          label,
-                          style: context.type.tag.copyWith(
-                            fontSize: 10,
-                            color: id == selected
-                                ? palette.background
-                                : palette.foreground,
+                  onTap: disabled.contains(id) ? null : () => onSelect(id),
+                  child: Opacity(
+                    opacity: disabled.contains(id) ? 0.35 : 1,
+                    child: ColoredBox(
+                      color: id == selected
+                          ? palette.foreground
+                          : Colors.transparent,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            label,
+                            style: context.type.tag.copyWith(
+                              fontSize: 10,
+                              color: id == selected
+                                  ? palette.background
+                                  : palette.foreground,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          note,
-                          style: italicNote
-                              ? AuvieTypography.serif(
-                                  12,
-                                  italic: true,
-                                  color: id == selected
-                                      ? palette.background
-                                      : palette.muted,
-                                )
-                              : context.type.tag.copyWith(
-                                  color: id == selected
-                                      ? palette.background
-                                      : palette.muted,
-                                ),
-                        ),
-                      ],
+                          const SizedBox(height: 2),
+                          Text(
+                            note,
+                            style: italicNote
+                                ? AuvieTypography.serif(
+                                    12,
+                                    italic: true,
+                                    color: id == selected
+                                        ? palette.background
+                                        : palette.muted,
+                                  )
+                                : context.type.tag.copyWith(
+                                    color: id == selected
+                                        ? palette.background
+                                        : palette.muted,
+                                  ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -429,8 +515,13 @@ class _Exporting extends ConsumerWidget {
     final frame = (session.project.name ?? 'Untitled').split(' · ').last;
     final eta = phase.etaSeconds;
     final details = [
-      session.options.format.label,
-      session.options.size.label.toUpperCase(),
+      if (session.isVideo) ...[
+        'MP4',
+        session.videoSize.label.toUpperCase(),
+      ] else ...[
+        session.options.format.label,
+        session.options.size.label.toUpperCase(),
+      ],
       if (eta != null) 'ABOUT $eta SECOND${eta == 1 ? '' : 'S'}',
     ].join(' · ');
 
@@ -565,12 +656,18 @@ class _Done extends ConsumerWidget {
       context.pop();
     }
 
-    Future<void> newPhoto() async {
+    final video = session.isVideo;
+
+    Future<void> newProject() async {
       final project = await ref
           .read(projectStarterProvider)
-          .start(MediaType.photo);
+          .start(video ? MediaType.video : MediaType.photo);
       if (project != null && context.mounted) {
-        context.go(AppRoutes.photoEditor(project.id));
+        context.go(
+          video
+              ? AppRoutes.videoEditor(project.id)
+              : AppRoutes.photoEditor(project.id),
+        );
       }
     }
 
@@ -613,7 +710,7 @@ class _Done extends ConsumerWidget {
           ),
           const SizedBox(height: AuvieSpacing.s8),
           EmphasisText(
-            'Printed. *Beautifully.*',
+            video ? 'Developed. *Beautifully.*' : 'Printed. *Beautifully.*',
             style: context.type.display.copyWith(fontSize: 30),
           ).centered(),
           const SizedBox(height: AuvieSpacing.s8),
@@ -636,24 +733,26 @@ class _Done extends ConsumerWidget {
                   icon: AuvieIcons.share,
                   label: 'Share',
                   onTap: () =>
-                      ExportScreen._share(ref, result, session.options.format),
+                      ExportScreen._share(ref, result, session.mimeType),
                 ),
-                VerticalDivider(width: 1, color: palette.hairline),
-                _DoneAction(
-                  key: const Key('export-done-copy'),
-                  icon: AuvieIcons.dup,
-                  label: 'Copy',
-                  onTap: () async {
-                    await ref
-                        .read(mediaEngineProvider)
-                        .copyToClipboard(result.mediaUri);
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Copied')));
-                    }
-                  },
-                ),
+                if (!video) ...[
+                  VerticalDivider(width: 1, color: palette.hairline),
+                  _DoneAction(
+                    key: const Key('export-done-copy'),
+                    icon: AuvieIcons.dup,
+                    label: 'Copy',
+                    onTap: () async {
+                      await ref
+                          .read(mediaEngineProvider)
+                          .copyToClipboard(result.mediaUri);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Copied')));
+                      }
+                    },
+                  ),
+                ],
               ],
             ),
           ),
@@ -666,14 +765,14 @@ class _Done extends ConsumerWidget {
           const SizedBox(height: AuvieSpacing.s6),
           TextButton(
             key: const Key('export-new-photo'),
-            onPressed: newPhoto,
+            onPressed: newProject,
             style: TextButton.styleFrom(
               minimumSize: const Size.fromHeight(
                 AuvieSpacing.ghostButtonHeight,
               ),
               foregroundColor: palette.foreground,
             ),
-            child: const Text('NEW PHOTO'),
+            child: Text(video ? 'NEW VIDEO' : 'NEW PHOTO'),
           ),
           const SizedBox(height: AuvieSpacing.s8),
         ],

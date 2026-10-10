@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'photo_editor_controller.dart';
+part of 'editor_controller.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -63,46 +63,49 @@ final class ElementIdsProvider
 
 String _$elementIdsHash() => r'990f63c670504e986dde2e5f113d01fab7b3bc31';
 
-/// State and actions of the photo editor for one project. Edits autosave
-/// [saveDelay] after the last change (spec: errors never discard an edit).
+/// State and actions of the photo and video editors for one project.
+/// Edits autosave [saveDelay] after the last change (spec: errors never
+/// discard an edit).
 
-@ProviderFor(PhotoEditor)
-final photoEditorProvider = PhotoEditorFamily._();
+@ProviderFor(EditorController)
+final editorControllerProvider = EditorControllerFamily._();
 
-/// State and actions of the photo editor for one project. Edits autosave
-/// [saveDelay] after the last change (spec: errors never discard an edit).
-final class PhotoEditorProvider
-    extends $AsyncNotifierProvider<PhotoEditor, EditorSession> {
-  /// State and actions of the photo editor for one project. Edits autosave
-  /// [saveDelay] after the last change (spec: errors never discard an edit).
-  PhotoEditorProvider._({
-    required PhotoEditorFamily super.from,
+/// State and actions of the photo and video editors for one project.
+/// Edits autosave [saveDelay] after the last change (spec: errors never
+/// discard an edit).
+final class EditorControllerProvider
+    extends $AsyncNotifierProvider<EditorController, EditorSession> {
+  /// State and actions of the photo and video editors for one project.
+  /// Edits autosave [saveDelay] after the last change (spec: errors never
+  /// discard an edit).
+  EditorControllerProvider._({
+    required EditorControllerFamily super.from,
     required String super.argument,
   }) : super(
          retry: _noRetry,
-         name: r'photoEditorProvider',
+         name: r'editorControllerProvider',
          isAutoDispose: true,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
 
   @override
-  String debugGetCreateSourceHash() => _$photoEditorHash();
+  String debugGetCreateSourceHash() => _$editorControllerHash();
 
   @override
   String toString() {
-    return r'photoEditorProvider'
+    return r'editorControllerProvider'
         ''
         '($argument)';
   }
 
   @$internal
   @override
-  PhotoEditor create() => PhotoEditor();
+  EditorController create() => EditorController();
 
   @override
   bool operator ==(Object other) {
-    return other is PhotoEditorProvider && other.argument == argument;
+    return other is EditorControllerProvider && other.argument == argument;
   }
 
   @override
@@ -111,43 +114,46 @@ final class PhotoEditorProvider
   }
 }
 
-String _$photoEditorHash() => r'bee2581303ced7dd92ada57d94e851a54ea2c97a';
+String _$editorControllerHash() => r'cc26dc0edb6252aa481ef975f62f9619805c5d82';
 
-/// State and actions of the photo editor for one project. Edits autosave
-/// [saveDelay] after the last change (spec: errors never discard an edit).
+/// State and actions of the photo and video editors for one project.
+/// Edits autosave [saveDelay] after the last change (spec: errors never
+/// discard an edit).
 
-final class PhotoEditorFamily extends $Family
+final class EditorControllerFamily extends $Family
     with
         $ClassFamilyOverride<
-          PhotoEditor,
+          EditorController,
           AsyncValue<EditorSession>,
           EditorSession,
           FutureOr<EditorSession>,
           String
         > {
-  PhotoEditorFamily._()
+  EditorControllerFamily._()
     : super(
         retry: _noRetry,
-        name: r'photoEditorProvider',
+        name: r'editorControllerProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
 
-  /// State and actions of the photo editor for one project. Edits autosave
-  /// [saveDelay] after the last change (spec: errors never discard an edit).
+  /// State and actions of the photo and video editors for one project.
+  /// Edits autosave [saveDelay] after the last change (spec: errors never
+  /// discard an edit).
 
-  PhotoEditorProvider call(String projectId) =>
-      PhotoEditorProvider._(argument: projectId, from: this);
+  EditorControllerProvider call(String projectId) =>
+      EditorControllerProvider._(argument: projectId, from: this);
 
   @override
-  String toString() => r'photoEditorProvider';
+  String toString() => r'editorControllerProvider';
 }
 
-/// State and actions of the photo editor for one project. Edits autosave
-/// [saveDelay] after the last change (spec: errors never discard an edit).
+/// State and actions of the photo and video editors for one project.
+/// Edits autosave [saveDelay] after the last change (spec: errors never
+/// discard an edit).
 
-abstract class _$PhotoEditor extends $AsyncNotifier<EditorSession> {
+abstract class _$EditorController extends $AsyncNotifier<EditorSession> {
   late final _$args = ref.$arg as String;
   String get projectId => _$args;
 

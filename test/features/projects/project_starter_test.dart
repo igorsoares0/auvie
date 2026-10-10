@@ -75,7 +75,10 @@ void main() {
     engine.picked = videoMedia;
     final project = await starter.start(MediaType.video);
     expect(project!.edit.video, isNotNull);
-    expect(engine.calls, contains('thumbnail(${videoMedia.uri}, 360)'));
+    expect(
+      engine.calls,
+      contains('renderVideoFrame(${videoMedia.uri}, 360, 0)'),
+    );
   });
 
   test('frames keep counting', () async {
