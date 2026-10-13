@@ -1,30 +1,40 @@
 {
-  "catalogVersion": 2,
+  "catalogVersion": 3,
+  "edition": {
+    "number": 12,
+    "season": "Autumn",
+    "featuredCollectionId": "night"
+  },
   "collections": [
     {
       "id": "film",
       "name": "Film",
-      "order": 0
+      "order": 0,
+      "description": "Colour negative, as it came out of the lab."
     },
     {
       "id": "vintage",
       "name": "Vintage",
-      "order": 1
+      "order": 1,
+      "description": "Prints left in a drawer for thirty years."
     },
     {
       "id": "moody",
       "name": "Moody",
-      "order": 2
+      "order": 2,
+      "description": "Low light, low colour."
     },
     {
       "id": "clean",
       "name": "Clean",
-      "order": 3
+      "order": 3,
+      "description": "Clear and true, barely there."
     },
     {
       "id": "night",
       "name": "Night",
-      "order": 4
+      "order": 4,
+      "description": "Street lamps, neon and tungsten."
     }
   ],
   "presets": [
@@ -47,7 +57,8 @@
         "temperature": 0.08,
         "grain": 0.12,
         "vignette": 0.08
-      }
+      },
+      "description": "Warm, high chroma"
     },
     {
       "id": "portra_04",
@@ -70,7 +81,8 @@
         "tint": 0.03,
         "grain": 0.18,
         "fade": 0.05
-      }
+      },
+      "description": "Soft skin, gentle greens"
     },
     {
       "id": "cendre_11",
@@ -89,7 +101,8 @@
         "temperature": -0.05,
         "grain": 0.22,
         "fade": 0.1
-      }
+      },
+      "description": "Ashen monochrome"
     },
     {
       "id": "vitrine",
@@ -109,7 +122,8 @@
         "temperature": -0.06,
         "tint": -0.04,
         "fade": 0.04
-      }
+      },
+      "description": "Glass, cool shadow"
     },
     {
       "id": "portra_fade",
@@ -151,7 +165,8 @@
             }
           ]
         }
-      }
+      },
+      "description": "Lifted blacks"
     },
     {
       "id": "nocturne_19",
@@ -175,7 +190,8 @@
         "tint": 0.05,
         "grain": 0.3,
         "vignette": 0.25
-      }
+      },
+      "description": "Tungsten after dark"
     }
   ],
   "assets": [

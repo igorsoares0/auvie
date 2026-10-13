@@ -36,3 +36,13 @@ Future<Uint8List> presetThumbnail(Ref ref, String uri, String? presetId) async {
 @riverpod
 Stream<List<String>> favoritePresets(Ref ref) =>
     ref.watch(favoritesRepositoryProvider).watch(FavoriteKind.preset);
+
+/// Favorite collections (Archive SAVE), newest first.
+@riverpod
+Stream<List<String>> favoriteCollections(Ref ref) =>
+    ref.watch(favoritesRepositoryProvider).watch(FavoriteKind.collection);
+
+/// Favorite stickers (hold one in ADD), newest first.
+@riverpod
+Stream<List<String>> favoriteStickers(Ref ref) =>
+    ref.watch(favoritesRepositoryProvider).watch(FavoriteKind.sticker);

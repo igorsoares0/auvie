@@ -4,10 +4,12 @@ import 'package:auvie/app/settings/app_settings.dart';
 import 'package:auvie/core/content/catalog_providers.dart';
 import 'package:auvie/core/content/catalog_source.dart';
 import 'package:auvie/core/native/media_engine_provider.dart';
+import 'package:auvie/core/platform/link_opener.dart';
 import 'package:auvie/core/platform/share_service.dart';
 import 'package:auvie/core/storage/database.dart';
 import 'package:auvie/core/storage/project_repository.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
+import 'package:auvie/core/subscription/entitlement_providers.dart';
 import 'package:auvie/features/editor/elements/element_assets.dart';
 import 'package:auvie/features/editor/elements/element_assets_provider.dart';
 import 'package:auvie/features/editor/presets/preset_providers.dart';
@@ -23,6 +25,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'fake_element_rasterizer.dart';
+import 'fake_entitlement_service.dart';
 import 'fake_media_engine.dart';
 import 'fake_project_thumbnails.dart';
 import 'fake_share_service.dart';
@@ -42,6 +45,8 @@ class TestApp {
     this.share,
     this.rasterizer,
     this.assets,
+    this.store,
+    this.links,
   );
 
   final ProviderContainer container;
@@ -51,6 +56,8 @@ class TestApp {
   final FakeShareService share;
   final FakeElementRasterizer rasterizer;
   final ElementAssets assets;
+  final FakeEntitlementService store;
+  final FakeLinkOpener links;
 
   SharedPreferences get prefs => container.read(sharedPreferencesProvider);
 
@@ -62,6 +69,9 @@ class TestApp {
     FakeMediaEngine? engine,
     List<ProjectSummary> recents = const [],
     List<String> favorites = const [],
+    List<String> savedCollections = const [],
+    List<String> savedStickers = const [],
+    FakeEntitlementService? store,
   }) async {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     SharedPreferences.setMockInitialValues({
@@ -77,6 +87,8 @@ class TestApp {
     final fake = engine ?? FakeMediaEngine();
     final thumbnails = FakeProjectThumbnails();
     final share = FakeShareService();
+    final entitlements = store ?? FakeEntitlementService();
+    final links = FakeLinkOpener();
     final container = ProviderContainer(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
@@ -90,6 +102,14 @@ class TestApp {
         elementIdsProvider.overrideWithValue(_sequentialIds()),
         recentProjectsProvider.overrideWith((ref) => Stream.value(recents)),
         favoritePresetsProvider.overrideWith((ref) => Stream.value(favorites)),
+        favoriteCollectionsProvider.overrideWith(
+          (ref) => Stream.value(savedCollections),
+        ),
+        favoriteStickersProvider.overrideWith(
+          (ref) => Stream.value(savedStickers),
+        ),
+        entitlementServiceProvider.overrideWithValue(entitlements),
+        linkOpenerProvider.overrideWithValue(links),
       ],
     );
     return TestApp._(
@@ -100,6 +120,8 @@ class TestApp {
       share,
       rasterizer,
       assets,
+      entitlements,
+      links,
     );
   }
 

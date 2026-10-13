@@ -8,6 +8,7 @@ import 'package:auvie/features/subscription/pro_screen.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/fake_entitlement_service.dart';
 import '../../helpers/fake_media_engine.dart';
 import '../../helpers/fixtures.dart';
 import '../../helpers/pump_app.dart';
@@ -125,5 +126,20 @@ void main() {
     await tester.tap(find.byKey(const Key('home-discover')));
     await tester.pumpAndSettle();
     expect(find.byType(ArchiveScreen), findsOneWidget);
+  });
+
+  testWidgets('the PRO badge shows Pro; the footer features the edition', (
+    tester,
+  ) async {
+    final app = (await tester.runAsync(
+      () => TestApp.create(store: FakeEntitlementService(pro: true)),
+    ))!;
+    await tester.pumpTestApp(app);
+
+    expect(find.text('PRO ✓'), findsOneWidget);
+    expect(find.text('Night'), findsOneWidget);
+    app.store.setPro(pro: false);
+    await tester.pumpAndSettle();
+    expect(find.text('PRO'), findsOneWidget);
   });
 }

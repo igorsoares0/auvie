@@ -233,7 +233,7 @@ void main() {
     await tapKey(tester, 'tool-add');
     await tapKey(tester, 'asset-sticker_sparkle');
     await tapKey(tester, 'add-tab-Frames');
-    await tapKey(tester, 'asset-frame_film35');
+    await tapKey(tester, 'asset-frame_print');
 
     await tapKey(tester, 'editor-export');
     await tapKey(tester, 'export-save');

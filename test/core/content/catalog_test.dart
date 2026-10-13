@@ -144,6 +144,33 @@ void main() {
         'Asset "star" is in unknown collection "travel"',
       ]);
     });
+
+    test('the edition features a collection, else the newest one', () {
+      final catalog = Catalog.fromJson(sampleJson());
+      expect(catalog.edition, isNull);
+      expect(catalog.featuredCollection!.id, 'night');
+      final featured = catalog.copyWith(
+        edition: const Edition(
+          number: 12,
+          season: 'Autumn',
+          featuredCollectionId: 'film',
+        ),
+      );
+      expect(featured.featuredCollection!.id, 'film');
+      expect(featured.validate(), isEmpty);
+      expect(
+        featured
+            .copyWith(
+              edition: const Edition(
+                number: 12,
+                season: 'Autumn',
+                featuredCollectionId: 'gone',
+              ),
+            )
+            .validate(),
+        ['Edition features unknown collection "gone"'],
+      );
+    });
   });
 
   group('HexColorConverter', () {
@@ -190,6 +217,9 @@ void main() {
         'nocturne_19',
       ]);
       expect(catalog.presetById('portra_fade')!.curves, isNotNull);
+      expect(catalog.edition?.number, 12);
+      expect(catalog.featuredCollection!.id, 'night');
+      expect(catalog.presets.every((p) => p.description != null), isTrue);
     });
 
     test('every shipped sticker file exists', () async {

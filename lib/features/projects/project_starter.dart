@@ -1,4 +1,5 @@
 import 'package:auvie/app/settings/app_settings.dart';
+import 'package:auvie/core/models/preset.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/native/media_engine.dart';
 import 'package:auvie/core/storage/project_repository.dart';
@@ -19,16 +20,22 @@ class ProjectStarter {
   final ProjectThumbnails _thumbnails;
   final AppSettings _settings;
 
-  /// Null when the user cancels the picker.
-  Future<Project?> start(MediaType type) async {
+  /// Null when the user cancels the picker. With [preset] (Archive), the
+  /// project starts with that film applied.
+  Future<Project?> start(MediaType type, {Preset? preset}) async {
     final media = await _engine.pickMedia(type);
     if (media == null) return null;
-    final project = await _repository.create(
+    var project = await _repository.create(
       media,
       name: await _settings.nextFrameName(),
     );
+    if (preset != null) {
+      project = await _repository.save(
+        project.copyWith(edit: project.edit.withPreset(preset.id)),
+      );
+    }
     try {
-      await _thumbnails.refresh(project, null);
+      await _thumbnails.refresh(project, preset);
     } on Object catch (e) {
       // The project is usable without a thumbnail; it is retried on close.
       debugPrint('Thumbnail for ${project.id} failed: $e');

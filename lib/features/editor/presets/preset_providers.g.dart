@@ -139,3 +139,92 @@ final class FavoritePresetsProvider
 }
 
 String _$favoritePresetsHash() => r'6f85164be9d6b477983c54bf7a9a36a6da44f167';
+
+/// Favorite collections (Archive SAVE), newest first.
+
+@ProviderFor(favoriteCollections)
+final favoriteCollectionsProvider = FavoriteCollectionsProvider._();
+
+/// Favorite collections (Archive SAVE), newest first.
+
+final class FavoriteCollectionsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<String>>,
+          List<String>,
+          Stream<List<String>>
+        >
+    with $FutureModifier<List<String>>, $StreamProvider<List<String>> {
+  /// Favorite collections (Archive SAVE), newest first.
+  FavoriteCollectionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'favoriteCollectionsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$favoriteCollectionsHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<String>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<String>> create(Ref ref) {
+    return favoriteCollections(ref);
+  }
+}
+
+String _$favoriteCollectionsHash() =>
+    r'604ae76dc0524543799c38a5b1a1c58013ec7ba7';
+
+/// Favorite stickers (hold one in ADD), newest first.
+
+@ProviderFor(favoriteStickers)
+final favoriteStickersProvider = FavoriteStickersProvider._();
+
+/// Favorite stickers (hold one in ADD), newest first.
+
+final class FavoriteStickersProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<String>>,
+          List<String>,
+          Stream<List<String>>
+        >
+    with $FutureModifier<List<String>>, $StreamProvider<List<String>> {
+  /// Favorite stickers (hold one in ADD), newest first.
+  FavoriteStickersProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'favoriteStickersProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$favoriteStickersHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<String>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<String>> create(Ref ref) {
+    return favoriteStickers(ref);
+  }
+}
+
+String _$favoriteStickersHash() => r'52e92926b88eade60003596afcea63f8f76389dc';

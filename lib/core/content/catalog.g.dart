@@ -58,8 +58,23 @@ const _$ContentAssetTypeEnumMap = {
   ContentAssetType.font: 'font',
 };
 
+_Edition _$EditionFromJson(Map<String, dynamic> json) => _Edition(
+  number: (json['number'] as num).toInt(),
+  season: json['season'] as String,
+  featuredCollectionId: json['featuredCollectionId'] as String,
+);
+
+Map<String, dynamic> _$EditionToJson(_Edition instance) => <String, dynamic>{
+  'number': instance.number,
+  'season': instance.season,
+  'featuredCollectionId': instance.featuredCollectionId,
+};
+
 _Catalog _$CatalogFromJson(Map<String, dynamic> json) => _Catalog(
   catalogVersion: (json['catalogVersion'] as num).toInt(),
+  edition: json['edition'] == null
+      ? null
+      : Edition.fromJson(json['edition'] as Map<String, dynamic>),
   collections:
       (json['collections'] as List<dynamic>?)
           ?.map((e) => PresetCollection.fromJson(e as Map<String, dynamic>))
@@ -79,6 +94,7 @@ _Catalog _$CatalogFromJson(Map<String, dynamic> json) => _Catalog(
 
 Map<String, dynamic> _$CatalogToJson(_Catalog instance) => <String, dynamic>{
   'catalogVersion': instance.catalogVersion,
+  'edition': instance.edition?.toJson(),
   'collections': instance.collections.map((e) => e.toJson()).toList(),
   'presets': instance.presets.map((e) => e.toJson()).toList(),
   'assets': instance.assets.map((e) => e.toJson()).toList(),

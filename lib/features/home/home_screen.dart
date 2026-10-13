@@ -15,6 +15,7 @@ import 'package:auvie/core/content/catalog.dart';
 import 'package:auvie/core/content/catalog_providers.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/storage/project_repository.dart';
+import 'package:auvie/core/subscription/entitlement_providers.dart';
 import 'package:auvie/features/projects/project_providers.dart';
 import 'package:auvie/features/projects/start_project.dart';
 import 'package:flutter/foundation.dart';
@@ -152,12 +153,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-class _Header extends StatelessWidget {
+class _Header extends ConsumerWidget {
   const new();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final accent = context.palette.accent;
+    final pro = ref.watch(proAccessProvider).isPro;
     return SizedBox(
       height: AuvieSpacing.headerHeight,
       child: Row(
@@ -181,7 +183,7 @@ class _Header extends StatelessWidget {
                       vertical: 5,
                     ),
                     child: Text(
-                      'PRO',
+                      pro ? 'PRO ✓' : 'PRO',
                       style: context.type.tag.copyWith(
                         color: accent,
                         fontSize: 10,
@@ -481,10 +483,9 @@ class _CollectionFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final collections = catalog?.sortedCollections ?? const [];
-    if (collections.isEmpty) return const SizedBox.shrink();
-    // The newest collection is the last one in catalog order.
-    final collection = collections.last;
+    // This edition's featured collection, as in the Archive.
+    final collection = catalog?.featuredCollection;
+    if (collection == null) return const SizedBox.shrink();
     final tone =
         catalog!.presetsIn(collection.id).firstOrNull?.tone ?? FilmArt.nocturne;
     final palette = context.palette;

@@ -64,7 +64,7 @@ final class VideoPlaybackProvider
   }
 }
 
-String _$videoPlaybackHash() => r'05c6506bd843a4f78c2062cf71e4ac492d7e7ed4';
+String _$videoPlaybackHash() => r'75404c5ec08d93d4494777eb8aaed64a9ea0ec6a';
 
 /// Play, pause and seek for the video editor of one project. The preview
 /// attaches its texture when it opens.

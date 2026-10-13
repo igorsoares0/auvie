@@ -8,11 +8,13 @@ import 'package:auvie/app/theme/typography.dart';
 import 'package:auvie/app/widgets/auvie_icon.dart';
 import 'package:auvie/app/widgets/caps_link.dart';
 import 'package:auvie/app/widgets/emphasis_text.dart';
+import 'package:auvie/core/content/premium.dart';
 import 'package:auvie/core/models/elements.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/native/media_engine.dart';
 import 'package:auvie/core/native/media_engine_provider.dart';
 import 'package:auvie/core/platform/share_service.dart';
+import 'package:auvie/core/subscription/entitlement_providers.dart';
 import 'package:auvie/features/editor/elements/element_assets_provider.dart';
 import 'package:auvie/features/editor/elements/elements_painter.dart';
 import 'package:auvie/features/editor/shell/edit_caption.dart';
@@ -195,6 +197,18 @@ class _Options extends ConsumerWidget {
     final controller = ref.read(exportControllerProvider(projectId).notifier);
     final palette = context.palette;
     final options = session.options;
+    final locked =
+        session.premium.isNotEmpty && !ref.watch(proAccessProvider).isPro;
+
+    /// Locked edits go through the paywall first; buying Pro carries on.
+    Future<void> save({bool thenShare = false}) async {
+      if (controller.locked) {
+        final pro = await context.push<bool>(AppRoutes.pro);
+        if (pro != true || !context.mounted) return;
+      }
+      await controller.start(thenShare: thenShare);
+    }
+
     final project = session.project;
     final video = session.isVideo;
     final pixels = video ? session.videoPixels() : session.pixels();
@@ -383,16 +397,23 @@ class _Options extends ConsumerWidget {
               ],
             ),
           ],
+          if (locked) ...[
+            const SizedBox(height: AuvieSpacing.s18),
+            _ProNotice(
+              premium: session.premium,
+              onSeePro: () => context.push<bool>(AppRoutes.pro),
+            ),
+          ],
           const Spacer(),
           FilledButton(
             key: const Key('export-save'),
-            onPressed: controller.start,
+            onPressed: save,
             child: const Text('SAVE TO PHOTOS'),
           ),
           const SizedBox(height: AuvieSpacing.s6),
           TextButton(
             key: const Key('export-share'),
-            onPressed: () => controller.start(thenShare: true),
+            onPressed: () => save(thenShare: true),
             style: TextButton.styleFrom(
               minimumSize: const Size.fromHeight(
                 AuvieSpacing.ghostButtonHeight,
@@ -402,6 +423,61 @@ class _Options extends ConsumerWidget {
             child: const Text('SHARE…'),
           ),
           const SizedBox(height: AuvieSpacing.s8),
+        ],
+      ),
+    );
+  }
+}
+
+/// The single Pro row (handoff 07): accent border, a dot, what is Pro and
+/// SEE PRO. Shown only to free users whose edit uses Pro content.
+class _ProNotice extends StatelessWidget {
+  const new({required this.premium, required this.onSeePro});
+
+  final List<PremiumItem> premium;
+  final VoidCallback onSeePro;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    final first = premium.first;
+    final name = first.kind == PremiumKind.preset
+        ? presetBaseName(first.name)
+        : first.name;
+    final others = premium.length - 1;
+    final text = others == 0
+        ? '*$name* is part of Pro. Unlock it, or swap it for a free one.'
+        : '*$name* and $others more are part of Pro. Unlock them, or swap '
+              'them for free ones.';
+    return Container(
+      key: const Key('export-pro-notice'),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AuvieSpacing.s14,
+        vertical: AuvieSpacing.s12,
+      ),
+      decoration: BoxDecoration(border: Border.all(color: palette.accent)),
+      child: Row(
+        children: [
+          Container(
+            width: 5,
+            height: 5,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: palette.accent,
+            ),
+          ),
+          const SizedBox(width: AuvieSpacing.s12),
+          Expanded(
+            child: EmphasisText(
+              text,
+              style: AuvieTypography.serif(14, color: palette.foreground),
+            ),
+          ),
+          CapsLink(
+            'See Pro',
+            key: const Key('export-see-pro'),
+            onTap: onSeePro,
+          ),
         ],
       ),
     );

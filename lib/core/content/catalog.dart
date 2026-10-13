@@ -53,11 +53,25 @@ abstract class ContentAsset with _$ContentAsset {
   factory fromJson(Map<String, dynamic> json) => _$ContentAssetFromJson(json);
 }
 
+/// The issue of the catalog shown in the Archive: "EDITION Nº 12 · AUTUMN",
+/// and the collection it features (Archive, Home footer).
+@freezed
+abstract class Edition with _$Edition {
+  const factory({
+    required int number,
+    required String season,
+    required String featuredCollectionId,
+  }) = _Edition;
+
+  factory fromJson(Map<String, dynamic> json) => _$EditionFromJson(json);
+}
+
 /// Everything the app can offer (spec §46–47).
 @freezed
 abstract class Catalog with _$Catalog {
   const factory({
     required int catalogVersion,
+    Edition? edition,
     @Default(<PresetCollection>[]) List<PresetCollection> collections,
     @Default(<Preset>[]) List<Preset> presets,
     @Default(<ContentAsset>[]) List<ContentAsset> assets,
@@ -71,6 +85,16 @@ abstract class Catalog with _$Catalog {
       collections.sortedBy<num>((c) => c.order);
 
   Preset? presetById(String id) => presets.firstWhereOrNull((p) => p.id == id);
+
+  PresetCollection? collectionById(String id) =>
+      collections.firstWhereOrNull((c) => c.id == id);
+
+  /// The edition's featured collection, else the newest (last) one.
+  PresetCollection? get featuredCollection {
+    final id = edition?.featuredCollectionId;
+    return (id == null ? null : collectionById(id)) ??
+        sortedCollections.lastOrNull;
+  }
 
   List<Preset> presetsIn(String collectionId) => [
     for (final p in presets)
@@ -102,6 +126,10 @@ abstract class Catalog with _$Catalog {
     checkUnique('preset', presets.map((p) => p.id));
     checkUnique('asset', assets.map((a) => a.id));
 
+    final featured = edition?.featuredCollectionId;
+    if (featured != null && !collectionIds.contains(featured)) {
+      issues.add('Edition features unknown collection "$featured"');
+    }
     for (final preset in presets) {
       if (!collectionIds.contains(preset.collectionId)) {
         issues.add(

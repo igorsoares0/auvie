@@ -284,6 +284,21 @@ Tamanho relativo: **P** pequeno · **M** médio · **G** grande.
 
 > ✅ Ao fim da M7: spec §68 item 20 + critérios de Monetização da §69.
 
+**Estado (2026-10-13):** implementada; testes verdes (473 Dart, analyzer limpo, build Android ok). Falta o teste manual no aparelho.
+- **Archive (paper):**
+  - edição Nº 12 · Autumn e coleção em destaque, vindas do bloco `edition` do catálogo; a Home usa a mesma coleção;
+  - filmes por coleção, com OWNED/TRY;
+  - tocar abre uma foto já com o filme; segurar favorita; SAVE favorita a coleção.
+- **Favoritos:** coleções salvas vêm primeiro no FILM; stickers seguros no ADD vêm primeiro, com marca.
+- **Pro:**
+  - interface `EntitlementService` com três implementações: RevenueCat (`purchases_flutter`, entitlement `pro`, liga com `--dart-define=REVENUECAT_ANDROID_KEY`), assinatura simulada (debug/profile sem chave) e "indisponível" (release sem chave);
+  - o último estado fica em cache para funcionar offline.
+- **Paywall (handoff 08):** planos anual e mensal com SAVE %, teste grátis e termos gerados do plano; RESTORE / TERMS / PRIVACY; tela "You have Pro" com MANAGE.
+- **Bloqueio só no export:** `premiumContent(edit, catalog)` lista o que é Pro. Para usuário free com conteúdo Pro, aparece a linha de aviso + SEE PRO, e SAVE/SHARE passam pelo paywall; depois da compra, o export continua.
+- **Onboarding:** "I ALREADY HAVE PRO" restaura a compra.
+- **Rede:** o `purchases_flutter` adiciona as permissões `INTERNET` e `BILLING`. A ficha de Data Safety (M9) precisa declarar os dados de compra enviados ao RevenueCat e ao Google.
+- **Contas e produtos:** passo a passo em `docs/REVENUECAT-SETUP.md`. As URLs de termos e privacidade são provisórias (`auvie.app/terms`, `/privacy`) até a M9.
+
 ### M8 — Content platform: lado do app (M)
 - Admin Web (Next.js + Neon + R2) é **projeto separado** — planejar à parte.
 - No app: `RemoteCatalogSource` (`GET /content/catalog?version=N` → 304/novo), diff de assets, download incremental com `dio`, cache em `downloaded_content/`, assets antigos mantidos enquanto usados por algum projeto; fontes remotas registradas via `FontLoader`.
@@ -351,6 +366,10 @@ Tamanho relativo: **P** pequeno · **M** médio · **G** grande.
 | D8 | Duração inicial de um elemento no vídeo | Do playhead até o fim do trecho cortado |
 | D9 | Permissão de notificação (Android 13+) | Pedida uma vez, no primeiro export de vídeo; negar não impede o export |
 | D10 | Controle de som | Só no editor (mute na faixa SOUND/transporte); o Export mostra "Sound on" / "Muted" |
+| D11 | O que o Pro libera | **Só conteúdo** marcado `isPremium` (presets, stickers, overlays, molduras); export de foto e vídeo livre para todos |
+| D12 | Planos no lançamento (era Q6) | **Mensal + anual** (anual com 7 dias grátis); sem vitalício |
+| D13 | Lojas antes das contas | RevenueCat liga com a chave via `--dart-define`; sem chave: simulado (debug/profile) ou indisponível (release) |
+| D14 | Tocar num filme no Archive | Abre o seletor e cria uma foto com o filme aplicado (Pro também; o paywall só no export) |
 | D6 | Referência à mídia (era Q5) | URI do Photo Picker com acesso persistido (`takePersistableUriPermission`); se o provedor recusar, o arquivo é copiado para `files/projects/media/` (M2) |
 
 ## 8. Questões em aberto (decidir antes da fase indicada)
@@ -358,7 +377,6 @@ Tamanho relativo: **P** pequeno · **M** médio · **G** grande.
 | # | Questão | Recomendação | Até |
 |---|---|---|---|
 | Q1 | `applicationId` definitivo | Ex.: `app.auvie` (precisa de um domínio que você controle) | M0 |
-| Q6 | Produto `lifetime` (spec §49) entra no lançamento? | Lançar com monthly + yearly | M7 |
 | Q7 | Preços e textos marcados como *placeholder* no handoff | Produto define | M7 |
 | Q8 | Crash reporting/analytics sem conta (§60) | Avaliar em separado; manter interface `Telemetry` no-op | M9 |
 

@@ -1,4 +1,5 @@
 import 'package:auvie/app/router/routes.dart';
+import 'package:auvie/core/models/preset.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/native/media_engine.dart';
 import 'package:auvie/features/projects/project_providers.dart';
@@ -14,14 +15,18 @@ void openProject(BuildContext context, String id, MediaType type) =>
     });
 
 /// Picks media, creates a project and opens its editor (Home → Photo /
-/// Video, Export → NEW PHOTO). Returns false when cancelled or failed.
+/// Video, Export → NEW PHOTO, Archive → a film, with [preset] applied).
+/// Returns false when cancelled or failed.
 Future<bool> startProject(
   BuildContext context,
   WidgetRef ref,
-  MediaType type,
-) async {
+  MediaType type, {
+  Preset? preset,
+}) async {
   try {
-    final project = await ref.read(projectStarterProvider).start(type);
+    final project = await ref
+        .read(projectStarterProvider)
+        .start(type, preset: preset);
     if (project == null || !context.mounted) return false;
     openProject(context, project.id, type);
     return true;

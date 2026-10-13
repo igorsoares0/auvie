@@ -1,15 +1,21 @@
+import 'dart:async';
+
 import 'package:auvie/app/theme/app_theme.dart';
 import 'package:auvie/app/theme/colors.dart';
 import 'package:auvie/app/theme/spacing.dart';
 import 'package:auvie/core/content/catalog.dart';
 import 'package:auvie/core/content/catalog_providers.dart';
 import 'package:auvie/core/models/elements.dart';
+import 'package:auvie/core/storage/database.dart';
+import 'package:auvie/core/storage/storage_providers.dart';
 import 'package:auvie/features/editor/elements/frame_renderer.dart';
 import 'package:auvie/features/editor/elements/overlay_renderer.dart';
+import 'package:auvie/features/editor/presets/preset_providers.dart';
 import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:auvie/features/editor/shell/editor_session.dart';
 import 'package:auvie/features/editor/shell/panel_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -45,6 +51,7 @@ class AddPanel extends ConsumerWidget {
     final controller = ref.read(provider.notifier);
     final catalog = ref.watch(catalogProvider).value;
     if (catalog == null) return const SizedBox.shrink();
+    final savedStickers = ref.watch(favoriteStickersProvider).value ?? const [];
 
     final type = switch (session.addTab) {
       AddTab.stickers => ContentAssetType.sticker,
@@ -89,10 +96,24 @@ class AddPanel extends ConsumerWidget {
                 horizontal: AuvieSpacing.gutter,
               ),
               children: [
-                for (final asset in catalog.assetsOfType(type))
+                for (final asset in _favoritesFirst(
+                  catalog.assetsOfType(type),
+                  savedStickers,
+                ))
                   _AssetCard(
                     asset: asset,
                     active: active.contains(asset.id),
+                    saved: savedStickers.contains(asset.id),
+                    onHold: asset.type == ContentAssetType.sticker
+                        ? () {
+                            unawaited(HapticFeedback.mediumImpact());
+                            unawaited(
+                              ref
+                                  .read(favoritesRepositoryProvider)
+                                  .toggle(FavoriteKind.sticker, asset.id),
+                            );
+                          }
+                        : null,
                     onTap: () => switch (asset.type) {
                       ContentAssetType.sticker => controller.addSticker(
                         asset.id,
@@ -178,12 +199,34 @@ class AddPanel extends ConsumerWidget {
   };
 }
 
+/// Favorite stickers (held in ADD) come first, newest favorite first.
+List<ContentAsset> _favoritesFirst(
+  List<ContentAsset> assets,
+  List<String> saved,
+) => [
+  for (final id in saved) ?assets.where((a) => a.id == id).firstOrNull,
+  for (final a in assets)
+    if (!saved.contains(a.id)) a,
+];
+
 class _AssetCard extends StatelessWidget {
-  const new({required this.asset, required this.active, required this.onTap});
+  const new({
+    required this.asset,
+    required this.active,
+    required this.saved,
+    required this.onTap,
+    this.onHold,
+  });
 
   final ContentAsset asset;
   final bool active;
+
+  /// A favorite sticker: marked with an accent dot.
+  final bool saved;
   final VoidCallback onTap;
+
+  /// Hold a sticker to keep it first.
+  final VoidCallback? onHold;
 
   @override
   Widget build(BuildContext context) {
@@ -229,6 +272,7 @@ class _AssetCard extends StatelessWidget {
           key: Key('asset-${asset.id}'),
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
+          onLongPress: onHold,
           child: SizedBox(
             width: 66,
             child: Column(
@@ -248,6 +292,20 @@ class _AssetCard extends StatelessWidget {
                     fit: StackFit.expand,
                     children: [
                       ClipRect(child: preview),
+                      if (saved)
+                        Positioned(
+                          left: 4,
+                          top: 4,
+                          child: Container(
+                            key: Key('asset-saved-${asset.id}'),
+                            width: 5,
+                            height: 5,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: palette.accent,
+                            ),
+                          ),
+                        ),
                       if (asset.isPremium)
                         Positioned(
                           right: 3,

@@ -36,6 +36,7 @@ _Preset _$PresetFromJson(Map<String, dynamic> json) => _Preset(
       : ToneStrip.fromJson(json['tone'] as Map<String, dynamic>),
   stock: json['stock'] as String?,
   iso: (json['iso'] as num?)?.toInt(),
+  author: json['author'] as String?,
   description: json['description'] as String?,
 );
 
@@ -50,6 +51,7 @@ Map<String, dynamic> _$PresetToJson(_Preset instance) => <String, dynamic>{
   'tone': instance.tone?.toJson(),
   'stock': instance.stock,
   'iso': instance.iso,
+  'author': instance.author,
   'description': instance.description,
 };
 

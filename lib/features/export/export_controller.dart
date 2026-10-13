@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:auvie/app/settings/app_settings.dart';
 import 'package:auvie/core/content/catalog_providers.dart';
+import 'package:auvie/core/content/premium.dart';
 import 'package:auvie/core/models/crop_geometry.dart';
 import 'package:auvie/core/models/preset.dart';
 import 'package:auvie/core/models/project.dart';
@@ -10,6 +11,7 @@ import 'package:auvie/core/native/media_engine.dart';
 import 'package:auvie/core/native/media_engine_provider.dart';
 import 'package:auvie/core/native/render_params.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
+import 'package:auvie/core/subscription/entitlement_providers.dart';
 import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:auvie/features/export/element_layers.dart';
 import 'package:auvie/features/export/export_options.dart';
@@ -68,6 +70,7 @@ class ExportSession {
     required this.project,
     required this.preset,
     required this.options,
+    this.premium = const [],
     this.videoSize = VideoExportSize.p1080,
     this.phase = const ExportIdle(),
   });
@@ -75,6 +78,9 @@ class ExportSession {
   final Project project;
   final Preset? preset;
   final ExportOptions options;
+
+  /// The Pro content the edit uses (spec §50); exporting it needs Pro.
+  final List<PremiumItem> premium;
 
   /// Videos only.
   final VideoExportSize videoSize;
@@ -90,6 +96,7 @@ class ExportSession {
     project: project,
     preset: preset,
     options: options ?? this.options,
+    premium: premium,
     videoSize: videoSize ?? this.videoSize,
     phase: phase ?? this.phase,
   );
@@ -144,6 +151,7 @@ class ExportController extends _$ExportController {
     return ExportSession(
       project: project,
       preset: presetId == null ? null : catalog.presetById(presetId),
+      premium: premiumContent(project.edit, catalog),
       options: exportOptionsFrom(settings.exportChoices),
       videoSize: _fitting(project, savedVideoSize ?? VideoExportSize.p1080),
     );
@@ -183,11 +191,16 @@ class ExportController extends _$ExportController {
     unawaited(ref.read(appSettingsProvider).saveVideoExportSize(size.name));
   }
 
+  /// The edit uses Pro content and the user doesn't have Pro: SAVE and
+  /// SHARE open the paywall instead (gating only at export).
+  bool get locked =>
+      _session.premium.isNotEmpty && !ref.read(proAccessProvider).isPro;
+
   /// Exports with the current options. With [thenShare] the done screen
   /// opens the share sheet right away.
   Future<void> start({bool thenShare = false}) async {
     final session = _session;
-    if (session.phase is ExportRunning) return;
+    if (session.phase is ExportRunning || locked) return;
     final project = session.project;
     final pixels = session.isVideo ? session.videoPixels() : session.pixels();
 

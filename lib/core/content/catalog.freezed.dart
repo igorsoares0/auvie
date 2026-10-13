@@ -604,9 +604,285 @@ as Map<String, Object?>,
 
 
 /// @nodoc
+mixin _$Edition {
+
+ int get number; String get season; String get featuredCollectionId;
+/// Create a copy of Edition
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$EditionCopyWith<Edition> get copyWith => _$EditionCopyWithImpl<Edition>(this as Edition, _$identity);
+
+  /// Serializes this Edition to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as Edition;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Edition&&(identical(other.number, _this.number) || other.number == _this.number)&&(identical(other.season, _this.season) || other.season == _this.season)&&(identical(other.featuredCollectionId, _this.featuredCollectionId) || other.featuredCollectionId == _this.featuredCollectionId));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as Edition;
+  return Object.hash(runtimeType,_this.number,_this.season,_this.featuredCollectionId);
+}
+
+@override
+String toString() {
+  final _this = this as Edition;
+  return 'Edition(number: ${_this.number}, season: ${_this.season}, featuredCollectionId: ${_this.featuredCollectionId})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $EditionCopyWith<$Res>  {
+  factory $EditionCopyWith(Edition value, $Res Function(Edition) _then) = _$EditionCopyWithImpl;
+@useResult
+$Res call({
+ int number, String season, String featuredCollectionId
+});
+
+
+
+
+}
+/// @nodoc
+class _$EditionCopyWithImpl<$Res>
+    implements $EditionCopyWith<$Res> {
+  _$EditionCopyWithImpl(this._self, this._then);
+
+  final Edition _self;
+  final $Res Function(Edition) _then;
+
+/// Create a copy of Edition
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? number = null,Object? season = null,Object? featuredCollectionId = null,}) {
+  return _then(Edition(
+number: null == number ? _self.number : number // ignore: cast_nullable_to_non_nullable
+as int,season: null == season ? _self.season : season // ignore: cast_nullable_to_non_nullable
+as String,featuredCollectionId: null == featuredCollectionId ? _self.featuredCollectionId : featuredCollectionId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [Edition].
+extension EditionPatterns on Edition {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _Edition value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _Edition() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _Edition value)  $default,){
+final _that = this;
+switch (_that) {
+case _Edition():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _Edition value)?  $default,){
+final _that = this;
+switch (_that) {
+case _Edition() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int number,  String season,  String featuredCollectionId)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _Edition() when $default != null:
+return $default(_that.number,_that.season,_that.featuredCollectionId);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int number,  String season,  String featuredCollectionId)  $default,) {final _that = this;
+switch (_that) {
+case _Edition():
+return $default(_that.number,_that.season,_that.featuredCollectionId);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int number,  String season,  String featuredCollectionId)?  $default,) {final _that = this;
+switch (_that) {
+case _Edition() when $default != null:
+return $default(_that.number,_that.season,_that.featuredCollectionId);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _Edition implements Edition {
+  const _Edition({required this.number, required this.season, required this.featuredCollectionId});
+  factory _Edition.fromJson(Map<String, dynamic> json) => _$EditionFromJson(json);
+
+@override final  int number;
+@override final  String season;
+@override final  String featuredCollectionId;
+
+/// Create a copy of Edition
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$EditionCopyWith<_Edition> get copyWith => __$EditionCopyWithImpl<_Edition>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$EditionToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Edition&&(identical(other.number, number) || other.number == number)&&(identical(other.season, season) || other.season == season)&&(identical(other.featuredCollectionId, featuredCollectionId) || other.featuredCollectionId == featuredCollectionId));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,number,season,featuredCollectionId);
+}
+
+@override
+String toString() {
+    return 'Edition(number: $number, season: $season, featuredCollectionId: $featuredCollectionId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$EditionCopyWith<$Res> implements $EditionCopyWith<$Res> {
+  factory _$EditionCopyWith(_Edition value, $Res Function(_Edition) _then) = __$EditionCopyWithImpl;
+@override @useResult
+$Res call({
+ int number, String season, String featuredCollectionId
+});
+
+
+
+
+}
+/// @nodoc
+class __$EditionCopyWithImpl<$Res>
+    implements _$EditionCopyWith<$Res> {
+  __$EditionCopyWithImpl(this._self, this._then);
+
+  final _Edition _self;
+  final $Res Function(_Edition) _then;
+
+/// Create a copy of Edition
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? number = null,Object? season = null,Object? featuredCollectionId = null,}) {
+  return _then(_Edition(
+number: null == number ? _self.number : number // ignore: cast_nullable_to_non_nullable
+as int,season: null == season ? _self.season : season // ignore: cast_nullable_to_non_nullable
+as String,featuredCollectionId: null == featuredCollectionId ? _self.featuredCollectionId : featuredCollectionId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
 mixin _$Catalog {
 
- int get catalogVersion; List<PresetCollection> get collections; List<Preset> get presets; List<ContentAsset> get assets;
+ int get catalogVersion; Edition? get edition; List<PresetCollection> get collections; List<Preset> get presets; List<ContentAsset> get assets;
 /// Create a copy of Catalog
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -620,20 +896,20 @@ $CatalogCopyWith<Catalog> get copyWith => _$CatalogCopyWithImpl<Catalog>(this as
 @override
 bool operator ==(Object other) {
   final _this = this as Catalog;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Catalog&&(identical(other.catalogVersion, _this.catalogVersion) || other.catalogVersion == _this.catalogVersion)&&const DeepCollectionEquality().equals(other.collections, _this.collections)&&const DeepCollectionEquality().equals(other.presets, _this.presets)&&const DeepCollectionEquality().equals(other.assets, _this.assets));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Catalog&&(identical(other.catalogVersion, _this.catalogVersion) || other.catalogVersion == _this.catalogVersion)&&(identical(other.edition, _this.edition) || other.edition == _this.edition)&&const DeepCollectionEquality().equals(other.collections, _this.collections)&&const DeepCollectionEquality().equals(other.presets, _this.presets)&&const DeepCollectionEquality().equals(other.assets, _this.assets));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Catalog;
-  return Object.hash(runtimeType,_this.catalogVersion,const DeepCollectionEquality().hash(_this.collections),const DeepCollectionEquality().hash(_this.presets),const DeepCollectionEquality().hash(_this.assets));
+  return Object.hash(runtimeType,_this.catalogVersion,_this.edition,const DeepCollectionEquality().hash(_this.collections),const DeepCollectionEquality().hash(_this.presets),const DeepCollectionEquality().hash(_this.assets));
 }
 
 @override
 String toString() {
   final _this = this as Catalog;
-  return 'Catalog(catalogVersion: ${_this.catalogVersion}, collections: ${_this.collections}, presets: ${_this.presets}, assets: ${_this.assets})';
+  return 'Catalog(catalogVersion: ${_this.catalogVersion}, edition: ${_this.edition}, collections: ${_this.collections}, presets: ${_this.presets}, assets: ${_this.assets})';
 }
 
 
@@ -644,11 +920,11 @@ abstract mixin class $CatalogCopyWith<$Res>  {
   factory $CatalogCopyWith(Catalog value, $Res Function(Catalog) _then) = _$CatalogCopyWithImpl;
 @useResult
 $Res call({
- int catalogVersion, List<PresetCollection> collections, List<Preset> presets, List<ContentAsset> assets
+ int catalogVersion, Edition? edition, List<PresetCollection> collections, List<Preset> presets, List<ContentAsset> assets
 });
 
 
-
+$EditionCopyWith<$Res>? get edition;
 
 }
 /// @nodoc
@@ -661,16 +937,29 @@ class _$CatalogCopyWithImpl<$Res>
 
 /// Create a copy of Catalog
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? catalogVersion = null,Object? collections = null,Object? presets = null,Object? assets = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? catalogVersion = null,Object? edition = freezed,Object? collections = null,Object? presets = null,Object? assets = null,}) {
   return _then(Catalog(
 catalogVersion: null == catalogVersion ? _self.catalogVersion : catalogVersion // ignore: cast_nullable_to_non_nullable
-as int,collections: null == collections ? _self.collections : collections // ignore: cast_nullable_to_non_nullable
+as int,edition: freezed == edition ? _self.edition : edition // ignore: cast_nullable_to_non_nullable
+as Edition?,collections: null == collections ? _self.collections : collections // ignore: cast_nullable_to_non_nullable
 as List<PresetCollection>,presets: null == presets ? _self.presets : presets // ignore: cast_nullable_to_non_nullable
 as List<Preset>,assets: null == assets ? _self.assets : assets // ignore: cast_nullable_to_non_nullable
 as List<ContentAsset>,
   ));
 }
+/// Create a copy of Catalog
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$EditionCopyWith<$Res>? get edition {
+    if (_self.edition == null) {
+    return null;
+  }
 
+  return $EditionCopyWith<$Res>(_self.edition!, (value) {
+    return _then(_self.copyWith(edition: value));
+  });
+}
 }
 
 
@@ -752,10 +1041,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int catalogVersion,  List<PresetCollection> collections,  List<Preset> presets,  List<ContentAsset> assets)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int catalogVersion,  Edition? edition,  List<PresetCollection> collections,  List<Preset> presets,  List<ContentAsset> assets)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Catalog() when $default != null:
-return $default(_that.catalogVersion,_that.collections,_that.presets,_that.assets);case _:
+return $default(_that.catalogVersion,_that.edition,_that.collections,_that.presets,_that.assets);case _:
   return orElse();
 
 }
@@ -773,10 +1062,10 @@ return $default(_that.catalogVersion,_that.collections,_that.presets,_that.asset
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int catalogVersion,  List<PresetCollection> collections,  List<Preset> presets,  List<ContentAsset> assets)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int catalogVersion,  Edition? edition,  List<PresetCollection> collections,  List<Preset> presets,  List<ContentAsset> assets)  $default,) {final _that = this;
 switch (_that) {
 case _Catalog():
-return $default(_that.catalogVersion,_that.collections,_that.presets,_that.assets);case _:
+return $default(_that.catalogVersion,_that.edition,_that.collections,_that.presets,_that.assets);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -793,10 +1082,10 @@ return $default(_that.catalogVersion,_that.collections,_that.presets,_that.asset
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int catalogVersion,  List<PresetCollection> collections,  List<Preset> presets,  List<ContentAsset> assets)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int catalogVersion,  Edition? edition,  List<PresetCollection> collections,  List<Preset> presets,  List<ContentAsset> assets)?  $default,) {final _that = this;
 switch (_that) {
 case _Catalog() when $default != null:
-return $default(_that.catalogVersion,_that.collections,_that.presets,_that.assets);case _:
+return $default(_that.catalogVersion,_that.edition,_that.collections,_that.presets,_that.assets);case _:
   return null;
 
 }
@@ -808,10 +1097,11 @@ return $default(_that.catalogVersion,_that.collections,_that.presets,_that.asset
 @JsonSerializable()
 
 class _Catalog extends Catalog {
-  const _Catalog({required this.catalogVersion,  List<PresetCollection> collections = const <PresetCollection>[],  List<Preset> presets = const <Preset>[],  List<ContentAsset> assets = const <ContentAsset>[]}): _collections = collections,_presets = presets,_assets = assets,super._();
+  const _Catalog({required this.catalogVersion, this.edition,  List<PresetCollection> collections = const <PresetCollection>[],  List<Preset> presets = const <Preset>[],  List<ContentAsset> assets = const <ContentAsset>[]}): _collections = collections,_presets = presets,_assets = assets,super._();
   factory _Catalog.fromJson(Map<String, dynamic> json) => _$CatalogFromJson(json);
 
 @override final  int catalogVersion;
+@override final  Edition? edition;
  final  List<PresetCollection> _collections;
 @override@JsonKey() List<PresetCollection> get collections {
   if (_collections is EqualUnmodifiableListView) return _collections;
@@ -847,18 +1137,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Catalog&&(identical(other.catalogVersion, catalogVersion) || other.catalogVersion == catalogVersion)&&const DeepCollectionEquality().equals(other.collections, _collections)&&const DeepCollectionEquality().equals(other.presets, _presets)&&const DeepCollectionEquality().equals(other.assets, _assets));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Catalog&&(identical(other.catalogVersion, catalogVersion) || other.catalogVersion == catalogVersion)&&(identical(other.edition, edition) || other.edition == edition)&&const DeepCollectionEquality().equals(other.collections, _collections)&&const DeepCollectionEquality().equals(other.presets, _presets)&&const DeepCollectionEquality().equals(other.assets, _assets));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,catalogVersion,const DeepCollectionEquality().hash(_collections),const DeepCollectionEquality().hash(_presets),const DeepCollectionEquality().hash(_assets));
+    return Object.hash(runtimeType,catalogVersion,edition,const DeepCollectionEquality().hash(_collections),const DeepCollectionEquality().hash(_presets),const DeepCollectionEquality().hash(_assets));
 }
 
 @override
 String toString() {
-    return 'Catalog(catalogVersion: $catalogVersion, collections: $collections, presets: $presets, assets: $assets)';
+    return 'Catalog(catalogVersion: $catalogVersion, edition: $edition, collections: $collections, presets: $presets, assets: $assets)';
 }
 
 
@@ -869,11 +1159,11 @@ abstract mixin class _$CatalogCopyWith<$Res> implements $CatalogCopyWith<$Res> {
   factory _$CatalogCopyWith(_Catalog value, $Res Function(_Catalog) _then) = __$CatalogCopyWithImpl;
 @override @useResult
 $Res call({
- int catalogVersion, List<PresetCollection> collections, List<Preset> presets, List<ContentAsset> assets
+ int catalogVersion, Edition? edition, List<PresetCollection> collections, List<Preset> presets, List<ContentAsset> assets
 });
 
 
-
+@override $EditionCopyWith<$Res>? get edition;
 
 }
 /// @nodoc
@@ -886,17 +1176,30 @@ class __$CatalogCopyWithImpl<$Res>
 
 /// Create a copy of Catalog
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? catalogVersion = null,Object? collections = null,Object? presets = null,Object? assets = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? catalogVersion = null,Object? edition = freezed,Object? collections = null,Object? presets = null,Object? assets = null,}) {
   return _then(_Catalog(
 catalogVersion: null == catalogVersion ? _self.catalogVersion : catalogVersion // ignore: cast_nullable_to_non_nullable
-as int,collections: null == collections ? _self._collections : collections // ignore: cast_nullable_to_non_nullable
+as int,edition: freezed == edition ? _self.edition : edition // ignore: cast_nullable_to_non_nullable
+as Edition?,collections: null == collections ? _self._collections : collections // ignore: cast_nullable_to_non_nullable
 as List<PresetCollection>,presets: null == presets ? _self._presets : presets // ignore: cast_nullable_to_non_nullable
 as List<Preset>,assets: null == assets ? _self._assets : assets // ignore: cast_nullable_to_non_nullable
 as List<ContentAsset>,
   ));
 }
 
+/// Create a copy of Catalog
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$EditionCopyWith<$Res>? get edition {
+    if (_self.edition == null) {
+    return null;
+  }
 
+  return $EditionCopyWith<$Res>(_self.edition!, (value) {
+    return _then(_self.copyWith(edition: value));
+  });
+}
 }
 
 // dart format on

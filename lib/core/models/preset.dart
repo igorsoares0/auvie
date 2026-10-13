@@ -50,6 +50,9 @@ abstract class Preset with _$Preset {
     /// Film stock line under the name, e.g. "Colour neg." and ISO.
     String? stock,
     int? iso,
+
+    /// Who made the look and what it does, shown in the Archive.
+    String? author,
     String? description,
   }) = _Preset;
 

@@ -25,6 +25,8 @@ class AppSettings {
   static const _exportMetadata = 'auvie.export.keepMetadata';
   static const _videoExportSize = 'auvie.export.videoSize';
   static const _notificationsAsked = 'auvie.notificationsAsked';
+  static const _entitlement = 'auvie.entitlement';
+  static const _simulatedEntitlement = 'auvie.entitlement.simulated';
 
   /// Frames per roll, like 36-exposure film.
   static const framesPerRoll = 36;
@@ -61,6 +63,23 @@ class AppSettings {
 
   Future<void> markNotificationsAsked() =>
       _prefs.setBool(_notificationsAsked, true);
+
+  /// Last known Pro state (JSON), so the app knows it offline and at start.
+  String? get entitlementCache => _prefs.getString(_entitlement);
+
+  Future<void> saveEntitlementCache(String json) =>
+      _prefs.setString(_entitlement, json);
+
+  /// Pro "bought" with the simulated store (JSON), debug builds only.
+  String? get simulatedEntitlement => _prefs.getString(_simulatedEntitlement);
+
+  Future<void> saveSimulatedEntitlement(String? json) async {
+    if (json == null) {
+      await _prefs.remove(_simulatedEntitlement);
+    } else {
+      await _prefs.setString(_simulatedEntitlement, json);
+    }
+  }
 
   /// Names the next project like a frame on a roll of film:
   /// "Roll 001 · 01" … "Roll 001 · 36", "Roll 002 · 01" …

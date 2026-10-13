@@ -293,7 +293,8 @@ as int,
 mixin _$Preset {
 
  String get id; String get name; String get collectionId; int get version; bool get isPremium; Adjustments get settings; ToneCurves? get curves; ToneStrip? get tone;/// Film stock line under the name, e.g. "Colour neg." and ISO.
- String? get stock; int? get iso; String? get description;
+ String? get stock; int? get iso;/// Who made the look and what it does, shown in the Archive.
+ String? get author; String? get description;
 /// Create a copy of Preset
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -307,20 +308,20 @@ $PresetCopyWith<Preset> get copyWith => _$PresetCopyWithImpl<Preset>(this as Pre
 @override
 bool operator ==(Object other) {
   final _this = this as Preset;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Preset&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.collectionId, _this.collectionId) || other.collectionId == _this.collectionId)&&(identical(other.version, _this.version) || other.version == _this.version)&&(identical(other.isPremium, _this.isPremium) || other.isPremium == _this.isPremium)&&(identical(other.settings, _this.settings) || other.settings == _this.settings)&&(identical(other.curves, _this.curves) || other.curves == _this.curves)&&(identical(other.tone, _this.tone) || other.tone == _this.tone)&&(identical(other.stock, _this.stock) || other.stock == _this.stock)&&(identical(other.iso, _this.iso) || other.iso == _this.iso)&&(identical(other.description, _this.description) || other.description == _this.description));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Preset&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.collectionId, _this.collectionId) || other.collectionId == _this.collectionId)&&(identical(other.version, _this.version) || other.version == _this.version)&&(identical(other.isPremium, _this.isPremium) || other.isPremium == _this.isPremium)&&(identical(other.settings, _this.settings) || other.settings == _this.settings)&&(identical(other.curves, _this.curves) || other.curves == _this.curves)&&(identical(other.tone, _this.tone) || other.tone == _this.tone)&&(identical(other.stock, _this.stock) || other.stock == _this.stock)&&(identical(other.iso, _this.iso) || other.iso == _this.iso)&&(identical(other.author, _this.author) || other.author == _this.author)&&(identical(other.description, _this.description) || other.description == _this.description));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Preset;
-  return Object.hash(runtimeType,_this.id,_this.name,_this.collectionId,_this.version,_this.isPremium,_this.settings,_this.curves,_this.tone,_this.stock,_this.iso,_this.description);
+  return Object.hash(runtimeType,_this.id,_this.name,_this.collectionId,_this.version,_this.isPremium,_this.settings,_this.curves,_this.tone,_this.stock,_this.iso,_this.author,_this.description);
 }
 
 @override
 String toString() {
   final _this = this as Preset;
-  return 'Preset(id: ${_this.id}, name: ${_this.name}, collectionId: ${_this.collectionId}, version: ${_this.version}, isPremium: ${_this.isPremium}, settings: ${_this.settings}, curves: ${_this.curves}, tone: ${_this.tone}, stock: ${_this.stock}, iso: ${_this.iso}, description: ${_this.description})';
+  return 'Preset(id: ${_this.id}, name: ${_this.name}, collectionId: ${_this.collectionId}, version: ${_this.version}, isPremium: ${_this.isPremium}, settings: ${_this.settings}, curves: ${_this.curves}, tone: ${_this.tone}, stock: ${_this.stock}, iso: ${_this.iso}, author: ${_this.author}, description: ${_this.description})';
 }
 
 
@@ -331,7 +332,7 @@ abstract mixin class $PresetCopyWith<$Res>  {
   factory $PresetCopyWith(Preset value, $Res Function(Preset) _then) = _$PresetCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String collectionId, int version, bool isPremium, Adjustments settings, ToneCurves? curves, ToneStrip? tone, String? stock, int? iso, String? description
+ String id, String name, String collectionId, int version, bool isPremium, Adjustments settings, ToneCurves? curves, ToneStrip? tone, String? stock, int? iso, String? author, String? description
 });
 
 
@@ -348,7 +349,7 @@ class _$PresetCopyWithImpl<$Res>
 
 /// Create a copy of Preset
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? collectionId = null,Object? version = null,Object? isPremium = null,Object? settings = null,Object? curves = freezed,Object? tone = freezed,Object? stock = freezed,Object? iso = freezed,Object? description = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? collectionId = null,Object? version = null,Object? isPremium = null,Object? settings = null,Object? curves = freezed,Object? tone = freezed,Object? stock = freezed,Object? iso = freezed,Object? author = freezed,Object? description = freezed,}) {
   return _then(Preset(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -360,7 +361,8 @@ as Adjustments,curves: freezed == curves ? _self.curves : curves // ignore: cast
 as ToneCurves?,tone: freezed == tone ? _self.tone : tone // ignore: cast_nullable_to_non_nullable
 as ToneStrip?,stock: freezed == stock ? _self.stock : stock // ignore: cast_nullable_to_non_nullable
 as String?,iso: freezed == iso ? _self.iso : iso // ignore: cast_nullable_to_non_nullable
-as int?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as int?,author: freezed == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
+as String?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -470,10 +472,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String collectionId,  int version,  bool isPremium,  Adjustments settings,  ToneCurves? curves,  ToneStrip? tone,  String? stock,  int? iso,  String? description)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String collectionId,  int version,  bool isPremium,  Adjustments settings,  ToneCurves? curves,  ToneStrip? tone,  String? stock,  int? iso,  String? author,  String? description)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Preset() when $default != null:
-return $default(_that.id,_that.name,_that.collectionId,_that.version,_that.isPremium,_that.settings,_that.curves,_that.tone,_that.stock,_that.iso,_that.description);case _:
+return $default(_that.id,_that.name,_that.collectionId,_that.version,_that.isPremium,_that.settings,_that.curves,_that.tone,_that.stock,_that.iso,_that.author,_that.description);case _:
   return orElse();
 
 }
@@ -491,10 +493,10 @@ return $default(_that.id,_that.name,_that.collectionId,_that.version,_that.isPre
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String collectionId,  int version,  bool isPremium,  Adjustments settings,  ToneCurves? curves,  ToneStrip? tone,  String? stock,  int? iso,  String? description)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String collectionId,  int version,  bool isPremium,  Adjustments settings,  ToneCurves? curves,  ToneStrip? tone,  String? stock,  int? iso,  String? author,  String? description)  $default,) {final _that = this;
 switch (_that) {
 case _Preset():
-return $default(_that.id,_that.name,_that.collectionId,_that.version,_that.isPremium,_that.settings,_that.curves,_that.tone,_that.stock,_that.iso,_that.description);case _:
+return $default(_that.id,_that.name,_that.collectionId,_that.version,_that.isPremium,_that.settings,_that.curves,_that.tone,_that.stock,_that.iso,_that.author,_that.description);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -511,10 +513,10 @@ return $default(_that.id,_that.name,_that.collectionId,_that.version,_that.isPre
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String collectionId,  int version,  bool isPremium,  Adjustments settings,  ToneCurves? curves,  ToneStrip? tone,  String? stock,  int? iso,  String? description)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String collectionId,  int version,  bool isPremium,  Adjustments settings,  ToneCurves? curves,  ToneStrip? tone,  String? stock,  int? iso,  String? author,  String? description)?  $default,) {final _that = this;
 switch (_that) {
 case _Preset() when $default != null:
-return $default(_that.id,_that.name,_that.collectionId,_that.version,_that.isPremium,_that.settings,_that.curves,_that.tone,_that.stock,_that.iso,_that.description);case _:
+return $default(_that.id,_that.name,_that.collectionId,_that.version,_that.isPremium,_that.settings,_that.curves,_that.tone,_that.stock,_that.iso,_that.author,_that.description);case _:
   return null;
 
 }
@@ -526,7 +528,7 @@ return $default(_that.id,_that.name,_that.collectionId,_that.version,_that.isPre
 @JsonSerializable()
 
 class _Preset implements Preset {
-  const _Preset({required this.id, required this.name, required this.collectionId, this.version = 1, this.isPremium = false, this.settings = const Adjustments(), this.curves, this.tone, this.stock, this.iso, this.description});
+  const _Preset({required this.id, required this.name, required this.collectionId, this.version = 1, this.isPremium = false, this.settings = const Adjustments(), this.curves, this.tone, this.stock, this.iso, this.author, this.description});
   factory _Preset.fromJson(Map<String, dynamic> json) => _$PresetFromJson(json);
 
 @override final  String id;
@@ -540,6 +542,8 @@ class _Preset implements Preset {
 /// Film stock line under the name, e.g. "Colour neg." and ISO.
 @override final  String? stock;
 @override final  int? iso;
+/// Who made the look and what it does, shown in the Archive.
+@override final  String? author;
 @override final  String? description;
 
 /// Create a copy of Preset
@@ -555,18 +559,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Preset&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.version, version) || other.version == version)&&(identical(other.isPremium, isPremium) || other.isPremium == isPremium)&&(identical(other.settings, settings) || other.settings == settings)&&(identical(other.curves, curves) || other.curves == curves)&&(identical(other.tone, tone) || other.tone == tone)&&(identical(other.stock, stock) || other.stock == stock)&&(identical(other.iso, iso) || other.iso == iso)&&(identical(other.description, description) || other.description == description));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Preset&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.version, version) || other.version == version)&&(identical(other.isPremium, isPremium) || other.isPremium == isPremium)&&(identical(other.settings, settings) || other.settings == settings)&&(identical(other.curves, curves) || other.curves == curves)&&(identical(other.tone, tone) || other.tone == tone)&&(identical(other.stock, stock) || other.stock == stock)&&(identical(other.iso, iso) || other.iso == iso)&&(identical(other.author, author) || other.author == author)&&(identical(other.description, description) || other.description == description));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,name,collectionId,version,isPremium,settings,curves,tone,stock,iso,description);
+    return Object.hash(runtimeType,id,name,collectionId,version,isPremium,settings,curves,tone,stock,iso,author,description);
 }
 
 @override
 String toString() {
-    return 'Preset(id: $id, name: $name, collectionId: $collectionId, version: $version, isPremium: $isPremium, settings: $settings, curves: $curves, tone: $tone, stock: $stock, iso: $iso, description: $description)';
+    return 'Preset(id: $id, name: $name, collectionId: $collectionId, version: $version, isPremium: $isPremium, settings: $settings, curves: $curves, tone: $tone, stock: $stock, iso: $iso, author: $author, description: $description)';
 }
 
 
@@ -577,7 +581,7 @@ abstract mixin class _$PresetCopyWith<$Res> implements $PresetCopyWith<$Res> {
   factory _$PresetCopyWith(_Preset value, $Res Function(_Preset) _then) = __$PresetCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String collectionId, int version, bool isPremium, Adjustments settings, ToneCurves? curves, ToneStrip? tone, String? stock, int? iso, String? description
+ String id, String name, String collectionId, int version, bool isPremium, Adjustments settings, ToneCurves? curves, ToneStrip? tone, String? stock, int? iso, String? author, String? description
 });
 
 
@@ -594,7 +598,7 @@ class __$PresetCopyWithImpl<$Res>
 
 /// Create a copy of Preset
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? collectionId = null,Object? version = null,Object? isPremium = null,Object? settings = null,Object? curves = freezed,Object? tone = freezed,Object? stock = freezed,Object? iso = freezed,Object? description = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? collectionId = null,Object? version = null,Object? isPremium = null,Object? settings = null,Object? curves = freezed,Object? tone = freezed,Object? stock = freezed,Object? iso = freezed,Object? author = freezed,Object? description = freezed,}) {
   return _then(_Preset(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -606,7 +610,8 @@ as Adjustments,curves: freezed == curves ? _self.curves : curves // ignore: cast
 as ToneCurves?,tone: freezed == tone ? _self.tone : tone // ignore: cast_nullable_to_non_nullable
 as ToneStrip?,stock: freezed == stock ? _self.stock : stock // ignore: cast_nullable_to_non_nullable
 as String?,iso: freezed == iso ? _self.iso : iso // ignore: cast_nullable_to_non_nullable
-as int?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as int?,author: freezed == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
+as String?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

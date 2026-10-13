@@ -45,6 +45,7 @@ class FilmPanel extends ConsumerWidget {
         const SizedBox(height: AuvieSpacing.s12),
         _Categories(
           catalog: catalog,
+          saved: ref.watch(favoriteCollectionsProvider).value ?? const [],
           active: category,
           onSelect: controller.selectCategory,
         ),
@@ -112,19 +113,27 @@ class FilmPanel extends ConsumerWidget {
 class _Categories extends StatelessWidget {
   const new({
     required this.catalog,
+    required this.saved,
     required this.active,
     required this.onSelect,
   });
 
   final Catalog catalog;
+
+  /// Favorite collections (Archive), shown first.
+  final List<String> saved;
   final String active;
   final ValueChanged<String> onSelect;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
+    final collections = catalog.sortedCollections;
     final entries = [
-      for (final c in catalog.sortedCollections) (c.id, c.name),
+      for (final c in collections)
+        if (saved.contains(c.id)) (c.id, c.name),
+      for (final c in collections)
+        if (!saved.contains(c.id)) (c.id, c.name),
       (savedCategory, 'Saved'),
     ];
     return SizedBox(

@@ -10,6 +10,7 @@ import 'package:auvie/app/widgets/emphasis_text.dart';
 import 'package:auvie/app/widgets/film_art.dart';
 import 'package:auvie/app/widgets/system_bars.dart';
 import 'package:auvie/app/widgets/wordmark.dart';
+import 'package:auvie/core/subscription/entitlement_providers.dart';
 import 'package:auvie/features/editor/text/path_text_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,12 +49,42 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     if (mounted) context.go(AppRoutes.home);
   }
 
+  bool _restoring = false;
+
+  /// I ALREADY HAVE PRO: looks for Pro on this Google account; when found,
+  /// skips the rest of the welcome.
+  Future<void> _restore() async {
+    if (_restoring) return;
+    _restoring = true;
+    final service = ref.read(entitlementServiceProvider);
+    String message;
+    var found = false;
+    try {
+      if (!service.available) {
+        message = "Pro isn't available yet.";
+      } else {
+        found = (await service.restore()).isPro;
+        message = found
+            ? 'Pro restored.'
+            : 'No Pro purchase on this Google account.';
+      }
+    } on Exception {
+      message = "Couldn't reach Google Play. Try again later.";
+    } finally {
+      _restoring = false;
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+    if (found) await _finish();
+  }
+
   @override
   Widget build(BuildContext context) {
     return PageView(
       controller: _pages,
       children: [
-        _Cover(onBegin: _next, onHavePro: () => context.push(AppRoutes.pro)),
+        _Cover(onBegin: _next, onHavePro: _restore),
         _StoryPage(
           index: 0,
           onSkip: _finish,
@@ -184,6 +215,7 @@ class _Cover extends StatelessWidget {
                           ),
                           const SizedBox(height: AuvieSpacing.s6),
                           TextButton(
+                            key: const Key('onboarding-have-pro'),
                             onPressed: onHavePro,
                             style: TextButton.styleFrom(
                               minimumSize: const Size.fromHeight(

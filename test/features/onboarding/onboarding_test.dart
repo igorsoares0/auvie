@@ -4,12 +4,16 @@ import 'package:auvie/features/onboarding/onboarding_screen.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/fake_entitlement_service.dart';
 import '../../helpers/pump_app.dart';
 
 void main() {
-  Future<TestApp> firstLaunch(WidgetTester tester) async {
+  Future<TestApp> firstLaunch(
+    WidgetTester tester, {
+    FakeEntitlementService? store,
+  }) async {
     final app = (await tester.runAsync(
-      () => TestApp.create(onboardingSeen: false),
+      () => TestApp.create(onboardingSeen: false, store: store),
     ))!;
     await tester.pumpTestApp(app);
     return app;
@@ -81,5 +85,36 @@ void main() {
     final app = (await tester.runAsync(TestApp.create))!;
     await tester.pumpTestApp(app);
     expect(find.byType(HomeScreen), findsOneWidget);
+  });
+
+  testWidgets('I ALREADY HAVE PRO restores it and skips the welcome', (
+    tester,
+  ) async {
+    final app = await firstLaunch(
+      tester,
+      store: FakeEntitlementService()..restorable = true,
+    );
+
+    await tester.tap(find.byKey(const Key('onboarding-have-pro')));
+    await tester.pumpAndSettle();
+
+    expect(app.store.restores, 1);
+    expect(find.text('Pro restored.'), findsOneWidget);
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(seen(app), isTrue);
+  });
+
+  testWidgets('I ALREADY HAVE PRO says when nothing was found', (tester) async {
+    final app = await firstLaunch(tester);
+
+    await tester.tap(find.byKey(const Key('onboarding-have-pro')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('No Pro purchase on this Google account.'),
+      findsOneWidget,
+    );
+    expect(find.byType(OnboardingScreen), findsOneWidget);
+    expect(seen(app), isFalse);
   });
 }
