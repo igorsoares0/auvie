@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:auvie/app/router/routes.dart';
 import 'package:auvie/app/theme/app_theme.dart';
+import 'package:auvie/app/widgets/caps_link.dart';
 import 'package:auvie/core/native/media_engine.dart';
 import 'package:auvie/core/native/media_engine_provider.dart';
 import 'package:auvie/core/native/preview_size.dart';
@@ -11,8 +13,10 @@ import 'package:auvie/features/editor/elements/elements_layer.dart';
 import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:auvie/features/editor/shell/editor_session.dart';
 import 'package:auvie/features/editor/video/video_playback.dart';
+import 'package:auvie/features/projects/delete_project_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 /// The developed photo or video, rendered by the engine at its on-screen
 /// size. Hold it to see the original. A video preview plays through
@@ -73,7 +77,9 @@ class _EditorPreviewState extends ConsumerState<EditorPreview> {
   }
 
   Future<void> _create(Size box) async {
-    if (_preview != null || _creating || box.isEmpty) return;
+    if (_preview != null || _creating || _error != null || box.isEmpty) {
+      return;
+    }
     final session = ref.read(editorControllerProvider(widget.projectId)).value;
     if (session == null) return;
     _creating = true;
@@ -179,6 +185,17 @@ class _EditorPreviewState extends ConsumerState<EditorPreview> {
     }
   }
 
+  /// The original is gone: the edit can't be shown again, so offer to
+  /// delete it.
+  Future<void> _deleteEdit(String? name) async {
+    final confirmed = await confirmDeleteProject(context, name: name);
+    if (!confirmed || !mounted) return;
+    await ref
+        .read(editorControllerProvider(widget.projectId).notifier)
+        .deleteProject();
+    if (mounted) context.go(AppRoutes.home);
+  }
+
   void _compare({required bool original}) {
     final preview = _preview;
     if (preview == null) return;
@@ -199,16 +216,32 @@ class _EditorPreviewState extends ConsumerState<EditorPreview> {
           WidgetsBinding.instance.addPostFrameCallback(
             (_) => unawaited(_create(box)),
           );
+          final error = _error;
+          if (error == null) return const SizedBox.shrink();
+          final gone = error.error == MediaEngineError.mediaUnavailable;
           return Center(
-            child: _error == null
-                ? const SizedBox.shrink()
-                : Text(
-                    session?.isVideo ?? false
-                        ? "This video can't be played. Your edit is safe."
-                        : "This photo can't be opened. Your edit is safe.",
-                    style: context.type.body,
-                    textAlign: TextAlign.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  gone
+                      ? 'The original was moved or deleted. Your edit is safe.'
+                      : session?.isVideo ?? false
+                      ? "This video can't be played. Your edit is safe."
+                      : "This photo can't be opened. Your edit is safe.",
+                  key: const Key('preview-error'),
+                  style: context.type.body,
+                  textAlign: TextAlign.center,
+                ),
+                if (gone)
+                  CapsLink(
+                    'Delete this edit',
+                    key: const Key('preview-delete'),
+                    color: context.palette.accent,
+                    onTap: () => unawaited(_deleteEdit(session?.project.name)),
                   ),
+              ],
+            ),
           );
         }
         WidgetsBinding.instance.addPostFrameCallback((_) => _resize(box));

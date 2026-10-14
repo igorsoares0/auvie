@@ -1019,6 +1019,11 @@ interface MediaHostApi {
   /** Opens the system Photo Picker. Null when the user cancels. */
   suspend fun pickMedia(kind: MediaKind): PickedMedia?
   suspend fun probe(uri: String): PickedMedia
+  /**
+   * Gives up what a deleted project held on its original: the persisted
+   * read permission, or the app's private copy.
+   */
+  suspend fun releaseMedia(uri: String)
   /** JPEG thumbnail whose longer side is at most [maxPx]. */
   suspend fun thumbnail(uri: String, maxPx: Long): ByteArray
   /** Decodes the photo (longer side ≤ [maxPx]) and shows it in a texture. */
@@ -1110,6 +1115,26 @@ interface MediaHostApi {
             CoroutineScope(Dispatchers.Main).launch {
               val wrapped: List<Any?> = try {
                 listOf(api.probe(uriArg))
+              } catch (exception: Throwable) {
+                MediaApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.releaseMedia$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val uriArg = args[0] as String
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                api.releaseMedia(uriArg)
+                listOf(null)
               } catch (exception: Throwable) {
                 MediaApiPigeonUtils.wrapError(exception)
               }

@@ -22,6 +22,7 @@ class RevenueCatEntitlementService implements EntitlementService {
   bool _configured = false;
   Uri? _manageUrl;
   final _packages = <String, Package>{};
+  Offering? _offering;
 
   @override
   bool get available => true;
@@ -57,6 +58,7 @@ class RevenueCatEntitlementService implements EntitlementService {
   Future<List<ProPlan>> plans() async {
     await start();
     final offering = (await Purchases.getOfferings()).current;
+    _offering = offering;
     if (offering == null) return const [];
     _packages.clear();
     final plans = <ProPlan>[];
@@ -96,6 +98,20 @@ class RevenueCatEntitlementService implements EntitlementService {
     await start();
     _update(await Purchases.restorePurchases());
     return _current;
+  }
+
+  @override
+  Future<void> paywallShown() async {
+    try {
+      await Purchases.trackCustomPaywallImpression(
+        params: CustomPaywallImpressionParams(
+          paywallId: 'auvie_pro',
+          offering: _offering,
+        ),
+      );
+    } on PlatformException catch (e) {
+      debugPrint('Paywall impression: ${e.message}');
+    }
   }
 
   @override

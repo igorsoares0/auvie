@@ -1061,6 +1061,28 @@ class MediaHostApi {
     return pigeonVar_replyValue! as PickedMedia;
   }
 
+  /// Gives up what a deleted project held on its original: the persisted
+  /// read permission, or the app's private copy.
+  Future<void> releaseMedia(String uri) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.releaseMedia$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[uri],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
+  }
+
   /// JPEG thumbnail whose longer side is at most [maxPx].
   Future<Uint8List> thumbnail(String uri, int maxPx) async {
     final pigeonVar_channelName =

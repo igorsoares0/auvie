@@ -1,4 +1,5 @@
 import 'package:auvie/core/storage/app_paths.dart';
+import 'package:auvie/core/storage/cache_cleaner.dart';
 import 'package:auvie/core/storage/database.dart';
 import 'package:auvie/core/storage/favorites_repository.dart';
 import 'package:auvie/core/storage/project_repository.dart';
@@ -27,3 +28,7 @@ Future<AppPaths> appPaths(Ref ref) async {
   await paths.ensureCreated();
   return paths;
 }
+
+@Riverpod(keepAlive: true)
+CacheCleaner cacheCleaner(Ref ref) =>
+    CacheCleaner(ref.watch(appPathsProvider.future));

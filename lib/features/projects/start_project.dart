@@ -30,10 +30,16 @@ Future<bool> startProject(
     if (project == null || !context.mounted) return false;
     openProject(context, project.id, type);
     return true;
-  } on MediaEngineException {
+  } on MediaEngineException catch (e) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("That file couldn't be opened.")),
+        SnackBar(
+          content: Text(
+            e.error == MediaEngineError.mediaUnavailable
+                ? 'That file is no longer available.'
+                : "That file couldn't be opened.",
+          ),
+        ),
       );
     }
     return false;

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auvie/app/app.dart';
 import 'package:auvie/app/router/router.dart';
 import 'package:auvie/app/settings/app_settings.dart';
@@ -6,16 +8,19 @@ import 'package:auvie/core/content/catalog_source.dart';
 import 'package:auvie/core/native/media_engine_provider.dart';
 import 'package:auvie/core/platform/link_opener.dart';
 import 'package:auvie/core/platform/share_service.dart';
+import 'package:auvie/core/storage/app_paths.dart';
 import 'package:auvie/core/storage/database.dart';
 import 'package:auvie/core/storage/project_repository.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
 import 'package:auvie/core/subscription/entitlement_providers.dart';
+import 'package:auvie/core/telemetry/telemetry.dart';
 import 'package:auvie/features/editor/elements/element_assets.dart';
 import 'package:auvie/features/editor/elements/element_assets_provider.dart';
 import 'package:auvie/features/editor/presets/preset_providers.dart';
 import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:auvie/features/export/element_layers.dart';
 import 'package:auvie/features/projects/project_providers.dart';
+import 'package:auvie/features/settings/settings_screen.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
@@ -29,6 +34,7 @@ import 'fake_entitlement_service.dart';
 import 'fake_media_engine.dart';
 import 'fake_project_thumbnails.dart';
 import 'fake_share_service.dart';
+import 'fake_telemetry.dart';
 
 /// The whole app over in-memory storage and a fake engine.
 ///
@@ -47,6 +53,8 @@ class TestApp {
     this.assets,
     this.store,
     this.links,
+    this.paths,
+    this.telemetry,
   );
 
   final ProviderContainer container;
@@ -58,6 +66,10 @@ class TestApp {
   final ElementAssets assets;
   final FakeEntitlementService store;
   final FakeLinkOpener links;
+
+  /// Private storage in a temporary folder.
+  final AppPaths paths;
+  final FakeTelemetry telemetry;
 
   SharedPreferences get prefs => container.read(sharedPreferencesProvider);
 
@@ -89,10 +101,13 @@ class TestApp {
     final share = FakeShareService();
     final entitlements = store ?? FakeEntitlementService();
     final links = FakeLinkOpener();
+    final telemetry = FakeTelemetry();
+    final root = Directory.systemTemp.createTempSync('auvie_test_');
     final container = ProviderContainer(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
         appDatabaseProvider.overrideWithValue(db),
+        appPathsProvider.overrideWith((ref) async => AppPaths(root)),
         mediaEngineProvider.overrideWithValue(fake),
         catalogProvider.overrideWith((ref) async => catalog),
         projectThumbnailsProvider.overrideWithValue(thumbnails),
@@ -110,6 +125,8 @@ class TestApp {
         ),
         entitlementServiceProvider.overrideWithValue(entitlements),
         linkOpenerProvider.overrideWithValue(links),
+        appVersionProvider.overrideWith((ref) async => '1.0.0 (1)'),
+        telemetryProvider.overrideWithValue(telemetry),
       ],
     );
     return TestApp._(
@@ -122,12 +139,15 @@ class TestApp {
       assets,
       entitlements,
       links,
+      AppPaths(root),
+      telemetry,
     );
   }
 
   Future<void> dispose() async {
     container.dispose();
     await db.close();
+    if (paths.root.existsSync()) paths.root.deleteSync(recursive: true);
   }
 }
 

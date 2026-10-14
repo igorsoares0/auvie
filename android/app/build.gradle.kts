@@ -1,8 +1,22 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+// Release signing (docs/RELEASE.md): android/key.properties, never committed.
+// Without it, release builds stop with a message, unless debug signing is
+// asked for explicitly (AUVIE_DEBUG_SIGNING=true or -Pauvie.debugSigning=true)
+// to try a release build on a phone.
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+val hasReleaseKey = keystoreProperties.getProperty("storeFile") != null
+val debugSigning = System.getenv("AUVIE_DEBUG_SIGNING") == "true" ||
+    project.findProperty("auvie.debugSigning") == "true"
 
 android {
     namespace = "app.auvie"
@@ -43,13 +57,52 @@ android {
         }
     }
 
-    buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+    signingConfigs {
+        if (hasReleaseKey) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
         }
     }
+
+    buildTypes {
+        release {
+            signingConfig = when {
+                hasReleaseKey -> signingConfigs.getByName("release")
+                debugSigning -> signingConfigs.getByName("debug")
+                else -> null
+            }
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+        }
+    }
+}
+
+// A release that would go out unsigned (or debug-signed by accident) stops here.
+tasks.matching { it.name == "packageRelease" || it.name == "signReleaseBundle" }.configureEach {
+    doFirst {
+        if (!hasReleaseKey && !debugSigning) {
+            throw GradleException(
+                "No release key: create android/key.properties (docs/RELEASE.md), " +
+                    "or set AUVIE_DEBUG_SIGNING=true to try a release build on a phone.",
+            )
+        }
+    }
+}
+
+// integration_test (the on-device perf test) pulls an old AndroidX Test
+// runner into the debug app; keep the one our instrumented tests use.
+configurations.configureEach {
+    resolutionStrategy.force(
+        "androidx.test:runner:${libs.versions.androidxTestRunner.get()}",
+    )
 }
 
 kotlin {

@@ -183,7 +183,8 @@ class VideoPreview private constructor(
         player.release()
         producer.setCallback(null)
         surface = null
-        engine.thread.runBlocking {
+        // Doesn't wait for the GL thread: the release runs after any render.
+        engine.thread.post {
             releaseEglSurface()
             frames.setOnFrameAvailableListener(null)
             decoderSurface.release()

@@ -284,7 +284,7 @@ Tamanho relativo: **P** pequeno · **M** médio · **G** grande.
 
 > ✅ Ao fim da M7: spec §68 item 20 + critérios de Monetização da §69.
 
-**Estado (2026-10-13):** implementada; testes verdes (473 Dart, analyzer limpo, build Android ok). Falta o teste manual no aparelho.
+**Estado (2026-10-13):** concluída; testes verdes (473 Dart, analyzer limpo, build Android ok) e aprovada no teste manual no aparelho (assinatura simulada). Compras reais dependem das contas (docs/REVENUECAT-SETUP.md).
 - **Archive (paper):**
   - edição Nº 12 · Autumn e coleção em destaque, vindas do bloco `edition` do catálogo; a Home usa a mesma coleção;
   - filmes por coleção, com OWNED/TRY;
@@ -309,6 +309,30 @@ Tamanho relativo: **P** pequeno · **M** médio · **G** grande.
 - Performance: profile mode em aparelho médio (alvo: slider sem jank, 60 fps no preview de foto); memória com fotos de 48–200 MP; ANR watchdog.
 - Tratamento de erros amigável (§64); crash reporting (decidir ferramenta, ver §60).
 - Release: assinatura, R8/minify (regras para Media3/Pigeon/RevenueCat), App Bundle, Data Safety ("nenhuma mídia sai do aparelho"), política de privacidade, ficha na Play Store.
+
+**Estado (2026-10-14):** concluída; 494 testes Dart, 51 Kotlin JVM, 38 instrumentados e analyzer limpo; release com R8 aprovado no teste manual no aparelho. Desempenho no Redmi (profile): régua do EXPOSURE p90 11,0 ms (build) / 9,0 ms (GPU), 2 de 242 quadros acima de 16 ms. Falta só o que depende do dono: chave de upload, publicar `docs/legal/`, contas Play Console e RevenueCat.
+- **Release:**
+  - assinatura pelo `android/key.properties`; sem a chave, o build para (ou assina com debug, se `AUVIE_DEBUG_SIGNING=true`);
+  - R8 e shrink ligados (`proguard-rules.pro`), versão `1.0.0+1`;
+  - guia em `docs/RELEASE.md`.
+- **Marca:**
+  - ícone adaptativo "A." (Newsreader + ponto safelight), com versão monocromática;
+  - splash em papel no Android 10–11 e 12+;
+  - ícone 512 e feature graphic em `docs/store/`, gerados por `test/tool/brand_render_test.dart` (tag `brand`).
+- **Settings:** Pro (gerenciar/restaurar), armazenamento (CLEAR), versão, termos, privacidade, licenças, rever as boas-vindas.
+- **Erros:**
+  - `Telemetry` sem envio (`NoopTelemetry`), com eventos anônimos de filme, export, paywall e compra;
+  - `FlutterError`/`PlatformDispatcher` capturados; em release, um bloco discreto no lugar da tela vermelha;
+  - o RevenueCat registra a exibição do paywall.
+- **Projetos:**
+  - segurar na Home apaga, com confirmação; a miniatura e a permissão (ou a cópia) do original são liberadas;
+  - se a foto original sumiu, o editor avisa e oferece apagar a edição.
+- **Armazenamento:** `CacheCleaner` (cópias de export e camadas órfãs) na abertura e na Settings.
+- **Desempenho:**
+  - previews e exports em threads GL separadas; `dispose` dos previews não espera o GL;
+  - StrictMode em debug;
+  - `integration_test/perf_test.dart` mede os quadros no aparelho em profile.
+- **Loja:** `docs/legal/privacy.html` e `terms.html` (campos a preencher), `docs/STORE-LISTING.md` (textos, Data Safety, roteiro de screenshots).
 
 ---
 
@@ -370,6 +394,10 @@ Tamanho relativo: **P** pequeno · **M** médio · **G** grande.
 | D12 | Planos no lançamento (era Q6) | **Mensal + anual** (anual com 7 dias grátis); sem vitalício |
 | D13 | Lojas antes das contas | RevenueCat liga com a chave via `--dart-define`; sem chave: simulado (debug/profile) ou indisponível (release) |
 | D14 | Tocar num filme no Archive | Abre o seletor e cria uma foto com o filme aplicado (Pro também; o paywall só no export) |
+| D15 | Crashes e analytics no lançamento (era Q8) | **Nenhum serviço**: Play Console (Android vitals) para crashes/ANRs, RevenueCat para conversões; interface `Telemetry` sem envio, pronta para o PostHog depois |
+| D16 | Idioma no lançamento | **Só inglês** |
+| D17 | Ícone | "A." em Newsreader sobre papel, com o ponto safelight (provisório até um definitivo) |
+| D18 | Política de privacidade e termos | HTML estático em `docs/legal/`, hospedado pelo dono do projeto |
 | D6 | Referência à mídia (era Q5) | URI do Photo Picker com acesso persistido (`takePersistableUriPermission`); se o provedor recusar, o arquivo é copiado para `files/projects/media/` (M2) |
 
 ## 8. Questões em aberto (decidir antes da fase indicada)
@@ -378,7 +406,6 @@ Tamanho relativo: **P** pequeno · **M** médio · **G** grande.
 |---|---|---|---|
 | Q1 | `applicationId` definitivo | Ex.: `app.auvie` (precisa de um domínio que você controle) | M0 |
 | Q7 | Preços e textos marcados como *placeholder* no handoff | Produto define | M7 |
-| Q8 | Crash reporting/analytics sem conta (§60) | Avaliar em separado; manter interface `Telemetry` no-op | M9 |
 
 ---
 

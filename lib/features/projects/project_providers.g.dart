@@ -56,6 +56,47 @@ final class ProjectThumbnailsProvider
 
 String _$projectThumbnailsHash() => r'40718907f8d696aacdf88994add5ab146dcfe0a3';
 
+@ProviderFor(projectDeleter)
+final projectDeleterProvider = ProjectDeleterProvider._();
+
+final class ProjectDeleterProvider
+    extends $FunctionalProvider<ProjectDeleter, ProjectDeleter, ProjectDeleter>
+    with $Provider<ProjectDeleter> {
+  ProjectDeleterProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'projectDeleterProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$projectDeleterHash();
+
+  @$internal
+  @override
+  $ProviderElement<ProjectDeleter> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ProjectDeleter create(Ref ref) {
+    return projectDeleter(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ProjectDeleter value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ProjectDeleter>(value),
+    );
+  }
+}
+
+String _$projectDeleterHash() => r'afb3d56cc95b6b69f93c40e8324a4354aa6c2d36';
+
 @ProviderFor(projectStarter)
 final projectStarterProvider = ProjectStarterProvider._();
 

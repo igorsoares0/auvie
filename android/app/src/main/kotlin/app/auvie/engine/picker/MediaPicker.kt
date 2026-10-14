@@ -65,10 +65,30 @@ class MediaPicker(private val context: Context) : PluginRegistry.ActivityResultL
         copyToAppStorage(uri)
     }
 
+    /**
+     * Undoes [persist] for a project that is gone: releases the read
+     * permission, or deletes the private copy. Blocking: call from IO.
+     */
+    fun release(uri: Uri) {
+        when (uri.scheme) {
+            "content" -> try {
+                context.contentResolver.releasePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            } catch (e: SecurityException) {
+                // Never held, or already released.
+            }
+            "file" -> {
+                val file = File(uri.path ?: return)
+                if (isPrivateCopy(file, mediaDir)) file.delete()
+            }
+        }
+    }
+
+    private val mediaDir: File get() = File(context.filesDir, "projects/media")
+
     private fun copyToAppStorage(uri: Uri): Uri {
         val resolver = context.contentResolver
         val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(resolver.getType(uri)) ?: "bin"
-        val dir = File(context.filesDir, "projects/media").apply { mkdirs() }
+        val dir = mediaDir.apply { mkdirs() }
         val file = File(dir, "${UUID.randomUUID()}.$extension")
         val input = resolver.openInputStream(uri) ?: throw java.io.FileNotFoundException(uri.toString())
         input.use { source -> file.outputStream().use { source.copyTo(it) } }
@@ -77,5 +97,9 @@ class MediaPicker(private val context: Context) : PluginRegistry.ActivityResultL
 
     companion object {
         private const val REQUEST_CODE = 0x4175 // "Au"
+
+        /** Only files the app copied itself may be deleted. */
+        fun isPrivateCopy(file: File, mediaDir: File): Boolean =
+            file.canonicalFile.parentFile == mediaDir.canonicalFile
     }
 }

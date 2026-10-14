@@ -86,6 +86,11 @@ class FakeEntitlementService implements EntitlementService {
     return _current;
   }
 
+  int paywallsShown = 0;
+
+  @override
+  Future<void> paywallShown() async => paywallsShown++;
+
   @override
   Future<void> resetSimulation() async => _set(Entitlement.free);
 }

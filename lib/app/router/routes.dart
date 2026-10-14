@@ -4,6 +4,9 @@ abstract final class AppRoutes {
   static const onboarding = '/onboarding';
   static const archive = '/archive';
   static const pro = '/pro';
+
+  /// The paywall, noting where it was opened from (anonymous telemetry).
+  static String proFrom(String source) => '/pro?from=$source';
   static const settings = '/settings';
 
   /// Debug and profile builds only: media engine bench.

@@ -62,7 +62,7 @@ final class EntitlementServiceProvider
 }
 
 String _$entitlementServiceHash() =>
-    r'9eefe96e41b4ea275e7a47c41eb19d37da253484';
+    r'2b7f024106984d4b4fd4ba8952a3671220af057e';
 
 /// Whether the user has Pro, updated on every purchase or expiration.
 

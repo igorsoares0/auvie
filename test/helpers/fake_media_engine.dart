@@ -55,6 +55,9 @@ class FakeMediaEngine implements MediaEngine {
   /// When set, [exportPhoto] waits for it (to observe the running state).
   Completer<void>? exportGate;
 
+  /// When set, opening a photo preview fails with it.
+  MediaEngineException? previewError;
+
   /// When set, [exportPhoto] fails with it.
   MediaEngineException? exportError;
 
@@ -89,6 +92,11 @@ class FakeMediaEngine implements MediaEngine {
     return picked!;
   }
 
+  final released = <String>[];
+
+  @override
+  Future<void> releaseMedia(String uri) async => released.add(uri);
+
   @override
   Future<Uint8List> thumbnail(String uri, {required int maxPx}) async {
     calls.add('thumbnail($uri, $maxPx)');
@@ -101,6 +109,8 @@ class FakeMediaEngine implements MediaEngine {
     required int maxPx,
   }) async {
     calls.add('createPhotoPreview($uri, $maxPx)');
+    final error = previewError;
+    if (error != null) throw error;
     return (
       textureId: _nextTexture++,
       width: previewSize.width,

@@ -1,0 +1,11 @@
+:root { --paper: #f3eee5; --ink: #1a1714; --muted: #6f665c; --hairline: #d9d2c6; --accent: #b23a26; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.6 "Newsreader", Georgia, "Times New Roman", serif; }
+main { max-width: 680px; margin: 0 auto; padding: 48px 24px 80px; }
+.eyebrow { font: 600 11px/1 system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
+h1 { font-weight: 400; font-size: 42px; line-height: 1.1; margin: 12px 0 8px; }
+h2 { font-weight: 400; font-size: 22px; margin: 36px 0 8px; padding-top: 18px; border-top: 1px solid var(--hairline); }
+.date { color: var(--muted); font-style: italic; }
+a { color: var(--ink); }
+.todo { background: #f6dcd5; padding: 0 4px; }
+ul { padding-left: 20px; }

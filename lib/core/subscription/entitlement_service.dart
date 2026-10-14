@@ -30,6 +30,10 @@ abstract interface class EntitlementService {
   /// Where the subscription is managed or cancelled.
   Uri get manageUrl;
 
+  /// Tells the store the paywall was shown, so its conversion numbers have
+  /// a denominator. Call after [plans].
+  Future<void> paywallShown();
+
   /// Simulated only: back to free.
   Future<void> resetSimulation();
 }

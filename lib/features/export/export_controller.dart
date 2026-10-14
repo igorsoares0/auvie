@@ -12,6 +12,7 @@ import 'package:auvie/core/native/media_engine_provider.dart';
 import 'package:auvie/core/native/render_params.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
 import 'package:auvie/core/subscription/entitlement_providers.dart';
+import 'package:auvie/core/telemetry/telemetry.dart';
 import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:auvie/features/export/element_layers.dart';
 import 'package:auvie/features/export/export_options.dart';
@@ -172,6 +173,8 @@ class ExportController extends _$ExportController {
 
   MediaEngine get _engine => ref.read(mediaEngineProvider);
 
+  Telemetry get _telemetry => ref.read(telemetryProvider);
+
   void setOptions(ExportOptions options) {
     _set(_session.copyWith(options: options));
     unawaited(
@@ -266,7 +269,19 @@ class ExportController extends _$ExportController {
               layers: layers,
             ));
       _set(_session.copyWith(phase: ExportDone(result, thenShare: thenShare)));
+      _telemetry.event(TelemetryEvent.exportFinished, {
+        'media': project.media.type.name,
+        'size': session.isVideo
+            ? session.videoSize.name
+            : session.options.size.name,
+      });
     } on MediaEngineException catch (e) {
+      if (e.error != MediaEngineError.cancelled) {
+        _telemetry.event(TelemetryEvent.exportFailed, {
+          'media': project.media.type.name,
+          'code': e.error.code,
+        });
+      }
       _set(
         _session.copyWith(
           phase: e.error == MediaEngineError.cancelled

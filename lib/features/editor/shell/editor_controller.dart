@@ -7,6 +7,7 @@ import 'package:auvie/core/models/elements.dart';
 import 'package:auvie/core/models/preset.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
+import 'package:auvie/core/telemetry/telemetry.dart';
 import 'package:auvie/features/editor/adjustments/adjustment_family.dart';
 import 'package:auvie/features/editor/elements/element_geometry.dart';
 import 'package:auvie/features/editor/elements/text_presets.dart';
@@ -112,6 +113,15 @@ class EditorController extends _$EditorController {
   void undo() => _update(_session.copyWith(history: _session.history.undo()));
 
   void redo() => _update(_session.copyWith(history: _session.history.redo()));
+
+  /// Applies a film from the FILM panel (one undo step).
+  void applyPreset(String presetId) {
+    record(_session.edit.withPreset(presetId));
+    ref.read(telemetryProvider).event(TelemetryEvent.presetApplied, {
+      'preset': presetId,
+      'source': 'film',
+    });
+  }
 
   // Navigation inside the editor (not saved).
 
@@ -540,6 +550,7 @@ class EditorController extends _$EditorController {
   /// Saves now. Safe to call repeatedly; saves run one after another.
   Future<void> save() async {
     _saveTimer?.cancel();
+    if (_deleted) return;
     final previous = _saving;
     if (previous != null) await previous;
     final session = state.value;
@@ -553,9 +564,23 @@ class EditorController extends _$EditorController {
   }
 
   /// Saves and refreshes the Home thumbnail. Call when leaving the editor.
+  /// Set once the project is deleted: nothing is saved after that.
+  bool _deleted = false;
+
+  /// Deletes this project (when its original is gone). Pending saves are
+  /// dropped so they can't bring it back.
+  Future<void> deleteProject() async {
+    _saveTimer?.cancel();
+    _deleted = true;
+    final project = _session.project;
+    await ref
+        .read(projectDeleterProvider)
+        .delete(id: project.id, mediaUri: project.media.uri);
+  }
+
   Future<void> close() async {
     final session = state.value;
-    if (session == null) return;
+    if (session == null || _deleted) return;
     await save();
     try {
       await ref

@@ -11,6 +11,7 @@ import 'package:auvie/core/subscription/entitlement.dart';
 import 'package:auvie/core/subscription/entitlement_providers.dart';
 import 'package:auvie/core/subscription/entitlement_service.dart';
 import 'package:auvie/core/subscription/pro_formatting.dart';
+import 'package:auvie/core/telemetry/telemetry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,7 +20,11 @@ import 'package:go_router/go_router.dart';
 /// Pro (handoff 08, paper): what Pro unlocks, the plans and the purchase.
 /// Pops `true` when the user ends up with Pro, so Export can carry on.
 class ProScreen extends ConsumerStatefulWidget {
-  const new({super.key});
+  const new({this.source = 'link', super.key});
+
+  /// Where the paywall was opened from: export, export_notice, home,
+  /// settings (anonymous telemetry).
+  final String source;
 
   /// The three benefits i / ii / iii (decision M7: Pro is content only).
   static const benefits = [
@@ -47,6 +52,14 @@ class _ProScreenState extends ConsumerState<ProScreen> {
       debugPrint('Plans: $e');
       return const <ProPlan>[];
     });
+    ref.read(telemetryProvider).event(TelemetryEvent.paywallViewed, {
+      'source': widget.source,
+    });
+    unawaited(
+      _plans.then((plans) {
+        if (plans.isNotEmpty) return _service.paywallShown();
+      }),
+    );
   }
 
   void _close({bool pro = false}) {
@@ -69,7 +82,17 @@ class _ProScreenState extends ConsumerState<ProScreen> {
   }
 
   Future<void> _purchase(ProPlan plan) => _run(() async {
+    final telemetry = ref.read(telemetryProvider);
     final outcome = await _service.purchase(plan);
+    telemetry.event(TelemetryEvent.purchaseFinished, {
+      'plan': plan.period.name,
+      'outcome': switch (outcome) {
+        PurchaseDone() => 'done',
+        PurchaseCancelled() => 'cancelled',
+        PurchasePending() => 'pending',
+        PurchaseFailed() => 'failed',
+      },
+    });
     if (!mounted) return;
     switch (outcome) {
       case PurchaseDone():

@@ -77,11 +77,12 @@ class PhotoPreview private constructor(
         engine.thread.runBlocking { releaseEglSurface() }
     }
 
+    /** Doesn't wait for the GL thread: the release runs after any render. */
     override fun dispose() {
         disposed = true
         producer.setCallback(null)
         surface = null
-        engine.thread.runBlocking {
+        engine.thread.post {
             releaseEglSurface()
             source.release()
         }

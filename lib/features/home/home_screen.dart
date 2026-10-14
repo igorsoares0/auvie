@@ -16,6 +16,7 @@ import 'package:auvie/core/content/catalog_providers.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/storage/project_repository.dart';
 import 'package:auvie/core/subscription/entitlement_providers.dart';
+import 'package:auvie/features/projects/delete_project_sheet.dart';
 import 'package:auvie/features/projects/project_providers.dart';
 import 'package:auvie/features/projects/start_project.dart';
 import 'package:flutter/foundation.dart';
@@ -46,6 +47,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _open(String id, MediaType type) => openProject(context, id, type);
+
+  /// Hold a recent edit to delete it (its original stays in the gallery).
+  Future<void> _delete(ProjectSummary project) async {
+    final confirmed = await confirmDeleteProject(context, name: project.name);
+    if (!confirmed) return;
+    await ref
+        .read(projectDeleterProvider)
+        .delete(id: project.id, mediaUri: project.mediaUri);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,6 +138,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           recents: recents,
                           catalog: catalog,
                           onOpen: (p) => _open(p.id, p.mediaType),
+                          onHold: _delete,
                         ),
                       if (!kReleaseMode)
                         Align(
@@ -172,7 +183,7 @@ class _Header extends ConsumerWidget {
             child: GestureDetector(
               key: const Key('home-pro'),
               behavior: HitTestBehavior.opaque,
-              onTap: () => context.push(AppRoutes.pro),
+              onTap: () => context.push(AppRoutes.proFrom('home')),
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 child: DecoratedBox(
@@ -347,11 +358,13 @@ class _RecentGrid extends StatelessWidget {
     required this.recents,
     required this.catalog,
     required this.onOpen,
+    required this.onHold,
   });
 
   final List<ProjectSummary> recents;
   final Catalog? catalog;
   final ValueChanged<ProjectSummary> onOpen;
+  final ValueChanged<ProjectSummary> onHold;
 
   @override
   Widget build(BuildContext context) {
@@ -372,6 +385,7 @@ class _RecentGrid extends StatelessWidget {
                       ? null
                       : catalog?.presetById(project.presetId!)?.name,
                   onTap: () => onOpen(project),
+                  onHold: () => onHold(project),
                 ),
               ),
           ],
@@ -386,11 +400,13 @@ class _RecentCell extends StatelessWidget {
     required this.project,
     required this.presetName,
     required this.onTap,
+    required this.onHold,
   });
 
   final ProjectSummary project;
   final String? presetName;
   final VoidCallback onTap;
+  final VoidCallback onHold;
 
   static String duration(int ms) {
     final seconds = (ms / 1000).round();
@@ -406,7 +422,9 @@ class _RecentCell extends StatelessWidget {
       button: true,
       label: project.name ?? kind,
       child: GestureDetector(
+        key: Key('recent-${project.id}'),
         onTap: onTap,
+        onLongPress: onHold,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -85,9 +85,7 @@ class FilmPanel extends ConsumerWidget {
                         uri: session.project.media.uri,
                         preset: preset,
                         selected: ref_?.presetId == preset.id,
-                        onTap: () => controller.record(
-                          session.edit.withPreset(preset.id),
-                        ),
+                        onTap: () => controller.applyPreset(preset.id),
                         onHold: () async {
                           unawaited(HapticFeedback.mediumImpact());
                           await ref

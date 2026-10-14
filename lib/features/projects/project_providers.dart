@@ -3,6 +3,7 @@ import 'package:auvie/core/native/media_engine_provider.dart';
 import 'package:auvie/core/storage/project_repository.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
 import 'package:auvie/features/editor/elements/element_assets_provider.dart';
+import 'package:auvie/features/projects/project_deleter.dart';
 import 'package:auvie/features/projects/project_starter.dart';
 import 'package:auvie/features/projects/project_thumbnails.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -15,6 +16,13 @@ ProjectThumbnails projectThumbnails(Ref ref) => ProjectThumbnails(
   repository: ref.watch(projectRepositoryProvider),
   paths: ref.watch(appPathsProvider.future),
   assets: ref.watch(elementAssetsProvider.future),
+);
+
+@Riverpod(keepAlive: true)
+ProjectDeleter projectDeleter(Ref ref) => ProjectDeleter(
+  repository: ref.watch(projectRepositoryProvider),
+  engine: ref.watch(mediaEngineProvider),
+  paths: ref.watch(appPathsProvider.future),
 );
 
 @Riverpod(keepAlive: true)

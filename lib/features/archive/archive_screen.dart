@@ -15,6 +15,7 @@ import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/storage/database.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
 import 'package:auvie/core/subscription/entitlement_providers.dart';
+import 'package:auvie/core/telemetry/telemetry.dart';
 import 'package:auvie/features/editor/presets/preset_providers.dart';
 import 'package:auvie/features/projects/start_project.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,10 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
     if (_starting) return;
     _starting = true;
     try {
+      ref.read(telemetryProvider).event(TelemetryEvent.presetApplied, {
+        'preset': preset.id,
+        'source': 'archive',
+      });
       await startProject(context, ref, MediaType.photo, preset: preset);
     } finally {
       _starting = false;

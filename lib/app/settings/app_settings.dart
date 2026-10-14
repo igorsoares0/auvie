@@ -35,6 +35,9 @@ class AppSettings {
 
   Future<void> markOnboardingSeen() => _prefs.setBool(_onboardingSeen, true);
 
+  /// Settings → Replay the welcome.
+  Future<void> resetOnboarding() => _prefs.setBool(_onboardingSeen, false);
+
   /// Last export choices, by enum name (null until the first export).
   ({String? format, String? size, bool keepMetadata}) get exportChoices => (
     format: _prefs.getString(_exportFormat),

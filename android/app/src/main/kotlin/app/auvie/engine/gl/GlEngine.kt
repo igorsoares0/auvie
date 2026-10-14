@@ -10,11 +10,13 @@ import app.auvie.engine.export.ExportPlanner
 import app.auvie.engine.export.Tile
 
 /**
- * The GL thread, its context and the develop renderer, created lazily on
- * first use. One per Flutter engine.
+ * A GL thread, its context and the develop renderer, created lazily on
+ * first use. The plugin keeps two: one for the on-screen previews and one
+ * for offscreen work (exports, thumbnails), so a long export never makes
+ * a preview — or the platform thread waiting on it — wait.
  */
-class GlEngine(private val assets: AssetManager) {
-    val thread = GlThread()
+class GlEngine(private val assets: AssetManager, name: String = "AuvieGL") {
+    val thread = GlThread(name)
     private var state: State? = null
 
     class State(val egl: EglCore, val renderer: DevelopRenderer)

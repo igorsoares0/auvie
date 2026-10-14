@@ -81,6 +81,17 @@ class ProjectRepository {
   Future<void> delete(String id) =>
       (_db.delete(_db.projects)..where((p) => p.id.equals(id))).go();
 
+  /// Whether any project still edits [uri] (two projects can share a
+  /// picked original).
+  Future<bool> isMediaUsed(String uri) async {
+    final row =
+        await (_db.select(_db.projects)
+              ..where((p) => p.mediaUri.equals(uri))
+              ..limit(1))
+            .getSingleOrNull();
+    return row != null;
+  }
+
   /// Most recently edited first.
   Stream<List<ProjectSummary>> watchRecent({int limit = 30}) {
     final query = _db.select(_db.projects)

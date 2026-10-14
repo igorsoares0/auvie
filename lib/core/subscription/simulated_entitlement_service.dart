@@ -93,6 +93,9 @@ class SimulatedEntitlementService implements EntitlementService {
   }
 
   @override
+  Future<void> paywallShown() async {}
+
+  @override
   Future<void> resetSimulation() => _set(Entitlement.free);
 
   Future<void> _set(Entitlement next) async {
@@ -135,6 +138,9 @@ class UnavailableEntitlementService implements EntitlementService {
 
   @override
   Future<Entitlement> restore() async => current;
+
+  @override
+  Future<void> paywallShown() async {}
 
   @override
   Future<void> resetSimulation() async {}

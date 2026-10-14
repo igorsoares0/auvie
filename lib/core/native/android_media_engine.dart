@@ -26,6 +26,9 @@ class AndroidMediaEngine implements MediaEngine {
       _guard(() async => mediaRefFromPigeon(await _api.probe(uri)));
 
   @override
+  Future<void> releaseMedia(String uri) => _guard(() => _api.releaseMedia(uri));
+
+  @override
   Future<Uint8List> thumbnail(String uri, {required int maxPx}) =>
       _guard(() => _api.thumbnail(uri, maxPx));
 

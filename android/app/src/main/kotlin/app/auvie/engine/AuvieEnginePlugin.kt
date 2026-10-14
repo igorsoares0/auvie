@@ -75,7 +75,11 @@ class AuvieEnginePlugin : FlutterPlugin, ActivityAware, MediaHostApi {
     private lateinit var picker: MediaPicker
     private lateinit var notifications: NotificationPermission
     private lateinit var waveforms: WaveformReader
+    /** On-screen previews. */
     private lateinit var engine: GlEngine
+
+    /** Exports and offscreen renders (thumbnails, preset cards). */
+    private lateinit var offscreen: GlEngine
     private lateinit var context: Context
     private lateinit var exporter: PhotoExporter
     private lateinit var store: ExportStore
@@ -123,10 +127,11 @@ class AuvieEnginePlugin : FlutterPlugin, ActivityAware, MediaHostApi {
         notifications = NotificationPermission(context)
         waveforms = WaveformReader(context)
         engine = GlEngine(context.assets)
+        offscreen = GlEngine(context.assets, "AuvieGL-offscreen")
         this.context = context
         store = ExportStore(context)
         exporter = PhotoExporter(
-            engine, loader, store, GallerySaver(context.contentResolver),
+            offscreen, loader, store, GallerySaver(context.contentResolver),
             MetadataCopier(context.contentResolver),
         )
         MediaHostApi.setUp(messenger, this)
@@ -145,6 +150,7 @@ class AuvieEnginePlugin : FlutterPlugin, ActivityAware, MediaHostApi {
         previews.values.forEach { it.dispose() }
         previews.clear()
         engine.release()
+        offscreen.release()
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -179,6 +185,10 @@ class AuvieEnginePlugin : FlutterPlugin, ActivityAware, MediaHostApi {
 
     override suspend fun probe(uri: String): PickedMedia = EngineErrors.mapping(uri) {
         withContext(Dispatchers.IO) { loader.probe(Uri.parse(uri)) }
+    }
+
+    override suspend fun releaseMedia(uri: String) {
+        withContext(Dispatchers.IO) { picker.release(Uri.parse(uri)) }
     }
 
     override suspend fun thumbnail(uri: String, maxPx: Long): ByteArray = EngineErrors.mapping(uri) {
@@ -350,8 +360,8 @@ class AuvieEnginePlugin : FlutterPlugin, ActivityAware, MediaHostApi {
             }
             val size = Geometry.outputSize(settings.geometry, bitmap.width, bitmap.height, maxPx.toInt())
             val developed = try {
-                engine.thread.call {
-                    engine.renderToBitmap(bitmap, settings, size.width, size.height)
+                offscreen.thread.call {
+                    offscreen.renderToBitmap(bitmap, settings, size.width, size.height)
                 }
             } finally {
                 bitmap.recycle()

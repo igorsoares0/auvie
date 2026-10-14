@@ -273,6 +273,11 @@ abstract class MediaHostApi {
   @async
   PickedMedia probe(String uri);
 
+  /// Gives up what a deleted project held on its original: the persisted
+  /// read permission, or the app's private copy.
+  @async
+  void releaseMedia(String uri);
+
   /// JPEG thumbnail whose longer side is at most [maxPx].
   @async
   Uint8List thumbnail(String uri, int maxPx);

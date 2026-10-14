@@ -130,6 +130,10 @@ abstract interface class MediaEngine {
 
   Future<MediaRef> probe(String uri);
 
+  /// Gives up what a deleted project held on its original (persisted
+  /// permission or private copy).
+  Future<void> releaseMedia(String uri);
+
   /// JPEG thumbnail whose longer side is at most [maxPx].
   Future<Uint8List> thumbnail(String uri, {required int maxPx});
 

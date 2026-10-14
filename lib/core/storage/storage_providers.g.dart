@@ -178,3 +178,44 @@ final class AppPathsProvider
 }
 
 String _$appPathsHash() => r'96373c827a2e25fee8fac2b74110b133d50bc850';
+
+@ProviderFor(cacheCleaner)
+final cacheCleanerProvider = CacheCleanerProvider._();
+
+final class CacheCleanerProvider
+    extends $FunctionalProvider<CacheCleaner, CacheCleaner, CacheCleaner>
+    with $Provider<CacheCleaner> {
+  CacheCleanerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'cacheCleanerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$cacheCleanerHash();
+
+  @$internal
+  @override
+  $ProviderElement<CacheCleaner> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  CacheCleaner create(Ref ref) {
+    return cacheCleaner(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CacheCleaner value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CacheCleaner>(value),
+    );
+  }
+}
+
+String _$cacheCleanerHash() => r'a68b9289bc459303a829ee5fa12162ab879c2bf4';

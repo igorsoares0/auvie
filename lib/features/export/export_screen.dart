@@ -203,7 +203,7 @@ class _Options extends ConsumerWidget {
     /// Locked edits go through the paywall first; buying Pro carries on.
     Future<void> save({bool thenShare = false}) async {
       if (controller.locked) {
-        final pro = await context.push<bool>(AppRoutes.pro);
+        final pro = await context.push<bool>(AppRoutes.proFrom('export'));
         if (pro != true || !context.mounted) return;
       }
       await controller.start(thenShare: thenShare);
@@ -401,7 +401,8 @@ class _Options extends ConsumerWidget {
             const SizedBox(height: AuvieSpacing.s18),
             _ProNotice(
               premium: session.premium,
-              onSeePro: () => context.push<bool>(AppRoutes.pro),
+              onSeePro: () =>
+                  context.push<bool>(AppRoutes.proFrom('export_notice')),
             ),
           ],
           const Spacer(),

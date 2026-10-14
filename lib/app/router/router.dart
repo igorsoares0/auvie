@@ -68,7 +68,7 @@ GoRouter router(Ref ref) {
         pageBuilder: (context, state) => MaterialPage(
           key: state.pageKey,
           fullscreenDialog: true,
-          child: const ProScreen(),
+          child: ProScreen(source: state.uri.queryParameters['from'] ?? 'link'),
         ),
       ),
       GoRoute(
