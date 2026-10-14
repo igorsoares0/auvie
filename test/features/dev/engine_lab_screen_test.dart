@@ -1,10 +1,15 @@
+import 'dart:convert';
+
 import 'package:auvie/app/theme/app_theme.dart';
+import 'package:auvie/core/content/catalog_providers.dart';
+import 'package:auvie/core/content/catalog_source.dart';
 import 'package:auvie/core/models/adjustment.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/native/media_engine_provider.dart';
 import 'package:auvie/features/dev/engine_lab_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,9 +22,15 @@ void main() {
   setUp(() => engine = FakeMediaEngine(picked: photoMedia));
 
   Future<void> pumpLab(WidgetTester tester) async {
+    final catalog = await tester.runAsync(
+      () => BundledCatalogSource(rootBundle).load(),
+    );
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [mediaEngineProvider.overrideWithValue(engine)],
+        overrides: [
+          mediaEngineProvider.overrideWithValue(engine),
+          catalogProvider.overrideWith((ref) async => catalog!),
+        ],
         child: MaterialApp(
           theme: AuvieTheme.darkroom(),
           home: const EngineLabScreen(),
@@ -66,6 +77,8 @@ void main() {
   testWidgets('moving a slider sends the new value', (tester) async {
     await pumpLab(tester);
     await pick(tester);
+    await tester.tap(find.text('ADJUST'));
+    await tester.pumpAndSettle();
 
     final slider = find.byKey(const Key('slider-exposure'));
     await tester.ensureVisible(slider);
@@ -98,6 +111,46 @@ void main() {
 
     await tester.pumpWidget(const SizedBox());
     expect(engine.disposed, [1]);
+  });
+
+  testWidgets('editing a film changes what is rendered and the JSON', (
+    tester,
+  ) async {
+    await pumpLab(tester);
+    await pick(tester);
+    await tester.tap(find.byKey(const Key('lab-film-ektar_02')));
+    await tester.pumpAndSettle();
+
+    final slider = find.byKey(const Key('film-grain'));
+    await tester.ensureVisible(slider);
+    await tester.drag(slider, const Offset(80, 0));
+    await tester.pumpAndSettle();
+
+    final grain = engine.updates.last.$2.adjustments[Adjustment.grain];
+    expect(grain, greaterThan(0.12));
+    await tester.tap(find.byKey(const Key('lab-json')));
+    await tester.pumpAndSettle();
+    final text = tester.widget<SelectableText>(find.byType(SelectableText));
+    final json = jsonDecode(text.data!) as Map<String, dynamic>;
+    final presets = json['presets'] as Map<String, dynamic>;
+    final ektar = presets['ektar_02'] as Map<String, dynamic>;
+    expect(ektar['grain'] as double, closeTo(grain, 0.01));
+    expect(json['tuning'], isNotNull);
+  });
+
+  testWidgets('tuning changes the engine for every render', (tester) async {
+    await pumpLab(tester);
+    await pick(tester);
+    await tester.tap(find.text('TUNING'));
+    await tester.pumpAndSettle();
+
+    await tester.drag(
+      find.byKey(const Key('tuning-grain')),
+      const Offset(80, 0),
+    );
+    await tester.pumpAndSettle();
+
+    expect(engine.tuning.grainAmount, greaterThan(0.3));
   });
 
   test('photoMedia fixture is a photo', () {

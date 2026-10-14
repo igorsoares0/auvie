@@ -74,6 +74,21 @@ class DevelopParams {
   Float64List geometry;
 }
 
+/// Strengths of grain and sharpen at 1, and grain fineness (engine lab).
+class DevelopTuningParams {
+  DevelopTuningParams({
+    required this.grainAmount,
+    required this.sharpenAmount,
+    required this.grainCells,
+  });
+
+  double grainAmount;
+  double sharpenAmount;
+
+  /// Grain cells across the output's shorter side.
+  int grainCells;
+}
+
 enum ExportFormat { jpeg, png }
 
 enum LayerBlend { normal, screen, multiply, overlay, softLight }
@@ -335,6 +350,12 @@ abstract class MediaHostApi {
 
   /// Free bytes where exports are written.
   int availableBytes();
+
+  /// Engine lab: the grain and sharpen tuning used by every render.
+  DevelopTuningParams developTuning();
+
+  /// Engine lab: changes the tuning live (previews redraw on next update).
+  void setDevelopTuning(DevelopTuningParams tuning);
 
   /// Develops at full size, saves to Pictures/Auvie and keeps an app copy.
   /// Progress arrives on [ExportEvents.exportProgress] under [jobId].

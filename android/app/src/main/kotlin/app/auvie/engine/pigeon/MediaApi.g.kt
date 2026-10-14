@@ -390,6 +390,56 @@ data class DevelopParams (
 }
 
 /**
+ * Strengths of grain and sharpen at 1, and grain fineness (engine lab).
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class DevelopTuningParams (
+  val grainAmount: Double,
+  val sharpenAmount: Double,
+  /** Grain cells across the output's shorter side. */
+  val grainCells: Long
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): DevelopTuningParams {
+      val grainAmount = pigeonVar_list[0] as Double
+      val sharpenAmount = pigeonVar_list[1] as Double
+      val grainCells = pigeonVar_list[2] as Long
+      return DevelopTuningParams(grainAmount, sharpenAmount, grainCells)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      grainAmount,
+      sharpenAmount,
+      grainCells,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as DevelopTuningParams
+    return MediaApiPigeonUtils.deepEquals(this.grainAmount, other.grainAmount) && MediaApiPigeonUtils.deepEquals(this.sharpenAmount, other.sharpenAmount) && MediaApiPigeonUtils.deepEquals(this.grainCells, other.grainCells)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.grainAmount)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.sharpenAmount)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.grainCells)
+    return result
+  }
+  override fun toString(): String {
+    return "DevelopTuningParams(grainAmount=$grainAmount, sharpenAmount=$sharpenAmount, grainCells=$grainCells)"
+  }
+}
+
+/**
  * One element rasterized by Flutter (text, brush, sticker, overlay,
  * frame), composited over the developed photo before encoding.
  *
@@ -911,40 +961,45 @@ private open class MediaApiPigeonCodec : StandardMessageCodec() {
       }
       134.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          ExportLayer.fromList(it)
+          DevelopTuningParams.fromList(it)
         }
       }
       135.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          ExportRequest.fromList(it)
+          ExportLayer.fromList(it)
         }
       }
       136.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          VideoExportRequest.fromList(it)
+          ExportRequest.fromList(it)
         }
       }
       137.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          ExportResult.fromList(it)
+          VideoExportRequest.fromList(it)
         }
       }
       138.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          ExportProgress.fromList(it)
+          ExportResult.fromList(it)
         }
       }
       139.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          PreviewInfo.fromList(it)
+          ExportProgress.fromList(it)
         }
       }
       140.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          VideoPreviewInfo.fromList(it)
+          PreviewInfo.fromList(it)
         }
       }
       141.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          VideoPreviewInfo.fromList(it)
+        }
+      }
+      142.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
           PlaybackState.fromList(it)
         }
@@ -974,36 +1029,40 @@ private open class MediaApiPigeonCodec : StandardMessageCodec() {
         stream.write(133)
         writeValue(stream, value.toList())
       }
-      is ExportLayer -> {
+      is DevelopTuningParams -> {
         stream.write(134)
         writeValue(stream, value.toList())
       }
-      is ExportRequest -> {
+      is ExportLayer -> {
         stream.write(135)
         writeValue(stream, value.toList())
       }
-      is VideoExportRequest -> {
+      is ExportRequest -> {
         stream.write(136)
         writeValue(stream, value.toList())
       }
-      is ExportResult -> {
+      is VideoExportRequest -> {
         stream.write(137)
         writeValue(stream, value.toList())
       }
-      is ExportProgress -> {
+      is ExportResult -> {
         stream.write(138)
         writeValue(stream, value.toList())
       }
-      is PreviewInfo -> {
+      is ExportProgress -> {
         stream.write(139)
         writeValue(stream, value.toList())
       }
-      is VideoPreviewInfo -> {
+      is PreviewInfo -> {
         stream.write(140)
         writeValue(stream, value.toList())
       }
-      is PlaybackState -> {
+      is VideoPreviewInfo -> {
         stream.write(141)
+        writeValue(stream, value.toList())
+      }
+      is PlaybackState -> {
+        stream.write(142)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -1061,6 +1120,10 @@ interface MediaHostApi {
   suspend fun renderFrame(uri: String, params: DevelopParams, maxPx: Long, timeMs: Long?): ByteArray
   /** Free bytes where exports are written. */
   fun availableBytes(): Long
+  /** Engine lab: the grain and sharpen tuning used by every render. */
+  fun developTuning(): DevelopTuningParams
+  /** Engine lab: changes the tuning live (previews redraw on next update). */
+  fun setDevelopTuning(tuning: DevelopTuningParams)
   /**
    * Develops at full size, saves to Pictures/Auvie and keeps an app copy.
    * Progress arrives on [ExportEvents.exportProgress] under [jobId].
@@ -1445,6 +1508,39 @@ interface MediaHostApi {
           channel.setMessageHandler { _, reply ->
             val wrapped: List<Any?> = try {
               listOf(api.availableBytes())
+            } catch (exception: Throwable) {
+              MediaApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.developTuning$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.developTuning())
+            } catch (exception: Throwable) {
+              MediaApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.auvie.MediaHostApi.setDevelopTuning$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val tuningArg = args[0] as DevelopTuningParams
+            val wrapped: List<Any?> = try {
+              api.setDevelopTuning(tuningArg)
+              listOf(null)
             } catch (exception: Throwable) {
               MediaApiPigeonUtils.wrapError(exception)
             }

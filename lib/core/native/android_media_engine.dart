@@ -138,6 +138,27 @@ class AndroidMediaEngine implements MediaEngine {
   Future<int> availableBytes() => _guard(_api.availableBytes);
 
   @override
+  Future<DevelopTuning> developTuning() => _guard(() async {
+    final t = await _api.developTuning();
+    return (
+      grainAmount: t.grainAmount,
+      sharpenAmount: t.sharpenAmount,
+      grainCells: t.grainCells,
+    );
+  });
+
+  @override
+  Future<void> setDevelopTuning(DevelopTuning tuning) => _guard(
+    () => _api.setDevelopTuning(
+      pigeon.DevelopTuningParams(
+        grainAmount: tuning.grainAmount,
+        sharpenAmount: tuning.sharpenAmount,
+        grainCells: tuning.grainCells,
+      ),
+    ),
+  );
+
+  @override
   Future<ExportResult> exportPhoto(String jobId, ExportJob job) =>
       _guard(() async {
         final result = await _api.exportPhoto(

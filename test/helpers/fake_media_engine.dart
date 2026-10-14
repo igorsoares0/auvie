@@ -227,6 +227,19 @@ class FakeMediaEngine implements MediaEngine {
   @override
   Future<int> availableBytes() async => freeBytes;
 
+  DevelopTuning tuning = (
+    grainAmount: 0.3,
+    sharpenAmount: 2.4,
+    grainCells: 1000,
+  );
+
+  @override
+  Future<DevelopTuning> developTuning() async => tuning;
+
+  @override
+  Future<void> setDevelopTuning(DevelopTuning tuning) async =>
+      this.tuning = tuning;
+
   @override
   Future<ExportResult> exportPhoto(String jobId, ExportJob job) async {
     exports.add(job);

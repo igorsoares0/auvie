@@ -41,6 +41,14 @@ class MediaEngineException implements Exception {
   }
 }
 
+/// Grain and sharpen strengths at 1, and grain cells across the shorter
+/// side (engine lab calibration).
+typedef DevelopTuning = ({
+  double grainAmount,
+  double sharpenAmount,
+  int grainCells,
+});
+
 /// A developed photo shown in a Flutter `Texture`.
 typedef PhotoPreview = ({int textureId, int width, int height});
 
@@ -205,6 +213,12 @@ abstract interface class MediaEngine {
 
   /// Free bytes where exports are written.
   Future<int> availableBytes();
+
+  /// Engine lab: the grain and sharpen tuning every render uses.
+  Future<DevelopTuning> developTuning();
+
+  /// Engine lab: changes it live, for previews and exports alike.
+  Future<void> setDevelopTuning(DevelopTuning tuning);
 
   /// Exports at full size and saves to the gallery. Progress arrives on
   /// [exportProgress]; [cancelExport] stops it with

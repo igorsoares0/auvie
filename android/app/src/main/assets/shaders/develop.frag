@@ -23,6 +23,9 @@ uniform sampler2D uCurveLut;   // 256x1 RGBA: preset + user curves (Dart)
 uniform mat3 uGeometry;        // output uv -> source uv: crop, turns, flips, straighten
 uniform vec4 uTile;            // this draw's part of the output: offset.xy, scale.zw
 uniform vec2 uTexel;           // 1 / source image size
+uniform vec2 uSharpenStep;     // sharpen neighbour offset in source uv (DevelopTuning)
+uniform float uSharpenAmount;  // sharpen strength at sharpen = 1 (DevelopTuning)
+uniform float uGrainAmount;    // grain strength at grain = 1 (DevelopTuning)
 uniform float uAspect;         // full output width / height
 uniform vec2 uGrainGrid;       // grain cells across the full output
 uniform float uGrainSeed;
@@ -49,8 +52,8 @@ const float TONE_AMOUNT = 0.25;
 const float FADE_LIFT = 0.15;
 const float VIGNETTE_AMOUNT = 0.6;
 const float VIGNETTE_START = 0.35;
-const float GRAIN_AMOUNT = 0.12;
-const float SHARPEN_AMOUNT = 1.5;
+// Grain and sharpen strengths are uniforms (DevelopTuning.kt), tunable live
+// in the engine lab.
 const vec3 LUMA = vec3(0.2126, 0.7152, 0.0722);
 
 vec3 toLinear(vec3 c) {
@@ -76,6 +79,19 @@ float hash12(vec2 p) {
     return fract((p3.x + p3.y) * p3.z);
 }
 
+// Film grain: smooth value noise over the grain cells, so it clumps like
+// grain instead of showing square pixels when a cell spans several pixels.
+float grainNoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = hash12(i + uGrainSeed);
+    float b = hash12(i + vec2(1.0, 0.0) + uGrainSeed);
+    float c = hash12(i + vec2(0.0, 1.0) + uGrainSeed);
+    float d = hash12(i + vec2(1.0, 1.0) + uGrainSeed);
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
 void main() {
     // Position in the whole output (exports render it in tiles), then where
     // that is in the original.
@@ -95,11 +111,13 @@ void main() {
 
     // 1. Sharpen: 4-neighbour unsharp mask.
     if (uSharpen > 0.0) {
-        vec3 blur = (source(src + vec2(uTexel.x, 0.0)) +
-                     source(src - vec2(uTexel.x, 0.0)) +
-                     source(src + vec2(0.0, uTexel.y)) +
-                     source(src - vec2(0.0, uTexel.y))) * 0.25;
-        c = clamp(c + (c - blur) * uSharpen * SHARPEN_AMOUNT, 0.0, 1.0);
+        // The radius follows the photo's size, so a preview and a full-size
+        // export look equally sharp.
+        vec3 blur = (source(src + vec2(uSharpenStep.x, 0.0)) +
+                     source(src - vec2(uSharpenStep.x, 0.0)) +
+                     source(src + vec2(0.0, uSharpenStep.y)) +
+                     source(src - vec2(0.0, uSharpenStep.y))) * 0.25;
+        c = clamp(c + (c - blur) * uSharpen * uSharpenAmount, 0.0, 1.0);
     }
 
     // 2. Light, in linear: exposure and white balance.
@@ -131,9 +149,9 @@ void main() {
                          : c + (-uVignette) * v * (1.0 - c);
 
     if (uGrain > 0.0) {
-        float n = hash12(floor(outUv * uGrainGrid) + uGrainSeed) - 0.5;
+        float n = grainNoise(outUv * uGrainGrid) - 0.5;
         float midtones = 1.0 - 0.6 * abs(2.0 * dot(c, LUMA) - 1.0);
-        c += n * uGrain * GRAIN_AMOUNT * midtones;
+        c += n * uGrain * uGrainAmount * midtones;
     }
 
     fragColor = vec4(clamp(c, 0.0, 1.0), 1.0);

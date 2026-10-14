@@ -299,6 +299,62 @@ class DevelopParams {
   }
 }
 
+/// Strengths of grain and sharpen at 1, and grain fineness (engine lab).
+class DevelopTuningParams {
+  DevelopTuningParams({
+    required this.grainAmount,
+    required this.sharpenAmount,
+    required this.grainCells,
+  });
+
+  double grainAmount;
+
+  double sharpenAmount;
+
+  /// Grain cells across the output's shorter side.
+  int grainCells;
+
+  List<Object?> _toList() {
+    return <Object?>[grainAmount, sharpenAmount, grainCells];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static DevelopTuningParams decode(Object result) {
+    result as List<Object?>;
+    return DevelopTuningParams(
+      grainAmount: result[0]! as double,
+      sharpenAmount: result[1]! as double,
+      grainCells: result[2]! as int,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! DevelopTuningParams || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(grainAmount, other.grainAmount) &&
+        _deepEquals(sharpenAmount, other.sharpenAmount) &&
+        _deepEquals(grainCells, other.grainCells);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'DevelopTuningParams(grainAmount: $grainAmount, sharpenAmount: $sharpenAmount, grainCells: $grainCells)';
+  }
+}
+
 /// One element rasterized by Flutter (text, brush, sticker, overlay,
 /// frame), composited over the developed photo before encoding.
 class ExportLayer {
@@ -930,29 +986,32 @@ class _PigeonCodec extends StandardMessageCodec {
     } else if (value is DevelopParams) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
-    } else if (value is ExportLayer) {
+    } else if (value is DevelopTuningParams) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
-    } else if (value is ExportRequest) {
+    } else if (value is ExportLayer) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
-    } else if (value is VideoExportRequest) {
+    } else if (value is ExportRequest) {
       buffer.putUint8(136);
       writeValue(buffer, value.encode());
-    } else if (value is ExportResult) {
+    } else if (value is VideoExportRequest) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
-    } else if (value is ExportProgress) {
+    } else if (value is ExportResult) {
       buffer.putUint8(138);
       writeValue(buffer, value.encode());
-    } else if (value is PreviewInfo) {
+    } else if (value is ExportProgress) {
       buffer.putUint8(139);
       writeValue(buffer, value.encode());
-    } else if (value is VideoPreviewInfo) {
+    } else if (value is PreviewInfo) {
       buffer.putUint8(140);
       writeValue(buffer, value.encode());
-    } else if (value is PlaybackState) {
+    } else if (value is VideoPreviewInfo) {
       buffer.putUint8(141);
+      writeValue(buffer, value.encode());
+    } else if (value is PlaybackState) {
+      buffer.putUint8(142);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -976,20 +1035,22 @@ class _PigeonCodec extends StandardMessageCodec {
       case 133:
         return DevelopParams.decode(readValue(buffer)!);
       case 134:
-        return ExportLayer.decode(readValue(buffer)!);
+        return DevelopTuningParams.decode(readValue(buffer)!);
       case 135:
-        return ExportRequest.decode(readValue(buffer)!);
+        return ExportLayer.decode(readValue(buffer)!);
       case 136:
-        return VideoExportRequest.decode(readValue(buffer)!);
+        return ExportRequest.decode(readValue(buffer)!);
       case 137:
-        return ExportResult.decode(readValue(buffer)!);
+        return VideoExportRequest.decode(readValue(buffer)!);
       case 138:
-        return ExportProgress.decode(readValue(buffer)!);
+        return ExportResult.decode(readValue(buffer)!);
       case 139:
-        return PreviewInfo.decode(readValue(buffer)!);
+        return ExportProgress.decode(readValue(buffer)!);
       case 140:
-        return VideoPreviewInfo.decode(readValue(buffer)!);
+        return PreviewInfo.decode(readValue(buffer)!);
       case 141:
+        return VideoPreviewInfo.decode(readValue(buffer)!);
+      case 142:
         return PlaybackState.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -1426,6 +1487,47 @@ class MediaHostApi {
       isNullValid: false,
     );
     return pigeonVar_replyValue! as int;
+  }
+
+  /// Engine lab: the grain and sharpen tuning used by every render.
+  Future<DevelopTuningParams> developTuning() async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.developTuning$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as DevelopTuningParams;
+  }
+
+  /// Engine lab: changes the tuning live (previews redraw on next update).
+  Future<void> setDevelopTuning(DevelopTuningParams tuning) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.auvie.MediaHostApi.setDevelopTuning$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[tuning],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   /// Develops at full size, saves to Pictures/Auvie and keeps an app copy.

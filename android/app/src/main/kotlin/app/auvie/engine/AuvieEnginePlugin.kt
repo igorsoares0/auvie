@@ -8,6 +8,8 @@ import android.os.Handler
 import android.os.Looper
 import android.os.storage.StorageManager
 import app.auvie.engine.develop.DevelopSettings
+import app.auvie.engine.develop.DevelopTuning
+import app.auvie.engine.pigeon.DevelopTuningParams
 import app.auvie.engine.develop.Geometry
 import app.auvie.engine.export.ExportStore
 import app.auvie.engine.export.GallerySaver
@@ -269,6 +271,21 @@ class AuvieEnginePlugin : FlutterPlugin, ActivityAware, MediaHostApi {
         } catch (e: IllegalArgumentException) {
             throw FlutterError(EngineErrors.INVALID_PARAMS, e.message)
         }
+    }
+
+    override fun developTuning(): DevelopTuningParams = DevelopTuningParams(
+        DevelopTuning.grainAmount.toDouble(),
+        DevelopTuning.sharpenAmount.toDouble(),
+        DevelopTuning.grainCells.toLong(),
+    )
+
+    override fun setDevelopTuning(tuning: DevelopTuningParams) {
+        if (tuning.grainAmount !in 0.0..2.0 || tuning.sharpenAmount !in 0.0..10.0 || tuning.grainCells !in 100..4000) {
+            throw FlutterError(EngineErrors.INVALID_PARAMS, "Tuning out of range: $tuning")
+        }
+        DevelopTuning.grainAmount = tuning.grainAmount.toFloat()
+        DevelopTuning.sharpenAmount = tuning.sharpenAmount.toFloat()
+        DevelopTuning.grainCells = tuning.grainCells.toInt()
     }
 
     override fun availableBytes(): Long =

@@ -333,6 +333,11 @@ Tamanho relativo: **P** pequeno · **M** médio · **G** grande.
   - StrictMode em debug;
   - `integration_test/perf_test.dart` mede os quadros no aparelho em profile.
 - **Loja:** `docs/legal/privacy.html` e `terms.html` (campos a preencher), `docs/STORE-LISTING.md` (textos, Data Safety, roteiro de screenshots).
+- **Calibração (2026-10-14, aprovada no aparelho):**
+  - grão como ruído suave em grumos (sem quadrados no export em resolução cheia);
+  - raio do sharpen proporcional à foto (preview e export iguais);
+  - forças em `DevelopTuning.kt`: grão 0,3 (era 0,12), sharpen 2,4 (era 1,5), 1000 grãos no lado menor; ajustáveis ao vivo no Engine lab (aba TUNING);
+  - os 6 filmes ficaram como estavam.
 
 ---
 
