@@ -2,6 +2,7 @@ import 'package:auvie/app/theme/app_theme.dart';
 import 'package:auvie/app/theme/spacing.dart';
 import 'package:auvie/app/theme/typography.dart';
 import 'package:auvie/app/widgets/auvie_icon.dart';
+import 'package:auvie/core/models/adjustment.dart';
 import 'package:auvie/features/editor/adjustments/adjustment_family.dart';
 import 'package:auvie/features/editor/adjustments/curve_editor.dart';
 import 'package:auvie/features/editor/adjustments/lens_ruler.dart';
@@ -11,8 +12,8 @@ import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// ADJUST: one parameter at a time on a ruler; swipe the name to change it;
-/// the families row switches groups.
+/// ADJUST: one parameter at a time on a ruler; its family's parameters are
+/// named above it, and the families row switches groups.
 class AdjustPanel extends ConsumerWidget {
   const new({required this.projectId, super.key});
 
@@ -41,7 +42,14 @@ class AdjustPanel extends ConsumerWidget {
       final adjustment = adjustments[session.parameter];
       final value = edit.adjustments[adjustment];
       body = Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          _ParameterTabs(
+            adjustments: adjustments,
+            active: session.parameter,
+            isEdited: (a) => edit.adjustments[a] != 0,
+            onSelect: controller.selectParameter,
+          ),
           GestureDetector(
             key: const Key('parameter-header'),
             behavior: HitTestBehavior.opaque,
@@ -49,47 +57,28 @@ class AdjustPanel extends ConsumerWidget {
               final v = d.primaryVelocity ?? 0;
               if (v.abs() > 100) controller.stepParameter(v < 0 ? 1 : -1);
             },
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AuvieSpacing.gutter,
-                AuvieSpacing.s18,
-                AuvieSpacing.gutter,
-                0,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    adjustment.label,
-                    key: const Key('parameter-name'),
-                    style: context.type.parameterName,
+            child: SizedBox(
+              height: 28,
+              width: double.infinity,
+              child: Center(
+                child: Text(
+                  adjustment.format(value),
+                  key: const Key('parameter-value'),
+                  style: AuvieTypography.serif(
+                    24,
+                    height: 1,
+                    color: value == 0
+                        ? context.palette.foreground2
+                        : context.palette.accent,
                   ),
-                  const SizedBox(width: AuvieSpacing.s10),
-                  _PositionDots(
-                    count: adjustments.length,
-                    active: session.parameter,
-                  ),
-                  const Spacer(),
-                  Text(
-                    adjustment.format(value),
-                    key: const Key('parameter-value'),
-                    style: AuvieTypography.serif(
-                      28,
-                      height: 1,
-                      color: value == 0
-                          ? context.palette.foreground2
-                          : context.palette.accent,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(
               AuvieSpacing.gutter,
-              AuvieSpacing.s12,
+              AuvieSpacing.s6,
               AuvieSpacing.gutter,
               0,
             ),
@@ -118,32 +107,146 @@ class AdjustPanel extends ConsumerWidget {
   }
 }
 
-class _PositionDots extends StatelessWidget {
-  const new({required this.count, required this.active});
+/// Every parameter of the family by name: tap one to edit it. The active
+/// one is underlined; an accent dot marks those already changed.
+class _ParameterTabs extends StatefulWidget {
+  const new({
+    required this.adjustments,
+    required this.active,
+    required this.isEdited,
+    required this.onSelect,
+  });
 
-  final int count;
+  final List<Adjustment> adjustments;
   final int active;
+  final bool Function(Adjustment) isEdited;
+  final ValueChanged<int> onSelect;
+
+  @override
+  State<_ParameterTabs> createState() => _ParameterTabsState();
+}
+
+class _ParameterTabsState extends State<_ParameterTabs> {
+  final _keys = <Adjustment, GlobalKey>{};
+
+  GlobalKey _keyOf(Adjustment adjustment) =>
+      _keys.putIfAbsent(adjustment, GlobalKey.new);
+
+  @override
+  void didUpdateWidget(_ParameterTabs old) {
+    super.didUpdateWidget(old);
+    if (old.active == widget.active && old.adjustments == widget.adjustments) {
+      return;
+    }
+    // Keeps the active name in view, also when it was swiped to.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final target = _keyOf(widget.adjustments[widget.active]).currentContext;
+      if (target == null || !target.mounted) return;
+      Scrollable.ensureVisible(
+        target,
+        alignment: 0.5,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (var i = 0; i < count; i++)
-          Padding(
-            padding: const EdgeInsets.only(right: 5),
-            child: Container(
-              width: i == active ? 5 : 4,
-              height: i == active ? 5 : 4,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: i == active ? palette.foreground : null,
-                border: i == active ? null : Border.all(color: palette.muted),
+    return SizedBox(
+      height: AuvieSpacing.minHitTarget - 4,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: AuvieSpacing.gutter),
+        child: Row(
+          children: [
+            for (final (i, adjustment) in widget.adjustments.indexed)
+              _ParameterTab(
+                key: _keyOf(adjustment),
+                tabKey: Key('parameter-${adjustment.name}'),
+                label: adjustment.label.toUpperCase(),
+                active: i == widget.active,
+                edited: widget.isEdited(adjustment),
+                color: i == widget.active ? palette.foreground : palette.muted,
+                accent: palette.accent,
+                onTap: () => widget.onSelect(i),
               ),
-            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ParameterTab extends StatelessWidget {
+  const new({
+    required this.tabKey,
+    required this.label,
+    required this.active,
+    required this.edited,
+    required this.color,
+    required this.accent,
+    required this.onTap,
+    super.key,
+  });
+
+  final Key tabKey;
+  final String label;
+  final bool active;
+  final bool edited;
+  final Color color;
+  final Color accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: active,
+      child: GestureDetector(
+        key: tabKey,
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.only(right: AuvieSpacing.s14),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    label,
+                    style: context.type.tag.copyWith(
+                      fontSize: 10.5,
+                      color: color,
+                    ),
+                  ),
+                  if (edited) ...[
+                    const SizedBox(width: 4),
+                    Container(
+                      key: Key('$label-edited'),
+                      width: 4,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: accent,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 5),
+              Container(
+                height: 1,
+                width: 28,
+                color: active ? color : Colors.transparent,
+              ),
+            ],
           ),
-      ],
+        ),
+      ),
     );
   }
 }

@@ -224,7 +224,7 @@ class EditorToolbar extends StatelessWidget {
         border: Border(top: BorderSide(color: palette.hairline)),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(top: 10, bottom: 4),
+        padding: const EdgeInsets.only(top: 6, bottom: 2),
         child: Row(
           children: [
             for (final tool in tools)
@@ -267,13 +267,13 @@ class _ToolItem extends StatelessWidget {
     final palette = context.palette;
     final color = active ? palette.foreground : palette.muted;
     return SizedBox(
-      height: 54,
+      height: 46,
       child: Column(
         children: [
           AuvieIcon(icon, color: color),
-          const SizedBox(height: 7),
+          const SizedBox(height: 3),
           Text(label, style: context.type.tag.copyWith(color: color)),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Container(
             width: 3,
             height: 3,

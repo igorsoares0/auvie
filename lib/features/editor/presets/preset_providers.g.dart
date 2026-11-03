@@ -8,14 +8,16 @@ part of 'preset_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The user's photo developed with [presetId] at full intensity (null:
-/// the original). Kept while a card shows it.
+/// The user's photo, or the video's frame at [timeMs], developed with
+/// [presetId] at full intensity (null: the original). Kept while a card
+/// shows it.
 
 @ProviderFor(presetThumbnail)
 final presetThumbnailProvider = PresetThumbnailFamily._();
 
-/// The user's photo developed with [presetId] at full intensity (null:
-/// the original). Kept while a card shows it.
+/// The user's photo, or the video's frame at [timeMs], developed with
+/// [presetId] at full intensity (null: the original). Kept while a card
+/// shows it.
 
 final class PresetThumbnailProvider
     extends
@@ -25,11 +27,12 @@ final class PresetThumbnailProvider
           FutureOr<Uint8List>
         >
     with $FutureModifier<Uint8List>, $FutureProvider<Uint8List> {
-  /// The user's photo developed with [presetId] at full intensity (null:
-  /// the original). Kept while a card shows it.
+  /// The user's photo, or the video's frame at [timeMs], developed with
+  /// [presetId] at full intensity (null: the original). Kept while a card
+  /// shows it.
   PresetThumbnailProvider._({
     required PresetThumbnailFamily super.from,
-    required (String, String?) super.argument,
+    required (String, String?, {int? timeMs}) super.argument,
   }) : super(
          retry: null,
          name: r'presetThumbnailProvider',
@@ -55,8 +58,13 @@ final class PresetThumbnailProvider
 
   @override
   FutureOr<Uint8List> create(Ref ref) {
-    final argument = this.argument as (String, String?);
-    return presetThumbnail(ref, argument.$1, argument.$2);
+    final argument = this.argument as (String, String?, {int? timeMs});
+    return presetThumbnail(
+      ref,
+      argument.$1,
+      argument.$2,
+      timeMs: argument.timeMs,
+    );
   }
 
   @override
@@ -70,13 +78,18 @@ final class PresetThumbnailProvider
   }
 }
 
-String _$presetThumbnailHash() => r'3b9c5d6e2327a8594988241a029fbe5517d10570';
+String _$presetThumbnailHash() => r'15bf148a1659049236e25f316e655cb0812f7f74';
 
-/// The user's photo developed with [presetId] at full intensity (null:
-/// the original). Kept while a card shows it.
+/// The user's photo, or the video's frame at [timeMs], developed with
+/// [presetId] at full intensity (null: the original). Kept while a card
+/// shows it.
 
 final class PresetThumbnailFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<Uint8List>, (String, String?)> {
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Uint8List>,
+          (String, String?, {int? timeMs})
+        > {
   PresetThumbnailFamily._()
     : super(
         retry: null,
@@ -86,11 +99,15 @@ final class PresetThumbnailFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// The user's photo developed with [presetId] at full intensity (null:
-  /// the original). Kept while a card shows it.
+  /// The user's photo, or the video's frame at [timeMs], developed with
+  /// [presetId] at full intensity (null: the original). Kept while a card
+  /// shows it.
 
-  PresetThumbnailProvider call(String uri, String? presetId) =>
-      PresetThumbnailProvider._(argument: (uri, presetId), from: this);
+  PresetThumbnailProvider call(String uri, String? presetId, {int? timeMs}) =>
+      PresetThumbnailProvider._(
+        argument: (uri, presetId, timeMs: timeMs),
+        from: this,
+      );
 
   @override
   String toString() => r'presetThumbnailProvider';

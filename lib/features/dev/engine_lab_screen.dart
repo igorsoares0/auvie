@@ -188,9 +188,8 @@ class _EngineLabScreenState extends ConsumerState<EngineLabScreen> {
   Future<void> _copyJson() async {
     final json = _labJson();
     unawaited(
-      Clipboard.setData(
-        ClipboardData(text: json),
-      ).catchError((Object e) => debugPrint('Clipboard: $e')),
+      Clipboard.setData(ClipboardData(text: json))
+          .catchError((Object e) => debugPrint('Clipboard: $e')),
     );
     await showDialog<void>(
       context: context,

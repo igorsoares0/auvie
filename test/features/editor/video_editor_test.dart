@@ -74,6 +74,46 @@ void main() {
     await settle(tester);
   });
 
+  testWidgets('FILM previews the films on a frame of the video', (
+    tester,
+  ) async {
+    await openEditor(tester);
+
+    await tapKey(tester, 'tool-film');
+
+    // Never as a photo: a video can't be decoded as one.
+    expect(
+      app.engine.calls,
+      contains('renderVideoFrame(${videoMedia.uri}, 270, 0)'),
+    );
+    expect(app.engine.calls.where((c) => c.startsWith('renderPhoto')), isEmpty);
+    await settle(tester);
+  });
+
+  testWidgets('the video gets the room the compact tools leave', (
+    tester,
+  ) async {
+    await openEditor(tester);
+    double height() =>
+        tester.getSize(find.byKey(const Key('editor-preview'))).height;
+
+    final compact = height();
+    await tapKey(tester, 'tool-type');
+    final tall = height();
+
+    expect(compact, greaterThan(tall + 70));
+    await settle(tester);
+  });
+
+  testWidgets('every tool fits its panel on a video', (tester) async {
+    await openEditor(tester);
+    for (final tool in EditorTool.values) {
+      await tapKey(tester, 'tool-${tool.name}');
+    }
+    expect(tester.takeException(), isNull);
+    await settle(tester);
+  });
+
   testWidgets('play / pause and the timecode follow the player', (
     tester,
   ) async {

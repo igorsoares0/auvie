@@ -89,6 +89,14 @@ abstract class EditorSession with _$EditorSession {
 
   EditElement? get selected => element(selectedElementId);
 
+  /// Tools with more controls than the compact panel holds.
+  bool get needsTallPanel => switch (tool) {
+    EditorTool.type || EditorTool.brush => true,
+    EditorTool.adjust => !family.usesRuler,
+    EditorTool.add => addTab == AddTab.overlays,
+    EditorTool.trim || EditorTool.film => false,
+  };
+
   bool get isVideo => project.media.type == MediaType.video;
 
   /// The trim and sound of a video (default for photos, unused).

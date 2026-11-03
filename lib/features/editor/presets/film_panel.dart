@@ -38,20 +38,22 @@ class FilmPanel extends ConsumerWidget {
         ? [for (final id in favorites) ?catalog.presetById(id)]
         : catalog.presetsIn(category);
     final ref_ = session.edit.preset;
+    // Videos preview films on the first frame the trim keeps.
+    final timeMs = session.isVideo ? session.timeline.trimStartMs : null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: AuvieSpacing.s12),
+        const SizedBox(height: AuvieSpacing.s8),
         _Categories(
           catalog: catalog,
           saved: ref.watch(favoriteCollectionsProvider).value ?? const [],
           active: category,
           onSelect: controller.selectCategory,
         ),
-        const SizedBox(height: AuvieSpacing.s12),
+        const SizedBox(height: AuvieSpacing.s8),
         SizedBox(
-          height: 150,
+          height: 116,
           child: presets.isEmpty && category == savedCategory
               ? Padding(
                   padding: const EdgeInsets.symmetric(
@@ -75,6 +77,7 @@ class FilmPanel extends ConsumerWidget {
                   children: [
                     _PresetCard(
                       uri: session.project.media.uri,
+                      timeMs: timeMs,
                       preset: null,
                       selected: ref_ == null,
                       onTap: () =>
@@ -83,6 +86,7 @@ class FilmPanel extends ConsumerWidget {
                     for (final preset in presets)
                       _PresetCard(
                         uri: session.project.media.uri,
+                        timeMs: timeMs,
                         preset: preset,
                         selected: ref_?.presetId == preset.id,
                         onTap: () => controller.applyPreset(preset.id),
@@ -173,6 +177,7 @@ class _Categories extends StatelessWidget {
 class _PresetCard extends ConsumerWidget {
   const new({
     required this.uri,
+    required this.timeMs,
     required this.preset,
     required this.selected,
     required this.onTap,
@@ -180,6 +185,9 @@ class _PresetCard extends ConsumerWidget {
   });
 
   final String uri;
+
+  /// The frame to develop, for videos.
+  final int? timeMs;
   final Preset? preset;
   final bool selected;
   final VoidCallback onTap;
@@ -188,7 +196,9 @@ class _PresetCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = context.palette;
-    final image = ref.watch(presetThumbnailProvider(uri, preset?.id)).value;
+    final image = ref
+        .watch(presetThumbnailProvider(uri, preset?.id, timeMs: timeMs))
+        .value;
     final name = preset == null ? 'Original' : presetBaseName(preset!.name);
     return Padding(
       padding: const EdgeInsets.only(right: AuvieSpacing.s14),
@@ -206,7 +216,7 @@ class _PresetCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  height: 90,
+                  height: 66,
                   child: Stack(
                     clipBehavior: Clip.none,
                     fit: StackFit.expand,
@@ -255,9 +265,9 @@ class _PresetCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 7),
+                const SizedBox(height: 5),
                 ToneStripBar(tone: preset?.tone),
-                const SizedBox(height: 7),
+                const SizedBox(height: 5),
                 Text(
                   name,
                   maxLines: 1,
@@ -308,43 +318,44 @@ class _Intensity extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AuvieSpacing.gutter,
-        AuvieSpacing.s12,
+        4,
         AuvieSpacing.gutter,
         0,
       ),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                'Intensity',
-                style: AuvieTypography.serif(
-                  22,
-                  italic: true,
-                  color: palette.foreground,
-                ),
+      child: SizedBox(
+        height: 34,
+        child: Row(
+          children: [
+            Text(
+              'Intensity',
+              style: AuvieTypography.serif(
+                17,
+                italic: true,
+                color: palette.foreground,
               ),
-              const Spacer(),
-              Text(
+            ),
+            const SizedBox(width: AuvieSpacing.s12),
+            Expanded(
+              child: Slider(
+                key: const Key('intensity-slider'),
+                value: value,
+                onChanged: onChanged,
+                onChangeEnd: onChangeEnd,
+                padding: EdgeInsets.zero,
+              ),
+            ),
+            const SizedBox(width: AuvieSpacing.s12),
+            SizedBox(
+              width: 32,
+              child: Text(
                 '${(value * 100).round()}',
                 key: const Key('intensity-value'),
-                style: AuvieTypography.serif(22, color: palette.accent),
+                textAlign: TextAlign.end,
+                style: AuvieTypography.serif(17, color: palette.accent),
               ),
-            ],
-          ),
-          SizedBox(
-            height: 30,
-            child: Slider(
-              key: const Key('intensity-slider'),
-              value: value,
-              onChanged: onChanged,
-              onChangeEnd: onChangeEnd,
-              padding: EdgeInsets.zero,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

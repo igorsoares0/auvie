@@ -134,6 +134,10 @@ class EditorController extends _$EditorController {
     _update(_session.copyWith(family: family, parameter: 0), save: false);
   }
 
+  /// Chooses a parameter of the family by its position.
+  void selectParameter(int index) =>
+      _update(_session.copyWith(parameter: index), save: false);
+
   /// Moves to the next (+1) or previous (−1) parameter of the family.
   void stepParameter(int delta) {
     final count = _session.family.adjustments.length;

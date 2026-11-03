@@ -39,7 +39,7 @@ class TimelinePanel extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AuvieSpacing.gutter,
-        AuvieSpacing.s14,
+        AuvieSpacing.s8,
         AuvieSpacing.gutter,
         0,
       ),

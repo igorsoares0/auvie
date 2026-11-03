@@ -13,23 +13,33 @@ part 'preset_providers.g.dart';
 /// Longer side of a preset card preview: 90 pt at 3x.
 const presetThumbnailPx = 270;
 
-/// The user's photo developed with [presetId] at full intensity (null:
-/// the original). Kept while a card shows it.
+/// The user's photo, or the video's frame at [timeMs], developed with
+/// [presetId] at full intensity (null: the original). Kept while a card
+/// shows it.
 @riverpod
-Future<Uint8List> presetThumbnail(Ref ref, String uri, String? presetId) async {
+Future<Uint8List> presetThumbnail(
+  Ref ref,
+  String uri,
+  String? presetId, {
+  int? timeMs,
+}) async {
   final catalog = await ref.watch(catalogProvider.future);
   final preset = presetId == null ? null : catalog.presetById(presetId);
   final edit = preset == null
       ? const EditState()
       : const EditState().withPreset(preset.id);
-  return await ref
-      .watch(mediaEngineProvider)
-      .renderPhoto(
-        uri,
-        // No crop on preset cards, so the media ratio doesn't matter.
-        RenderParams.fromEdit(edit, preset, mediaRatio: 1),
-        maxPx: presetThumbnailPx,
-      );
+  final engine = ref.watch(mediaEngineProvider);
+  // No crop on preset cards, so the media ratio doesn't matter.
+  final params = RenderParams.fromEdit(edit, preset, mediaRatio: 1);
+  if (timeMs != null) {
+    return await engine.renderVideoFrame(
+      uri,
+      params,
+      maxPx: presetThumbnailPx,
+      timeMs: timeMs,
+    );
+  }
+  return await engine.renderPhoto(uri, params, maxPx: presetThumbnailPx);
 }
 
 /// Preset ids saved as favorites (FILM → SAVED), newest first.

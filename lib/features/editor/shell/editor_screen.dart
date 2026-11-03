@@ -23,15 +23,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 /// The editor (handoffs "Photo editor" and 05 "Video"): the media fills
-/// the space, the tool panel cross-fades below it and the media never
-/// moves. Videos add the transport row and the TRIM timeline.
+/// the space and the tool panel cross-fades below it, as short as the tool
+/// allows. Videos add the transport row and the TRIM timeline.
 class EditorScreen extends ConsumerStatefulWidget {
   const new({required this.projectId, super.key});
 
   final String projectId;
 
-  /// Fixed so switching tools doesn't move the photo.
-  static const panelHeight = 280.0;
+  /// Most tools fit here, leaving the space to the media.
+  static const compactPanelHeight = 200.0;
+
+  /// For the tools with more controls (`EditorSession.needsTallPanel`).
+  static const tallPanelHeight = 280.0;
 
   @override
   ConsumerState<EditorScreen> createState() => _EditorScreenState();
@@ -175,6 +178,9 @@ class _Editor extends ConsumerWidget {
       EditorTool.add => AddPanel(key: const ValueKey('add'), projectId: id),
     };
     final typing = session.editingElementId != null;
+    final panelHeight = session.needsTallPanel
+        ? EditorScreen.tallPanelHeight
+        : EditorScreen.compactPanelHeight;
 
     final editor = Column(
       children: [
@@ -193,15 +199,15 @@ class _Editor extends ConsumerWidget {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
-              AuvieSpacing.gutter,
+              AuvieSpacing.s12,
               4,
-              AuvieSpacing.gutter,
+              AuvieSpacing.s12,
               0,
             ),
             child: EditorPreview(projectId: id),
           ),
         ),
-        const SizedBox(height: AuvieSpacing.s8),
+        const SizedBox(height: 4),
         if (session.isVideo)
           VideoTransport(projectId: id)
         else
@@ -213,13 +219,31 @@ class _Editor extends ConsumerWidget {
             onRedo: controller.redo,
             showCompareHint: session.tool == EditorTool.film,
           ),
+        // While cross-fading, each panel keeps its own height: a tall one
+        // leaving is clipped, never squeezed into a compact space.
         SizedBox(
-          height: EditorScreen.panelHeight,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 180),
-            switchInCurve: Curves.easeOut,
-            switchOutCurve: Curves.easeOut,
-            child: panel,
+          height: panelHeight,
+          child: ClipRect(
+            child: OverflowBox(
+              alignment: Alignment.topCenter,
+              minHeight: 0,
+              maxHeight: EditorScreen.tallPanelHeight,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 180),
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeOut,
+                layoutBuilder: (current, previous) => Stack(
+                  alignment: Alignment.topCenter,
+                  children: [...previous, ?current],
+                ),
+                child: SizedBox(
+                  key: ValueKey(session.tool),
+                  width: double.infinity,
+                  height: panelHeight,
+                  child: panel,
+                ),
+              ),
+            ),
           ),
         ),
         EditorToolbar(

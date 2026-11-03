@@ -2,6 +2,7 @@ import 'package:auvie/app/router/routes.dart';
 import 'package:auvie/core/models/adjustment.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
+import 'package:auvie/features/editor/adjustments/adjustment_family.dart';
 import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:auvie/features/home/home_screen.dart';
 import 'package:flutter/gestures.dart';
@@ -85,7 +86,7 @@ void main() {
     await openEditor(tester);
     await tapKey(tester, 'tool-adjust');
 
-    expect(find.text('Exposure'), findsOneWidget);
+    expect(find.text('EXPOSURE'), findsOneWidget);
     expect(find.text('0.00'), findsOneWidget);
 
     await tester.drag(find.byKey(const Key('lens-ruler')), const Offset(60, 0));
@@ -109,13 +110,50 @@ void main() {
       1000,
     );
     await tester.pumpAndSettle();
-    expect(find.text('Brightness'), findsOneWidget);
+    final editor = editorControllerProvider(project.id);
+    expect(app.container.read(editor).requireValue.parameter, 1);
 
     await tapKey(tester, 'family-color');
-    expect(find.text('Saturation'), findsOneWidget);
+    expect(find.text('SATURATION'), findsOneWidget);
 
     await tapKey(tester, 'family-curve');
     expect(find.byKey(const Key('curve-area')), findsOneWidget);
+  });
+
+  testWidgets('every parameter is named and one tap away', (tester) async {
+    await openEditor(tester);
+    await tapKey(tester, 'tool-adjust');
+
+    for (final name in ['EXPOSURE', 'BRIGHTNESS', 'CONTRAST']) {
+      expect(find.text(name).hitTestable(), findsOneWidget);
+    }
+    await tapKey(tester, 'parameter-contrast');
+    await tester.drag(find.byKey(const Key('lens-ruler')), const Offset(60, 0));
+    await tester.pumpAndSettle();
+
+    final adjustments = app.engine.updates.last.$2.adjustments;
+    expect(adjustments[Adjustment.contrast], greaterThan(0));
+    expect(adjustments[Adjustment.exposure], 0);
+    // The changed one is marked, so edits are never hidden.
+    expect(find.byKey(const Key('CONTRAST-edited')), findsOneWidget);
+    expect(find.byKey(const Key('EXPOSURE-edited')), findsNothing);
+    await tester.pump(EditorController.saveDelay);
+  });
+
+  testWidgets('every tool fits its panel', (tester) async {
+    await openEditor(tester);
+    await tapKey(tester, 'preset-ektar_02'); // FILM with its intensity row.
+    await tapKey(tester, 'tool-adjust');
+    for (final family in AdjustmentFamily.values) {
+      await tapKey(tester, 'family-${family.name}');
+    }
+    await tapKey(tester, 'tool-type');
+    await tapKey(tester, 'tool-brush');
+    await tapKey(tester, 'tool-add');
+    await tapKey(tester, 'add-tab-Overlays');
+    await tapKey(tester, 'add-tab-Frames');
+    expect(tester.takeException(), isNull);
+    await tester.pump(EditorController.saveDelay);
   });
 
   testWidgets('switching tools keeps the edit', (tester) async {
