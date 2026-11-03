@@ -73,3 +73,30 @@ flutter:
     - family: Caveat
       fonts:
         - asset: assets/fonts/Caveat.ttf
+    - family: PlayfairDisplay
+      fonts:
+        - asset: assets/fonts/PlayfairDisplay.ttf
+    - family: AbrilFatface
+      fonts:
+        - asset: assets/fonts/AbrilFatface.ttf
+    - family: BebasNeue
+      fonts:
+        - asset: assets/fonts/BebasNeue.ttf
+    - family: SpecialElite
+      fonts:
+        - asset: assets/fonts/SpecialElite.ttf
+    - family: Shrikhand
+      fonts:
+        - asset: assets/fonts/Shrikhand.ttf
+    - family: Yellowtail
+      fonts:
+        - asset: assets/fonts/Yellowtail.ttf
+    - family: PirataOne
+      fonts:
+        - asset: assets/fonts/PirataOne.ttf
+    - family: PermanentMarker
+      fonts:
+        - asset: assets/fonts/PermanentMarker.ttf
+    - family: VT323
+      fonts:
+        - asset: assets/fonts/VT323.ttf

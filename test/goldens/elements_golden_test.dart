@@ -14,6 +14,8 @@ import 'package:auvie/features/editor/elements/element_assets_provider.dart';
 import 'package:auvie/features/editor/elements/elements_painter.dart';
 import 'package:auvie/features/editor/elements/frame_renderer.dart';
 import 'package:auvie/features/editor/elements/overlay_renderer.dart';
+import 'package:auvie/features/editor/elements/text_presets.dart';
+import 'package:auvie/features/editor/elements/text_renderer.dart';
 import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -247,6 +249,46 @@ void main() {
       await expectLater(
         find.byType(RepaintBoundary).first,
         matchesGoldenFile('screens/stickers.png'),
+      );
+    });
+
+    testWidgets('every text preset', (tester) async {
+      await tester.pumpWidget(
+        Center(
+          child: RepaintBoundary(
+            child: Container(
+              width: 760,
+              color: const Color(0xFF15120F),
+              child: Wrap(
+                textDirection: TextDirection.ltr,
+                children: [
+                  for (final preset in TextPreset.values)
+                    SizedBox(
+                      width: 380,
+                      height: 68,
+                      child: Center(
+                        child: Text(
+                          preset.style.uppercase
+                              ? 'CORAÇÃO, 12.08'
+                              : 'Coração, 12.08',
+                          textDirection: TextDirection.ltr,
+                          maxLines: 1,
+                          style: TextRenderer.textStyle(
+                            preset.style.copyWith(color: 0xFFF6F0E6),
+                            const Size(520, 520),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await expectLater(
+        find.byType(RepaintBoundary).first,
+        matchesGoldenFile('screens/type_presets.png'),
       );
     });
 

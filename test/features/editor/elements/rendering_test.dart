@@ -77,6 +77,17 @@ void main() {
     expect(TextPreset.byId('nope'), isNull);
   });
 
+  test('every text preset uses a bundled font', () {
+    final pubspec = File('pubspec.yaml').readAsStringSync();
+    for (final preset in TextPreset.values) {
+      expect(
+        pubspec,
+        contains('family: ${preset.style.fontFamily}\n'),
+        reason: preset.name,
+      );
+    }
+  });
+
   test('overlays draw the same every time', () async {
     Future<Uint8List> dust() => _render(const Size(120, 80), (canvas) {
       OverlayRenderer.paint(canvas, const Size(120, 80), const {

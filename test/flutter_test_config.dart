@@ -20,6 +20,15 @@ const _fonts = {
   'Geist': ['assets/fonts/Geist.ttf'],
   'IBMPlexMono': ['assets/fonts/IBMPlexMono-Regular.ttf'],
   'Caveat': ['assets/fonts/Caveat.ttf'],
+  'PlayfairDisplay': ['assets/fonts/PlayfairDisplay.ttf'],
+  'AbrilFatface': ['assets/fonts/AbrilFatface.ttf'],
+  'BebasNeue': ['assets/fonts/BebasNeue.ttf'],
+  'SpecialElite': ['assets/fonts/SpecialElite.ttf'],
+  'Shrikhand': ['assets/fonts/Shrikhand.ttf'],
+  'Yellowtail': ['assets/fonts/Yellowtail.ttf'],
+  'PirataOne': ['assets/fonts/PirataOne.ttf'],
+  'PermanentMarker': ['assets/fonts/PermanentMarker.ttf'],
+  'VT323': ['assets/fonts/VT323.ttf'],
 };
 
 Future<void> _loadAppFonts() async {

@@ -52,6 +52,74 @@ enum TextPreset {
       letterSpacing: 0.12,
       uppercase: true,
     ),
+  ),
+
+  /// A magazine headline.
+  editorial(
+    'Editorial',
+    TextStyleSpec(
+      fontFamily: 'PlayfairDisplay',
+      fontSize: 0.07,
+      fontWeight: 700,
+      lineHeight: 1.05,
+    ),
+  ),
+  fatface(
+    'Fatface',
+    TextStyleSpec(
+      fontFamily: 'AbrilFatface',
+      fontSize: 0.075,
+      lineHeight: 1.05,
+    ),
+  ),
+
+  /// Condensed capitals, as on a cinema bill.
+  poster(
+    'Poster',
+    TextStyleSpec(
+      fontFamily: 'BebasNeue',
+      fontSize: 0.1,
+      letterSpacing: 0.04,
+      lineHeight: 1,
+      uppercase: true,
+    ),
+  ),
+
+  /// A typewriter with a worn ribbon.
+  worn(
+    'Worn',
+    TextStyleSpec(fontFamily: 'SpecialElite', fontSize: 0.05, lineHeight: 1.25),
+  ),
+
+  /// Seventies display.
+  retro(
+    'Retro',
+    TextStyleSpec(fontFamily: 'Shrikhand', fontSize: 0.07, lineHeight: 1.1),
+  ),
+
+  /// Sign painter's script.
+  script(
+    'Script',
+    TextStyleSpec(fontFamily: 'Yellowtail', fontSize: 0.085, lineHeight: 1.1),
+  ),
+
+  /// Blackletter.
+  gothic(
+    'Gothic',
+    TextStyleSpec(fontFamily: 'PirataOne', fontSize: 0.085, lineHeight: 1.1),
+  ),
+  marker('Marker', TextStyleSpec(fontFamily: 'PermanentMarker')),
+
+  /// The orange date a film camera burns into the corner.
+  dateStamp(
+    'Date stamp',
+    TextStyleSpec(
+      fontFamily: 'VT323',
+      fontSize: 0.065,
+      letterSpacing: 0.06,
+      lineHeight: 1,
+      uppercase: true,
+    ),
   );
 
   new(this.label, this.style);
