@@ -19,7 +19,7 @@ Textos em inglês (D16). Arte em `docs/store/` (gerada por `test/tool/brand_rend
 >
 > **Write on it.** Set type in editorial styles, or draw a line with your finger and let the words follow it. Add a sticker, a light leak, a film burn or a 35 mm frame.
 >
-> **Films too.** Trim your videos, grade them with the same films, place text and drawings exactly when you want them, mute the sound, and export in 720p, 1080p or the original size, in the background.
+> **Films too.** Trim your videos, grade them with the same films, place text and stickers exactly when you want them, mute the sound, and export in 720p, 1080p or the original size, in the background.
 >
 > **Private by design.** Your photos and videos never leave your phone. No account, no ads, no tracking.
 >

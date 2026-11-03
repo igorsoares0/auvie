@@ -209,11 +209,18 @@ void main() {
         'cendre_11',
         'vitrine',
         'portra_fade',
+        'vermeil_64',
+        'instant_70',
+        'ambre_72',
+        'albumine_08',
         'nocturne_19',
       ]);
       expect(catalog.presets.every((p) => p.tone != null), isTrue);
       expect(catalog.presets.where((p) => p.isPremium).map((p) => p.id), [
         'portra_fade',
+        'instant_70',
+        'ambre_72',
+        'albumine_08',
         'nocturne_19',
       ]);
       expect(catalog.presetById('portra_fade')!.curves, isNotNull);

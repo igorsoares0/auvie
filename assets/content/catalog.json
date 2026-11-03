@@ -1,5 +1,5 @@
 {
-  "catalogVersion": 3,
+  "catalogVersion": 4,
   "edition": {
     "number": 12,
     "season": "Autumn",
@@ -167,6 +167,301 @@
         }
       },
       "description": "Lifted blacks"
+    },
+    {
+      "id": "vermeil_64",
+      "name": "Vermeil 64",
+      "collectionId": "vintage",
+      "stock": "Slide",
+      "iso": 64,
+      "tone": {
+        "highlight": "#ecd2a4",
+        "mid": "#b0482f",
+        "shadow": "#2a1a18"
+      },
+      "settings": {
+        "contrast": 0.1,
+        "highlights": -0.1,
+        "saturation": 0.06,
+        "temperature": 0.06,
+        "tint": 0.02,
+        "grain": 0.1,
+        "vignette": 0.12
+      },
+      "curves": {
+        "red": {
+          "points": [
+            {
+              "x": 0,
+              "y": 0
+            },
+            {
+              "x": 0.5,
+              "y": 0.52
+            },
+            {
+              "x": 1,
+              "y": 1
+            }
+          ]
+        },
+        "blue": {
+          "points": [
+            {
+              "x": 0,
+              "y": 0.03
+            },
+            {
+              "x": 0.5,
+              "y": 0.46
+            },
+            {
+              "x": 1,
+              "y": 0.94
+            }
+          ]
+        },
+        "master": {
+          "points": [
+            {
+              "x": 0,
+              "y": 0.02
+            },
+            {
+              "x": 0.5,
+              "y": 0.5
+            },
+            {
+              "x": 1,
+              "y": 0.98
+            }
+          ]
+        }
+      },
+      "description": "Rich reds, deep shadow"
+    },
+    {
+      "id": "instant_70",
+      "name": "Instant 70",
+      "collectionId": "vintage",
+      "isPremium": true,
+      "stock": "Instant",
+      "iso": 100,
+      "tone": {
+        "highlight": "#efe6c8",
+        "mid": "#9aa58a",
+        "shadow": "#3a4640"
+      },
+      "settings": {
+        "exposure": 0.04,
+        "contrast": -0.12,
+        "highlights": -0.1,
+        "saturation": -0.12,
+        "temperature": 0.05,
+        "tint": -0.04,
+        "grain": 0.14,
+        "fade": 0.2,
+        "vignette": 0.14
+      },
+      "curves": {
+        "master": {
+          "points": [
+            {
+              "x": 0,
+              "y": 0.06
+            },
+            {
+              "x": 0.5,
+              "y": 0.53
+            },
+            {
+              "x": 1,
+              "y": 0.97
+            }
+          ]
+        },
+        "green": {
+          "points": [
+            {
+              "x": 0,
+              "y": 0.03
+            },
+            {
+              "x": 0.5,
+              "y": 0.51
+            },
+            {
+              "x": 1,
+              "y": 1
+            }
+          ]
+        },
+        "blue": {
+          "points": [
+            {
+              "x": 0,
+              "y": 0.06
+            },
+            {
+              "x": 0.5,
+              "y": 0.48
+            },
+            {
+              "x": 1,
+              "y": 0.88
+            }
+          ]
+        }
+      },
+      "description": "Cream whites, green shadow"
+    },
+    {
+      "id": "ambre_72",
+      "name": "Ambre 72",
+      "collectionId": "vintage",
+      "isPremium": true,
+      "stock": "Expired neg.",
+      "iso": 200,
+      "tone": {
+        "highlight": "#ecd09a",
+        "mid": "#b98a4e",
+        "shadow": "#4a3826"
+      },
+      "settings": {
+        "exposure": 0.02,
+        "contrast": -0.1,
+        "highlights": -0.2,
+        "shadows": 0.12,
+        "saturation": -0.22,
+        "temperature": 0.22,
+        "tint": -0.03,
+        "grain": 0.3,
+        "fade": 0.26,
+        "vignette": 0.2
+      },
+      "curves": {
+        "master": {
+          "points": [
+            {
+              "x": 0,
+              "y": 0.07
+            },
+            {
+              "x": 0.5,
+              "y": 0.51
+            },
+            {
+              "x": 1,
+              "y": 0.96
+            }
+          ]
+        },
+        "blue": {
+          "points": [
+            {
+              "x": 0,
+              "y": 0.02
+            },
+            {
+              "x": 0.5,
+              "y": 0.42
+            },
+            {
+              "x": 1,
+              "y": 0.82
+            }
+          ]
+        },
+        "green": {
+          "points": [
+            {
+              "x": 0,
+              "y": 0
+            },
+            {
+              "x": 0.5,
+              "y": 0.48
+            },
+            {
+              "x": 1,
+              "y": 0.95
+            }
+          ]
+        }
+      },
+      "description": "Amber, gone soft"
+    },
+    {
+      "id": "albumine_08",
+      "name": "Albumine 08",
+      "collectionId": "vintage",
+      "isPremium": true,
+      "stock": "Sepia print",
+      "iso": 25,
+      "tone": {
+        "highlight": "#e8d3b0",
+        "mid": "#9a6f49",
+        "shadow": "#33221a"
+      },
+      "settings": {
+        "contrast": 0.06,
+        "highlights": -0.12,
+        "saturation": -1,
+        "grain": 0.24,
+        "fade": 0.16,
+        "vignette": 0.3
+      },
+      "curves": {
+        "red": {
+          "points": [
+            {
+              "x": 0,
+              "y": 0.06
+            },
+            {
+              "x": 0.5,
+              "y": 0.56
+            },
+            {
+              "x": 1,
+              "y": 0.97
+            }
+          ]
+        },
+        "green": {
+          "points": [
+            {
+              "x": 0,
+              "y": 0.03
+            },
+            {
+              "x": 0.5,
+              "y": 0.46
+            },
+            {
+              "x": 1,
+              "y": 0.9
+            }
+          ]
+        },
+        "blue": {
+          "points": [
+            {
+              "x": 0,
+              "y": 0.01
+            },
+            {
+              "x": 0.5,
+              "y": 0.34
+            },
+            {
+              "x": 1,
+              "y": 0.76
+            }
+          ]
+        }
+      },
+      "description": "Sepia, a century old"
     },
     {
       "id": "nocturne_19",
