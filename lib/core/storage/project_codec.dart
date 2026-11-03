@@ -4,12 +4,31 @@ import 'package:auvie/core/models/project.dart';
 
 /// Version of the serialized project format. Bump it and add a migration to
 /// [projectMigrations] whenever a change would break reading older JSON.
-const projectSchemaVersion = 1;
+const projectSchemaVersion = 2;
 
 typedef JsonMigration = Map<String, dynamic> Function(Map<String, dynamic>);
 
 /// Migrations keyed by the version they upgrade *from*.
-const Map<int, JsonMigration> projectMigrations = {};
+const Map<int, JsonMigration> projectMigrations = {1: _dropBrushElements};
+
+/// v2: the freehand BRUSH tool is gone; its strokes leave the edit, and
+/// everything else stays.
+Map<String, dynamic> _dropBrushElements(Map<String, dynamic> json) {
+  final edit = json['edit'];
+  if (edit is! Map<String, dynamic>) return json;
+  final elements = edit['elements'];
+  if (elements is! List) return json;
+  return {
+    ...json,
+    'edit': {
+      ...edit,
+      'elements': [
+        for (final element in elements)
+          if (element is! Map || element['type'] != 'brush') element,
+      ],
+    },
+  };
+}
 
 class ProjectFormatException implements Exception {
   const new(this.message, [this.cause]);

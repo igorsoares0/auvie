@@ -8,7 +8,6 @@ enum AuvieIcons {
   add,
   adjust,
   arrow,
-  brush,
   color,
   crop,
   curve,

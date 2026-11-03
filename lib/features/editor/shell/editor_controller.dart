@@ -32,7 +32,7 @@ class ProjectNotFoundException implements Exception {
 }
 
 /// Makes ids for new elements (overridable so tests are deterministic:
-/// brush and overlay textures are seeded by the id).
+/// overlay textures are seeded by the id).
 @Riverpod(keepAlive: true)
 String Function() elementIds(Ref ref) => const Uuid().v4;
 
@@ -127,7 +127,7 @@ class EditorController extends _$EditorController {
 
   void selectTool(EditorTool tool) {
     if (!tool.isAvailable) return;
-    _update(_session.copyWith(tool: tool, activeBrushId: null), save: false);
+    _update(_session.copyWith(tool: tool), save: false);
   }
 
   void selectFamily(AdjustmentFamily family) {
@@ -368,70 +368,8 @@ class EditorController extends _$EditorController {
     final selected = _session.selected;
     if (selected == null) return;
     record(_session.edit.removeElement(selected.id));
-    _update(
-      _session.copyWith(selectedElementId: null, activeBrushId: null),
-      save: false,
-    );
+    _update(_session.copyWith(selectedElementId: null), save: false);
   }
-
-  void setBrush(BrushSettings brush) => _update(
-    _session.copyWith(brush: brush, activeBrushId: null),
-    save: false,
-  );
-
-  /// Starts a brush stroke at [point] (output fractions).
-  void beginStroke(StrokePoint point) {
-    final active = _session.element(_session.activeBrushId);
-    final stroke = BrushStroke(points: [point]);
-    final brush = _session.brush;
-    // On a video, strokes drawn after moving the playhead out of the
-    // current drawing start a new one.
-    final playhead = ref.read(videoPlaybackProvider(projectId)).positionMs;
-    final visible = !_session.isVideo || (active?.visibleAt(playhead) ?? true);
-    if (active is BrushElement && visible) {
-      preview(
-        _session.edit.replaceElement(
-          active.copyWith(strokes: [...active.strokes, stroke]),
-        ),
-      );
-      return;
-    }
-    final id = _newId();
-    preview(
-      _session.edit.addElement(
-        _timed(
-          EditElement.brush(
-            id: id,
-            brushType: brush.type,
-            size: brush.size,
-            color: brush.color,
-            opacity: brush.opacity,
-            strokes: [stroke],
-          ),
-        ),
-      ),
-    );
-    _update(_session.copyWith(activeBrushId: id), save: false);
-  }
-
-  void extendStroke(StrokePoint point) {
-    final active = _session.element(_session.activeBrushId);
-    if (active is! BrushElement || active.strokes.isEmpty) return;
-    final last = active.strokes.last;
-    preview(
-      _session.edit.replaceElement(
-        active.copyWith(
-          strokes: [
-            ...active.strokes.sublist(0, active.strokes.length - 1),
-            last.copyWith(points: [...last.points, point]),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Each stroke is one undo step.
-  void endStroke() => commit();
 
   /// Adds a sticker in the middle, tinted with the current ink.
   void addSticker(String assetId) {

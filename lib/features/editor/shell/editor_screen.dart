@@ -6,7 +6,6 @@ import 'package:auvie/app/theme/spacing.dart';
 import 'package:auvie/app/widgets/caps_link.dart';
 import 'package:auvie/features/editor/add/add_panel.dart';
 import 'package:auvie/features/editor/adjustments/adjust_panel.dart';
-import 'package:auvie/features/editor/brush/brush_panel.dart';
 import 'package:auvie/features/editor/presets/film_panel.dart';
 import 'package:auvie/features/editor/shell/edit_caption.dart';
 import 'package:auvie/features/editor/shell/editor_chrome.dart';
@@ -171,10 +170,6 @@ class _Editor extends ConsumerWidget {
         projectId: id,
       ),
       EditorTool.type => TypePanel(key: const ValueKey('type'), projectId: id),
-      EditorTool.brush => BrushPanel(
-        key: const ValueKey('brush'),
-        projectId: id,
-      ),
       EditorTool.add => AddPanel(key: const ValueKey('add'), projectId: id),
     };
     final typing = session.editingElementId != null;

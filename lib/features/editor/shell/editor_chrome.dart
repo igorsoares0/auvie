@@ -188,7 +188,7 @@ class EditorCaption extends StatelessWidget {
   }
 }
 
-/// FILM / ADJUST / TYPE / BRUSH / ADD, with TRIM first for videos.
+/// FILM / ADJUST / TYPE / ADD, with TRIM first for videos.
 class EditorToolbar extends StatelessWidget {
   const new({
     required this.active,
@@ -197,7 +197,6 @@ class EditorToolbar extends StatelessWidget {
       EditorTool.film,
       EditorTool.adjust,
       EditorTool.type,
-      EditorTool.brush,
       EditorTool.add,
     ],
     super.key,
@@ -212,7 +211,6 @@ class EditorToolbar extends StatelessWidget {
     EditorTool.film: AuvieIcons.film,
     EditorTool.adjust: AuvieIcons.adjust,
     EditorTool.type: AuvieIcons.type,
-    EditorTool.brush: AuvieIcons.brush,
     EditorTool.add: AuvieIcons.add,
   };
 

@@ -166,28 +166,6 @@ void main() {
     await settle(tester);
   });
 
-  testWidgets('BRUSH: each stroke is one undo step', (tester) async {
-    await openEditor(tester);
-    await tapKey(tester, 'tool-brush');
-    final area = find.byKey(const Key('elements-draw'));
-
-    await tester.drag(area, const Offset(120, 40));
-    await tester.pumpAndSettle();
-    await tester.drag(area, const Offset(-60, 80));
-    await tester.pumpAndSettle();
-    expect((elements().single as BrushElement).strokes, hasLength(2));
-
-    await tapKey(tester, 'editor-undo');
-    expect((elements().single as BrushElement).strokes, hasLength(1));
-
-    await tapKey(tester, 'brush-chalk');
-    await tester.drag(area, const Offset(50, 50));
-    await tester.pumpAndSettle();
-    expect(elements(), hasLength(2));
-    expect((elements().last as BrushElement).brushType, BrushType.chalk);
-    await settle(tester);
-  });
-
   testWidgets('overlays toggle with opacity and blend; one frame at a time', (
     tester,
   ) async {

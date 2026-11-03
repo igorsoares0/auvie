@@ -16,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The TRIM tool (handoff 05): the whole clip as a FILM strip with trim
-/// handles, the TYPE / BRUSH / ADD lanes with when each element shows, the
+/// handles, the TYPE / ADD lanes with when each element shows, the
 /// SOUND waveform, a ruler and the playhead across all of them.
 class TimelinePanel extends ConsumerWidget {
   const new({required this.projectId, super.key});
@@ -51,7 +51,7 @@ class TimelinePanel extends ConsumerWidget {
           );
           final lanes = laneBars(session);
           const lanesTop = filmHeight + 10;
-          const lanesBottom = lanesTop + 4 * laneHeight + 3 * laneGap;
+          const lanesBottom = lanesTop + 3 * laneHeight + 2 * laneGap;
           return Stack(
             clipBehavior: Clip.none,
             children: [
@@ -114,7 +114,6 @@ class TimelinePanel extends ConsumerWidget {
 /// The three element lanes.
 enum LaneKind {
   type('TYPE'),
-  brush('BRUSH'),
   add('ADD');
 
   new(this.label);
@@ -123,7 +122,6 @@ enum LaneKind {
 
   static LaneKind? of(EditElement element) => switch (element) {
     TextElement() || TextPathElement() => type,
-    BrushElement() => brush,
     StickerElement() || OverlayElement() => add,
     FrameElement() => null,
   };
@@ -137,7 +135,6 @@ typedef LabeledBar = ({String id, TimeRange range, String label});
 Map<LaneKind, List<LabeledBar>> laneBars(EditorSession session) {
   final whole = TimeRange(startMs: 0, endMs: math.max(1, session.durationMs));
   final lanes = {for (final kind in LaneKind.values) kind: <LabeledBar>[]};
-  var strokes = 0;
   String name(String id) => id.replaceAll(RegExp('[_-]+'), ' ').toUpperCase();
   for (final element in session.edit.elements) {
     final kind = LaneKind.of(element);
@@ -145,7 +142,6 @@ Map<LaneKind, List<LabeledBar>> laneBars(EditorSession session) {
     final label = switch (element) {
       TextElement(:final text) || TextPathElement(:final text) =>
         text.trim().isEmpty ? 'TEXT' : text.trim().toUpperCase(),
-      BrushElement() => 'STROKE ${++strokes}',
       StickerElement(:final assetId) ||
       OverlayElement(:final assetId) => name(assetId),
       FrameElement() => '',
@@ -521,7 +517,7 @@ class _LaneState extends ConsumerState<_Lane> {
   }
 }
 
-/// TYPE bars are solid with the text; BRUSH bars hatched; ADD bars
+/// TYPE bars are solid with the text; ADD bars
 /// outlined. The selected bar shows its handles.
 class _Bar extends StatelessWidget {
   const new({required this.kind, required this.label, required this.selected});
@@ -537,7 +533,6 @@ class _Bar extends StatelessWidget {
     final ink = solid ? palette.background : palette.foreground;
     final icon = switch (kind) {
       LaneKind.type => AuvieIcons.type,
-      LaneKind.brush => AuvieIcons.brush,
       LaneKind.add => AuvieIcons.add,
     };
     final text = Row(
@@ -572,11 +567,9 @@ class _Bar extends StatelessWidget {
         children: [
           DecoratedBox(
             decoration: BoxDecoration(
-              color: solid
-                  ? palette.foreground.withValues(alpha: selected ? 1 : 0.55)
-                  : kind == LaneKind.add
-                  ? palette.foreground.withValues(alpha: 0.1)
-                  : null,
+              color: palette.foreground.withValues(
+                alpha: solid ? (selected ? 1 : 0.55) : 0.1,
+              ),
               border: solid
                   ? null
                   : Border.all(
@@ -585,13 +578,6 @@ class _Bar extends StatelessWidget {
                       ),
                     ),
             ),
-            child: kind == LaneKind.brush
-                ? CustomPaint(
-                    painter: _HatchPainter(
-                      palette.foreground.withValues(alpha: 0.28),
-                    ),
-                  )
-                : null,
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: selected ? 12 : 6),
@@ -616,30 +602,6 @@ class _Bar extends StatelessWidget {
       ),
     );
   }
-}
-
-class _HatchPainter extends CustomPainter {
-  const new(this.color);
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1;
-    canvas.clipRect(Offset.zero & size);
-    for (var x = -size.height; x < size.width; x += 5) {
-      canvas.drawLine(
-        Offset(x, size.height),
-        Offset(x + size.height, 0),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_HatchPainter old) => old.color != color;
 }
 
 /// The waveform; tap to mute or unmute.

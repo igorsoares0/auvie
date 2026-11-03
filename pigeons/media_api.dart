@@ -93,7 +93,7 @@ enum ExportFormat { jpeg, png }
 
 enum LayerBlend { normal, screen, multiply, overlay, softLight }
 
-/// One element rasterized by Flutter (text, brush, sticker, overlay,
+/// One element rasterized by Flutter (text, sticker, overlay,
 /// frame), composited over the developed photo before encoding.
 class ExportLayer {
   ExportLayer({

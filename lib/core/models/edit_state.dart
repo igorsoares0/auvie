@@ -125,10 +125,6 @@ abstract class EditState with _$EditState {
         id: newId,
         transform: shift(e.transform),
       ),
-      final BrushElement e => e.copyWith(
-        id: newId,
-        transform: shift(e.transform),
-      ),
       final StickerElement e => e.copyWith(
         id: newId,
         transform: shift(e.transform),

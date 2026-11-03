@@ -6,7 +6,6 @@ import 'package:auvie/core/models/edit_state.dart';
 import 'package:auvie/core/models/elements.dart';
 import 'package:auvie/core/native/media_engine.dart';
 import 'package:auvie/core/storage/app_paths.dart';
-import 'package:auvie/features/editor/elements/brush_renderer.dart';
 import 'package:auvie/features/editor/elements/element_assets.dart';
 import 'package:auvie/features/editor/elements/element_assets_provider.dart';
 import 'package:auvie/features/editor/elements/elements_painter.dart';
@@ -77,20 +76,7 @@ void main() {
     expect(TextPreset.byId('nope'), isNull);
   });
 
-  test('brushes and overlays draw the same every time', () async {
-    Future<Uint8List> brush() => _render(const Size(120, 80), (canvas) {
-      BrushRenderer.paintStroke(
-        canvas,
-        type: BrushType.chalk,
-        points: const [Offset(10, 40), Offset(60, 20), Offset(110, 60)],
-        pressure: const [null, null, null],
-        width: 6,
-        color: const Color(0xFFFFFFFF),
-        seed: 42,
-      );
-    });
-    expect(await brush(), await brush());
-
+  test('overlays draw the same every time', () async {
     Future<Uint8List> dust() => _render(const Size(120, 80), (canvas) {
       OverlayRenderer.paint(canvas, const Size(120, 80), const {
         'generator': 'dust',
@@ -99,21 +85,7 @@ void main() {
     expect(await dust(), await dust());
   });
 
-  test('every brush and overlay draws something', () async {
-    for (final type in BrushType.values) {
-      final pixels = await _render(const Size(80, 40), (canvas) {
-        BrushRenderer.paintStroke(
-          canvas,
-          type: type,
-          points: const [Offset(5, 20), Offset(40, 10), Offset(75, 30)],
-          pressure: const [0.2, 0.8, 0.5],
-          width: 3,
-          color: const Color(0xFFFFFFFF),
-          seed: 1,
-        );
-      });
-      expect(pixels.any((b) => b != 0), isTrue, reason: type.name);
-    }
+  test('every overlay draws something', () async {
     for (final generator in ['leak', 'burn', 'streak', 'dust', 'scratches']) {
       final pixels = await _render(const Size(80, 60), (canvas) {
         OverlayRenderer.paint(canvas, const Size(80, 60), {

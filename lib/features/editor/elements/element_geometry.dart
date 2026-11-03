@@ -149,11 +149,6 @@ abstract final class ElementGeometry {
         e.transform,
         e.style.fontSize * short * 1.2,
       ),
-      final BrushElement e => pathFrame(
-        [for (final s in e.strokes) ...s.points],
-        e.transform,
-        e.size * short * 2,
-      ),
       final StickerElement e => () {
         final side = ElementSizes.sticker * short;
         final ratio = assets.stickerRatio(e.assetId);
@@ -203,7 +198,6 @@ abstract final class ElementGeometry {
     return switch (element) {
       final TextElement e => e.copyWith(transform: apply(e.transform)),
       final TextPathElement e => e.copyWith(transform: apply(e.transform)),
-      final BrushElement e => e.copyWith(transform: apply(e.transform)),
       final StickerElement e => e.copyWith(transform: apply(e.transform)),
       OverlayElement() || FrameElement() => element,
     };

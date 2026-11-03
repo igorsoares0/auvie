@@ -70,11 +70,10 @@ void main() {
     expect(premiumContent(edit, catalog), hasLength(1));
   });
 
-  test('text and brush are never Pro; unknown content never locks', () {
+  test('text is never Pro; unknown content never locks', () {
     final edit = const EditState()
         .withPreset('gone')
         .addElement(const EditElement.text(id: 't', text: 'Hi'))
-        .addElement(const EditElement.brush(id: 'b'))
         .addElement(const EditElement.sticker(id: 's', assetId: 'removed'));
     expect(premiumContent(edit, catalog), isEmpty);
   });

@@ -1,5 +1,4 @@
 import 'package:auvie/core/models/elements.dart';
-import 'package:auvie/features/editor/elements/brush_renderer.dart';
 import 'package:auvie/features/editor/elements/element_assets.dart';
 import 'package:auvie/features/editor/elements/element_geometry.dart';
 import 'package:auvie/features/editor/elements/frame_renderer.dart';
@@ -23,7 +22,6 @@ BlendMode blendOf(EditElement element) => switch (element) {
 double opacityOf(EditElement element) => switch (element) {
   TextElement(:final opacity) ||
   TextPathElement(:final opacity) ||
-  BrushElement(:final opacity) ||
   StickerElement(:final opacity) ||
   OverlayElement(:final opacity) => opacity.clamp(0, 1).toDouble(),
   FrameElement() => 1,
@@ -55,8 +53,6 @@ abstract final class ElementDrawing {
             for (final p in e.path) Offset(p.x * size.width, p.y * size.height),
           ],
         ).paint(canvas, size);
-      case final BrushElement e:
-        BrushRenderer.paintElement(canvas, e, size, origin: frame!.pivot);
       case final StickerElement e:
         final picture = assets.stickers[e.assetId];
         if (picture != null) {

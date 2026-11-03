@@ -16,13 +16,12 @@ enum EditorTool {
   adjust,
 
   type,
-  brush,
   add;
 
   bool get isAvailable => true;
 
   static List<EditorTool> forMedia(MediaType media) => switch (media) {
-    MediaType.photo => const [film, adjust, type, brush, add],
+    MediaType.photo => const [film, adjust, type, add],
     MediaType.video => values,
   };
 }
@@ -32,17 +31,6 @@ enum TypeMode { setType, textBrush }
 
 /// ADD's tabs.
 enum AddTab { stickers, overlays, frames }
-
-/// Current BRUSH settings: `size` is a fraction of the shorter side.
-typedef BrushSettings = ({
-  BrushType type,
-  double size,
-  int color,
-  double opacity,
-});
-
-const ({int color, double opacity, double size, BrushType type}) defaultBrush =
-    (type: BrushType.pen, size: 0.008, color: 0xFFF6F0E6, opacity: 1.0);
 
 /// Special FILM category listing favorites.
 const savedCategory = 'saved';
@@ -73,10 +61,6 @@ abstract class EditorSession with _$EditorSession {
     /// Look of the next text added (when no text is selected).
     @Default(TextPreset.didone) TextPreset textPreset,
     @Default(0xFFF6F0E6) int textColor,
-    @Default(defaultBrush) BrushSettings brush,
-
-    /// Brush element strokes are added to, while its settings don't change.
-    String? activeBrushId,
     @Default(AddTab.stickers) AddTab addTab,
   }) = _EditorSession;
 
@@ -91,7 +75,7 @@ abstract class EditorSession with _$EditorSession {
 
   /// Tools with more controls than the compact panel holds.
   bool get needsTallPanel => switch (tool) {
-    EditorTool.type || EditorTool.brush => true,
+    EditorTool.type => true,
     EditorTool.adjust => !family.usesRuler,
     EditorTool.add => addTab == AddTab.overlays,
     EditorTool.trim || EditorTool.film => false,

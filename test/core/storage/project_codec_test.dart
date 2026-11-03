@@ -63,12 +63,25 @@ void main() {
     });
 
     test('fails when a step is missing', () {
-      const gap = ProjectCodec(currentVersion: 2);
+      const gap = ProjectCodec(currentVersion: 5, migrations: {});
       expect(
         () => gap.decode(jsonEncode(v1Json())),
         throwsA(isA<ProjectFormatException>()),
       );
     });
+  });
+
+  test('v1 projects lose their brush strokes and keep everything else', () {
+    final json =
+        jsonDecode(jsonEncode(richProject().toJson())) as Map<String, dynamic>;
+    final elements = (json['edit'] as Map)['elements'] as List;
+    final kept = elements.length;
+    elements.insert(1, {'type': 'brush', 'id': 'b1', 'strokes': <Object>[]});
+    json['schemaVersion'] = 1;
+
+    final project = codec.decode(jsonEncode(json));
+    expect(project.edit.elements, hasLength(kept));
+    expect(project.edit, richProject().edit);
   });
 
   group('rejects', () {

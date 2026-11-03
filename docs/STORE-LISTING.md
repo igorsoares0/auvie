@@ -17,7 +17,7 @@ Textos em inglês (D16). Arte em `docs/store/` (gerada por `test/tool/brand_rend
 >
 > **Adjust like a printer.** Exposure, contrast, highlights and shadows, white balance, curves, grain, fade and vignette, plus crop, rotate and straighten.
 >
-> **Write on it.** Set type in editorial styles, or draw a line with your finger and let the words follow it. Add a brush stroke, a sticker, a light leak, a film burn or a 35 mm frame.
+> **Write on it.** Set type in editorial styles, or draw a line with your finger and let the words follow it. Add a sticker, a light leak, a film burn or a 35 mm frame.
 >
 > **Films too.** Trim your videos, grade them with the same films, place text and drawings exactly when you want them, mute the sound, and export in 720p, 1080p or the original size, in the background.
 >

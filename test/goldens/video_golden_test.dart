@@ -15,7 +15,7 @@ import '../helpers/fixtures.dart';
 import '../helpers/pump_app.dart';
 
 void main() {
-  /// The handoff 05 frame: trimmed, a text, a stroke and a sticker on the
+  /// The handoff 05 frame: trimmed, a text and a sticker on the
   /// lanes, the playhead at 00:04.12.
   Future<(TestApp, String)> openVideo(
     WidgetTester tester,
@@ -37,19 +37,6 @@ void main() {
             text: 'After the rain',
             transform: ElementTransform(y: 0.8),
             time: TimeRange(startMs: 1400, endMs: 5600),
-          ),
-          EditElement.brush(
-            id: 'stroke',
-            strokes: [
-              BrushStroke(
-                points: [
-                  StrokePoint(x: 0.2, y: 0.3),
-                  StrokePoint(x: 0.5, y: 0.25),
-                  StrokePoint(x: 0.8, y: 0.35),
-                ],
-              ),
-            ],
-            time: TimeRange(startMs: 4800, endMs: 8600),
           ),
           EditElement.sticker(
             id: 'star',

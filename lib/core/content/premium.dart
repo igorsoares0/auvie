@@ -9,7 +9,7 @@ enum PremiumKind { preset, sticker, overlay, frame }
 typedef PremiumItem = ({PremiumKind kind, String id, String name});
 
 /// The Pro content [edit] uses (spec §50): its preset and its stickers,
-/// overlays and frames. Text and brush are never Pro. Content missing from
+/// overlays and frames. Text is never Pro. Content missing from
 /// [catalog] doesn't count, so a removed item never locks an export. Each
 /// item is listed once, preset first.
 List<PremiumItem> premiumContent(EditState edit, Catalog catalog) {
@@ -32,7 +32,7 @@ List<PremiumItem> premiumContent(EditState edit, Catalog catalog) {
       StickerElement(:final assetId) => (PremiumKind.sticker, assetId),
       OverlayElement(:final assetId) => (PremiumKind.overlay, assetId),
       FrameElement(:final assetId) => (PremiumKind.frame, assetId),
-      TextElement() || TextPathElement() || BrushElement() => (null, null),
+      TextElement() || TextPathElement() => (null, null),
     };
     if (kind == null || assetId == null) continue;
     final asset = catalog.assetById(assetId);

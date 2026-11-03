@@ -9,13 +9,13 @@ part of 'editor_controller.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// Makes ids for new elements (overridable so tests are deterministic:
-/// brush and overlay textures are seeded by the id).
+/// overlay textures are seeded by the id).
 
 @ProviderFor(elementIds)
 final elementIdsProvider = ElementIdsProvider._();
 
 /// Makes ids for new elements (overridable so tests are deterministic:
-/// brush and overlay textures are seeded by the id).
+/// overlay textures are seeded by the id).
 
 final class ElementIdsProvider
     extends
@@ -26,7 +26,7 @@ final class ElementIdsProvider
         >
     with $Provider<String Function()> {
   /// Makes ids for new elements (overridable so tests are deterministic:
-  /// brush and overlay textures are seeded by the id).
+  /// overlay textures are seeded by the id).
   ElementIdsProvider._()
     : super(
         from: null,
@@ -114,7 +114,7 @@ final class EditorControllerProvider
   }
 }
 
-String _$editorControllerHash() => r'a7fb444d54ccf90e6aedd148dbba5ed655881ae3';
+String _$editorControllerHash() => r'c5ab032fc0c19bd2d48d9fe06b17412c5f6fb35d';
 
 /// State and actions of the photo and video editors for one project.
 /// Edits autosave [saveDelay] after the last change (spec: errors never

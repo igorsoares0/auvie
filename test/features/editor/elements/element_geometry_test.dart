@@ -75,28 +75,6 @@ void main() {
     );
   });
 
-  test('a brush is framed around its strokes and moves with its transform', () {
-    const brush = EditElement.brush(
-      id: 'b',
-      strokes: [
-        BrushStroke(
-          points: [StrokePoint(x: 0.1, y: 0.1), StrokePoint(x: 0.3, y: 0.2)],
-        ),
-      ],
-    );
-    final frame = ElementGeometry.of(brush, size, assets)!;
-    expect(frame.pivot.dx, closeTo(200, 1e-9));
-    final moved = ElementGeometry.transformed(
-      brush,
-      size,
-      delta: const Offset(100, 0),
-    );
-    expect(
-      ElementGeometry.of(moved, size, assets)!.center.dx,
-      closeTo(300, 1e-9),
-    );
-  });
-
   test('transforms accumulate and keep the scale within limits', () {
     var e = sticker('a');
     e = ElementGeometry.transformed(

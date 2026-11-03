@@ -79,18 +79,6 @@ void main() {
     });
   }
 
-  testWidgets('brush', (tester) async {
-    await openEditor(tester, Brightness.dark);
-    await tap(tester, 'tool-brush');
-    final area = find.byKey(const Key('elements-draw'));
-    await drawWave(tester, area, dy: -80);
-    await tap(tester, 'brush-chalk');
-    await tap(tester, 'ink-ffe0573c');
-    await drawWave(tester, area, dy: 40);
-    await expectScreen('editor_brush_dark');
-    await tester.pump(EditorController.saveDelay);
-  });
-
   testWidgets('add, every tab', (tester) async {
     await openEditor(tester, Brightness.dark);
     await tap(tester, 'tool-add');
@@ -173,19 +161,6 @@ void main() {
                   StrokePoint(x: 0.9, y: 0.82),
                 ],
                 style: TextStyleSpec(italic: true, fontSize: 0.055),
-              ),
-              EditElement.brush(
-                id: 'b',
-                brushType: BrushType.highlighter,
-                color: 0xFFE0573C,
-                strokes: [
-                  BrushStroke(
-                    points: [
-                      StrokePoint(x: 0.15, y: 0.4),
-                      StrokePoint(x: 0.5, y: 0.38),
-                    ],
-                  ),
-                ],
               ),
               EditElement.frame(id: 'f', assetId: 'frame_print'),
             ],

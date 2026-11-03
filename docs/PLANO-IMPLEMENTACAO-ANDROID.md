@@ -403,6 +403,7 @@ Tamanho relativo: **P** pequeno · **M** médio · **G** grande.
 | D16 | Idioma no lançamento | **Só inglês** |
 | D17 | Ícone | "A." em Newsreader sobre papel, com o ponto safelight (provisório até um definitivo) |
 | D18 | Política de privacidade e termos | HTML estático em `docs/legal/`, hospedado pelo dono do projeto |
+| D19 | Pincel livre (revê D2) | **Removido**: fica só **TYPE → Text Brush**. Sai a ferramenta, a faixa BRUSH da timeline e o renderizador; o schema 2 descarta traços de projetos antigos |
 | D6 | Referência à mídia (era Q5) | URI do Photo Picker com acesso persistido (`takePersistableUriPermission`); se o provedor recusar, o arquivo é copiado para `files/projects/media/` (M2) |
 
 ## 8. Questões em aberto (decidir antes da fase indicada)

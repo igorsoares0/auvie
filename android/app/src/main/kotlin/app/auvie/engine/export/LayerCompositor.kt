@@ -12,7 +12,7 @@ import java.io.IOException
 import kotlin.math.roundToInt
 
 /**
- * Composites the elements Flutter rasterized (text, brush, stickers,
+ * Composites the elements Flutter rasterized (text, stickers,
  * overlays, frames) over the developed photo, bottom first, each with its
  * blend mode and opacity. One layer in memory at a time.
  */

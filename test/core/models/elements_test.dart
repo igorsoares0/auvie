@@ -15,7 +15,7 @@ void main() {
 
   test('JSON names the variant in "type"', () {
     final types = [for (final e in allElements) e.toJson()['type']];
-    expect(types, ['text', 'textPath', 'brush', 'sticker', 'overlay', 'frame']);
+    expect(types, ['text', 'textPath', 'sticker', 'overlay', 'frame']);
   });
 
   test('pressure is optional (devices without pressure, spec §22)', () {

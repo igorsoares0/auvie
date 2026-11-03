@@ -208,12 +208,8 @@ void main() {
   ) async {
     await openEditor(tester);
     await playheadAt(tester, 2000);
-    await tapKey(tester, 'tool-brush');
-    await tester.drag(
-      find.byKey(const Key('elements-draw')),
-      const Offset(60, 40),
-    );
-    await tester.pumpAndSettle();
+    await tapKey(tester, 'tool-add');
+    await tapKey(tester, 'asset-sticker_star');
     expect(
       session().edit.elements.single.time,
       const TimeRange(startMs: 2000, endMs: 10000),

@@ -2048,282 +2048,6 @@ as double?,
 
 }
 
-
-/// @nodoc
-mixin _$BrushStroke {
-
- List<StrokePoint> get points;
-/// Create a copy of BrushStroke
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$BrushStrokeCopyWith<BrushStroke> get copyWith => _$BrushStrokeCopyWithImpl<BrushStroke>(this as BrushStroke, _$identity);
-
-  /// Serializes this BrushStroke to a JSON map.
-  Map<String, dynamic> toJson();
-
-
-@override
-bool operator ==(Object other) {
-  final _this = this as BrushStroke;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BrushStroke&&const DeepCollectionEquality().equals(other.points, _this.points));
-}
-
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode {
-  final _this = this as BrushStroke;
-  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.points));
-}
-
-@override
-String toString() {
-  final _this = this as BrushStroke;
-  return 'BrushStroke(points: ${_this.points})';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $BrushStrokeCopyWith<$Res>  {
-  factory $BrushStrokeCopyWith(BrushStroke value, $Res Function(BrushStroke) _then) = _$BrushStrokeCopyWithImpl;
-@useResult
-$Res call({
- List<StrokePoint> points
-});
-
-
-
-
-}
-/// @nodoc
-class _$BrushStrokeCopyWithImpl<$Res>
-    implements $BrushStrokeCopyWith<$Res> {
-  _$BrushStrokeCopyWithImpl(this._self, this._then);
-
-  final BrushStroke _self;
-  final $Res Function(BrushStroke) _then;
-
-/// Create a copy of BrushStroke
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? points = null,}) {
-  return _then(BrushStroke(
-points: null == points ? _self.points : points // ignore: cast_nullable_to_non_nullable
-as List<StrokePoint>,
-  ));
-}
-
-}
-
-
-/// Adds pattern-matching-related methods to [BrushStroke].
-extension BrushStrokePatterns on BrushStroke {
-/// A variant of `map` that fallback to returning `orElse`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _BrushStroke value)?  $default,{required TResult orElse(),}){
-final _that = this;
-switch (_that) {
-case _BrushStroke() when $default != null:
-return $default(_that);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// Callbacks receives the raw object, upcasted.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case final Subclass2 value:
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _BrushStroke value)  $default,){
-final _that = this;
-switch (_that) {
-case _BrushStroke():
-return $default(_that);case _:
-  throw StateError('Unexpected subclass');
-
-}
-}
-/// A variant of `map` that fallback to returning `null`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _BrushStroke value)?  $default,){
-final _that = this;
-switch (_that) {
-case _BrushStroke() when $default != null:
-return $default(_that);case _:
-  return null;
-
-}
-}
-/// A variant of `when` that fallback to an `orElse` callback.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<StrokePoint> points)?  $default,{required TResult orElse(),}) {final _that = this;
-switch (_that) {
-case _BrushStroke() when $default != null:
-return $default(_that.points);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// As opposed to `map`, this offers destructuring.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case Subclass2(:final field2):
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<StrokePoint> points)  $default,) {final _that = this;
-switch (_that) {
-case _BrushStroke():
-return $default(_that.points);case _:
-  throw StateError('Unexpected subclass');
-
-}
-}
-/// A variant of `when` that fallback to returning `null`
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<StrokePoint> points)?  $default,) {final _that = this;
-switch (_that) {
-case _BrushStroke() when $default != null:
-return $default(_that.points);case _:
-  return null;
-
-}
-}
-
-}
-
-/// @nodoc
-@JsonSerializable()
-
-class _BrushStroke implements BrushStroke {
-  const _BrushStroke({ List<StrokePoint> points = const <StrokePoint>[]}): _points = points;
-  factory _BrushStroke.fromJson(Map<String, dynamic> json) => _$BrushStrokeFromJson(json);
-
- final  List<StrokePoint> _points;
-@override@JsonKey() List<StrokePoint> get points {
-  if (_points is EqualUnmodifiableListView) return _points;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_points);
-}
-
-
-/// Create a copy of BrushStroke
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-_$BrushStrokeCopyWith<_BrushStroke> get copyWith => __$BrushStrokeCopyWithImpl<_BrushStroke>(this, _$identity);
-
-@override
-Map<String, dynamic> toJson() {
-  return _$BrushStrokeToJson(this, );
-}
-
-@override
-bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrushStroke&&const DeepCollectionEquality().equals(other.points, _points));
-}
-
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode {
-    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_points));
-}
-
-@override
-String toString() {
-    return 'BrushStroke(points: $points)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class _$BrushStrokeCopyWith<$Res> implements $BrushStrokeCopyWith<$Res> {
-  factory _$BrushStrokeCopyWith(_BrushStroke value, $Res Function(_BrushStroke) _then) = __$BrushStrokeCopyWithImpl;
-@override @useResult
-$Res call({
- List<StrokePoint> points
-});
-
-
-
-
-}
-/// @nodoc
-class __$BrushStrokeCopyWithImpl<$Res>
-    implements _$BrushStrokeCopyWith<$Res> {
-  __$BrushStrokeCopyWithImpl(this._self, this._then);
-
-  final _BrushStroke _self;
-  final $Res Function(_BrushStroke) _then;
-
-/// Create a copy of BrushStroke
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? points = null,}) {
-  return _then(_BrushStroke(
-points: null == points ? _self._points : points // ignore: cast_nullable_to_non_nullable
-as List<StrokePoint>,
-  ));
-}
-
-
-}
-
 EditElement _$EditElementFromJson(
   Map<String, dynamic> json
 ) {
@@ -2334,10 +2058,6 @@ EditElement _$EditElementFromJson(
           );
                 case 'textPath':
           return TextPathElement.fromJson(
-            json
-          );
-                case 'brush':
-          return BrushElement.fromJson(
             json
           );
                 case 'sticker':
@@ -2446,13 +2166,12 @@ extension EditElementPatterns on EditElement {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( TextElement value)?  text,TResult Function( TextPathElement value)?  textPath,TResult Function( BrushElement value)?  brush,TResult Function( StickerElement value)?  sticker,TResult Function( OverlayElement value)?  overlay,TResult Function( FrameElement value)?  frame,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( TextElement value)?  text,TResult Function( TextPathElement value)?  textPath,TResult Function( StickerElement value)?  sticker,TResult Function( OverlayElement value)?  overlay,TResult Function( FrameElement value)?  frame,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case TextElement() when text != null:
 return text(_that);case TextPathElement() when textPath != null:
-return textPath(_that);case BrushElement() when brush != null:
-return brush(_that);case StickerElement() when sticker != null:
+return textPath(_that);case StickerElement() when sticker != null:
 return sticker(_that);case OverlayElement() when overlay != null:
 return overlay(_that);case FrameElement() when frame != null:
 return frame(_that);case _:
@@ -2473,13 +2192,12 @@ return frame(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( TextElement value)  text,required TResult Function( TextPathElement value)  textPath,required TResult Function( BrushElement value)  brush,required TResult Function( StickerElement value)  sticker,required TResult Function( OverlayElement value)  overlay,required TResult Function( FrameElement value)  frame,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( TextElement value)  text,required TResult Function( TextPathElement value)  textPath,required TResult Function( StickerElement value)  sticker,required TResult Function( OverlayElement value)  overlay,required TResult Function( FrameElement value)  frame,}){
 final _that = this;
 switch (_that) {
 case TextElement():
 return text(_that);case TextPathElement():
-return textPath(_that);case BrushElement():
-return brush(_that);case StickerElement():
+return textPath(_that);case StickerElement():
 return sticker(_that);case OverlayElement():
 return overlay(_that);case FrameElement():
 return frame(_that);}
@@ -2496,13 +2214,12 @@ return frame(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( TextElement value)?  text,TResult? Function( TextPathElement value)?  textPath,TResult? Function( BrushElement value)?  brush,TResult? Function( StickerElement value)?  sticker,TResult? Function( OverlayElement value)?  overlay,TResult? Function( FrameElement value)?  frame,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( TextElement value)?  text,TResult? Function( TextPathElement value)?  textPath,TResult? Function( StickerElement value)?  sticker,TResult? Function( OverlayElement value)?  overlay,TResult? Function( FrameElement value)?  frame,}){
 final _that = this;
 switch (_that) {
 case TextElement() when text != null:
 return text(_that);case TextPathElement() when textPath != null:
-return textPath(_that);case BrushElement() when brush != null:
-return brush(_that);case StickerElement() when sticker != null:
+return textPath(_that);case StickerElement() when sticker != null:
 return sticker(_that);case OverlayElement() when overlay != null:
 return overlay(_that);case FrameElement() when frame != null:
 return frame(_that);case _:
@@ -2522,12 +2239,11 @@ return frame(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String id,  String text,  TextStyleSpec style,  String? textPresetId,  ElementTransform transform,  double opacity,  TimeRange? time)?  text,TResult Function( String id,  String text,  List<StrokePoint> path,  TextStyleSpec style,  ElementTransform transform,  double opacity,  TimeRange? time)?  textPath,TResult Function( String id,  BrushType brushType,  double size,  int color,  double smoothing,  List<BrushStroke> strokes,  ElementTransform transform,  double opacity,  TimeRange? time)?  brush,TResult Function( String id,  String assetId,  int color,  ElementTransform transform,  double opacity,  TimeRange? time)?  sticker,TResult Function( String id,  String assetId,  OverlayBlend blend,  double opacity,  TimeRange? time)?  overlay,TResult Function( String id,  String assetId)?  frame,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String id,  String text,  TextStyleSpec style,  String? textPresetId,  ElementTransform transform,  double opacity,  TimeRange? time)?  text,TResult Function( String id,  String text,  List<StrokePoint> path,  TextStyleSpec style,  ElementTransform transform,  double opacity,  TimeRange? time)?  textPath,TResult Function( String id,  String assetId,  int color,  ElementTransform transform,  double opacity,  TimeRange? time)?  sticker,TResult Function( String id,  String assetId,  OverlayBlend blend,  double opacity,  TimeRange? time)?  overlay,TResult Function( String id,  String assetId)?  frame,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case TextElement() when text != null:
 return text(_that.id,_that.text,_that.style,_that.textPresetId,_that.transform,_that.opacity,_that.time);case TextPathElement() when textPath != null:
-return textPath(_that.id,_that.text,_that.path,_that.style,_that.transform,_that.opacity,_that.time);case BrushElement() when brush != null:
-return brush(_that.id,_that.brushType,_that.size,_that.color,_that.smoothing,_that.strokes,_that.transform,_that.opacity,_that.time);case StickerElement() when sticker != null:
+return textPath(_that.id,_that.text,_that.path,_that.style,_that.transform,_that.opacity,_that.time);case StickerElement() when sticker != null:
 return sticker(_that.id,_that.assetId,_that.color,_that.transform,_that.opacity,_that.time);case OverlayElement() when overlay != null:
 return overlay(_that.id,_that.assetId,_that.blend,_that.opacity,_that.time);case FrameElement() when frame != null:
 return frame(_that.id,_that.assetId);case _:
@@ -2548,12 +2264,11 @@ return frame(_that.id,_that.assetId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String id,  String text,  TextStyleSpec style,  String? textPresetId,  ElementTransform transform,  double opacity,  TimeRange? time)  text,required TResult Function( String id,  String text,  List<StrokePoint> path,  TextStyleSpec style,  ElementTransform transform,  double opacity,  TimeRange? time)  textPath,required TResult Function( String id,  BrushType brushType,  double size,  int color,  double smoothing,  List<BrushStroke> strokes,  ElementTransform transform,  double opacity,  TimeRange? time)  brush,required TResult Function( String id,  String assetId,  int color,  ElementTransform transform,  double opacity,  TimeRange? time)  sticker,required TResult Function( String id,  String assetId,  OverlayBlend blend,  double opacity,  TimeRange? time)  overlay,required TResult Function( String id,  String assetId)  frame,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String id,  String text,  TextStyleSpec style,  String? textPresetId,  ElementTransform transform,  double opacity,  TimeRange? time)  text,required TResult Function( String id,  String text,  List<StrokePoint> path,  TextStyleSpec style,  ElementTransform transform,  double opacity,  TimeRange? time)  textPath,required TResult Function( String id,  String assetId,  int color,  ElementTransform transform,  double opacity,  TimeRange? time)  sticker,required TResult Function( String id,  String assetId,  OverlayBlend blend,  double opacity,  TimeRange? time)  overlay,required TResult Function( String id,  String assetId)  frame,}) {final _that = this;
 switch (_that) {
 case TextElement():
 return text(_that.id,_that.text,_that.style,_that.textPresetId,_that.transform,_that.opacity,_that.time);case TextPathElement():
-return textPath(_that.id,_that.text,_that.path,_that.style,_that.transform,_that.opacity,_that.time);case BrushElement():
-return brush(_that.id,_that.brushType,_that.size,_that.color,_that.smoothing,_that.strokes,_that.transform,_that.opacity,_that.time);case StickerElement():
+return textPath(_that.id,_that.text,_that.path,_that.style,_that.transform,_that.opacity,_that.time);case StickerElement():
 return sticker(_that.id,_that.assetId,_that.color,_that.transform,_that.opacity,_that.time);case OverlayElement():
 return overlay(_that.id,_that.assetId,_that.blend,_that.opacity,_that.time);case FrameElement():
 return frame(_that.id,_that.assetId);}
@@ -2570,12 +2285,11 @@ return frame(_that.id,_that.assetId);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String id,  String text,  TextStyleSpec style,  String? textPresetId,  ElementTransform transform,  double opacity,  TimeRange? time)?  text,TResult? Function( String id,  String text,  List<StrokePoint> path,  TextStyleSpec style,  ElementTransform transform,  double opacity,  TimeRange? time)?  textPath,TResult? Function( String id,  BrushType brushType,  double size,  int color,  double smoothing,  List<BrushStroke> strokes,  ElementTransform transform,  double opacity,  TimeRange? time)?  brush,TResult? Function( String id,  String assetId,  int color,  ElementTransform transform,  double opacity,  TimeRange? time)?  sticker,TResult? Function( String id,  String assetId,  OverlayBlend blend,  double opacity,  TimeRange? time)?  overlay,TResult? Function( String id,  String assetId)?  frame,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String id,  String text,  TextStyleSpec style,  String? textPresetId,  ElementTransform transform,  double opacity,  TimeRange? time)?  text,TResult? Function( String id,  String text,  List<StrokePoint> path,  TextStyleSpec style,  ElementTransform transform,  double opacity,  TimeRange? time)?  textPath,TResult? Function( String id,  String assetId,  int color,  ElementTransform transform,  double opacity,  TimeRange? time)?  sticker,TResult? Function( String id,  String assetId,  OverlayBlend blend,  double opacity,  TimeRange? time)?  overlay,TResult? Function( String id,  String assetId)?  frame,}) {final _that = this;
 switch (_that) {
 case TextElement() when text != null:
 return text(_that.id,_that.text,_that.style,_that.textPresetId,_that.transform,_that.opacity,_that.time);case TextPathElement() when textPath != null:
-return textPath(_that.id,_that.text,_that.path,_that.style,_that.transform,_that.opacity,_that.time);case BrushElement() when brush != null:
-return brush(_that.id,_that.brushType,_that.size,_that.color,_that.smoothing,_that.strokes,_that.transform,_that.opacity,_that.time);case StickerElement() when sticker != null:
+return textPath(_that.id,_that.text,_that.path,_that.style,_that.transform,_that.opacity,_that.time);case StickerElement() when sticker != null:
 return sticker(_that.id,_that.assetId,_that.color,_that.transform,_that.opacity,_that.time);case OverlayElement() when overlay != null:
 return overlay(_that.id,_that.assetId,_that.blend,_that.opacity,_that.time);case FrameElement() when frame != null:
 return frame(_that.id,_that.assetId);case _:
@@ -2803,124 +2517,6 @@ $TextStyleSpecCopyWith<$Res> get style {
     return _then(_self.copyWith(style: value));
   });
 }/// Create a copy of EditElement
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$ElementTransformCopyWith<$Res> get transform {
-  
-  return $ElementTransformCopyWith<$Res>(_self.transform, (value) {
-    return _then(_self.copyWith(transform: value));
-  });
-}/// Create a copy of EditElement
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$TimeRangeCopyWith<$Res>? get time {
-    if (_self.time == null) {
-    return null;
-  }
-
-  return $TimeRangeCopyWith<$Res>(_self.time!, (value) {
-    return _then(_self.copyWith(time: value));
-  });
-}
-}
-
-/// @nodoc
-@JsonSerializable()
-
-class BrushElement implements EditElement {
-  const BrushElement({required this.id, this.brushType = BrushType.pen, this.size = 0.01, this.color = 0xFFEFE8DC, this.smoothing = 0.5,  List<BrushStroke> strokes = const <BrushStroke>[], this.transform = const ElementTransform(), this.opacity = 1, this.time,  String? $type}): _strokes = strokes,$type = $type ?? 'brush';
-  factory BrushElement.fromJson(Map<String, dynamic> json) => _$BrushElementFromJson(json);
-
-@override final  String id;
-@JsonKey() final  BrushType brushType;
-@JsonKey() final  double size;
-@JsonKey() final  int color;
-@JsonKey() final  double smoothing;
- final  List<BrushStroke> _strokes;
-@JsonKey() List<BrushStroke> get strokes {
-  if (_strokes is EqualUnmodifiableListView) return _strokes;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_strokes);
-}
-
-@JsonKey() final  ElementTransform transform;
-@JsonKey() final  double opacity;
- final  TimeRange? time;
-
-@JsonKey(name: 'type')
-final String $type;
-
-
-/// Create a copy of EditElement
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$BrushElementCopyWith<BrushElement> get copyWith => _$BrushElementCopyWithImpl<BrushElement>(this, _$identity);
-
-@override
-Map<String, dynamic> toJson() {
-  return _$BrushElementToJson(this, );
-}
-
-@override
-bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is BrushElement&&(identical(other.id, id) || other.id == id)&&(identical(other.brushType, brushType) || other.brushType == brushType)&&(identical(other.size, size) || other.size == size)&&(identical(other.color, color) || other.color == color)&&(identical(other.smoothing, smoothing) || other.smoothing == smoothing)&&const DeepCollectionEquality().equals(other.strokes, _strokes)&&(identical(other.transform, transform) || other.transform == transform)&&(identical(other.opacity, opacity) || other.opacity == opacity)&&(identical(other.time, time) || other.time == time));
-}
-
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode {
-    return Object.hash(runtimeType,id,brushType,size,color,smoothing,const DeepCollectionEquality().hash(_strokes),transform,opacity,time);
-}
-
-@override
-String toString() {
-    return 'EditElement.brush(id: $id, brushType: $brushType, size: $size, color: $color, smoothing: $smoothing, strokes: $strokes, transform: $transform, opacity: $opacity, time: $time)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $BrushElementCopyWith<$Res> implements $EditElementCopyWith<$Res> {
-  factory $BrushElementCopyWith(BrushElement value, $Res Function(BrushElement) _then) = _$BrushElementCopyWithImpl;
-@override @useResult
-$Res call({
- String id, BrushType brushType, double size, int color, double smoothing, List<BrushStroke> strokes, ElementTransform transform, double opacity, TimeRange? time
-});
-
-
-$ElementTransformCopyWith<$Res> get transform;$TimeRangeCopyWith<$Res>? get time;
-
-}
-/// @nodoc
-class _$BrushElementCopyWithImpl<$Res>
-    implements $BrushElementCopyWith<$Res> {
-  _$BrushElementCopyWithImpl(this._self, this._then);
-
-  final BrushElement _self;
-  final $Res Function(BrushElement) _then;
-
-/// Create a copy of EditElement
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? brushType = null,Object? size = null,Object? color = null,Object? smoothing = null,Object? strokes = null,Object? transform = null,Object? opacity = null,Object? time = freezed,}) {
-  return _then(BrushElement(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,brushType: null == brushType ? _self.brushType : brushType // ignore: cast_nullable_to_non_nullable
-as BrushType,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
-as double,color: null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
-as int,smoothing: null == smoothing ? _self.smoothing : smoothing // ignore: cast_nullable_to_non_nullable
-as double,strokes: null == strokes ? _self._strokes : strokes // ignore: cast_nullable_to_non_nullable
-as List<BrushStroke>,transform: null == transform ? _self.transform : transform // ignore: cast_nullable_to_non_nullable
-as ElementTransform,opacity: null == opacity ? _self.opacity : opacity // ignore: cast_nullable_to_non_nullable
-as double,time: freezed == time ? _self.time : time // ignore: cast_nullable_to_non_nullable
-as TimeRange?,
-  ));
-}
-
-/// Create a copy of EditElement
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')

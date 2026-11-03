@@ -11,9 +11,6 @@ part 'elements.g.dart';
 
 enum TextAlignment { left, center, right }
 
-/// Brush types of the freehand BRUSH tool (spec §21).
-enum BrushType { pen, marker, pencil, chalk, paint, highlighter }
-
 /// How an overlay (light leak, dust, film burn…) blends with the media.
 enum OverlayBlend { screen, multiply, overlay, softLight, normal }
 
@@ -139,14 +136,6 @@ abstract class StrokePoint with _$StrokePoint {
   factory fromJson(Map<String, dynamic> json) => _$StrokePointFromJson(json);
 }
 
-@freezed
-abstract class BrushStroke with _$BrushStroke {
-  const factory({@Default(<StrokePoint>[]) List<StrokePoint> points}) =
-      _BrushStroke;
-
-  factory fromJson(Map<String, dynamic> json) => _$BrushStrokeFromJson(json);
-}
-
 /// Something placed on the media (spec §18). The `type` key in JSON selects
 /// the variant.
 @Freezed(unionKey: 'type')
@@ -173,19 +162,6 @@ sealed class EditElement with _$EditElement {
     @Default(1) double opacity,
     TimeRange? time,
   }) = TextPathElement;
-
-  /// Freehand drawing (BRUSH). [size] is a fraction of the shorter side.
-  const factory brush({
-    required String id,
-    @Default(BrushType.pen) BrushType brushType,
-    @Default(0.01) double size,
-    @Default(0xFFEFE8DC) int color,
-    @Default(0.5) double smoothing,
-    @Default(<BrushStroke>[]) List<BrushStroke> strokes,
-    @Default(ElementTransform()) ElementTransform transform,
-    @Default(1) double opacity,
-    TimeRange? time,
-  }) = BrushElement;
 
   /// A line-art sticker tinted with [color] (its SVG uses currentColor).
   const factory sticker({
@@ -219,7 +195,6 @@ extension ElementTiming on EditElement {
   TimeRange? get time => switch (this) {
     TextElement(:final time) ||
     TextPathElement(:final time) ||
-    BrushElement(:final time) ||
     StickerElement(:final time) ||
     OverlayElement(:final time) => time,
     FrameElement() => null,
@@ -230,7 +205,6 @@ extension ElementTiming on EditElement {
   EditElement withTime(TimeRange? time) => switch (this) {
     final TextElement e => e.copyWith(time: time),
     final TextPathElement e => e.copyWith(time: time),
-    final BrushElement e => e.copyWith(time: time),
     final StickerElement e => e.copyWith(time: time),
     final OverlayElement e => e.copyWith(time: time),
     final FrameElement e => e,

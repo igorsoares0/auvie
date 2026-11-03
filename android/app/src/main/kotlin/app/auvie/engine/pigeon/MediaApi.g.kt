@@ -440,7 +440,7 @@ data class DevelopTuningParams (
 }
 
 /**
- * One element rasterized by Flutter (text, brush, sticker, overlay,
+ * One element rasterized by Flutter (text, sticker, overlay,
  * frame), composited over the developed photo before encoding.
  *
  * Generated class from Pigeon that represents data sent in messages.

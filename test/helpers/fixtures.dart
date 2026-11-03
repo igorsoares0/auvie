@@ -52,20 +52,6 @@ final allElements = <EditElement>[
       StrokePoint(x: 0.9, y: 0.5),
     ],
   ),
-  const EditElement.brush(
-    id: 'b1',
-    brushType: BrushType.chalk,
-    size: 0.02,
-    color: 0xFFE0573C,
-    strokes: [
-      BrushStroke(
-        points: [
-          StrokePoint(x: 0.2, y: 0.2, pressure: 0.4),
-          StrokePoint(x: 0.3, y: 0.25, pressure: 0.6),
-        ],
-      ),
-    ],
-  ),
   const EditElement.sticker(id: 's1', assetId: 'star', opacity: 0.8),
   const EditElement.overlay(
     id: 'o1',

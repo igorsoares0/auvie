@@ -4,7 +4,7 @@ import 'package:auvie/app/theme/typography.dart';
 import 'package:flutter/material.dart';
 
 /// Two or three equal options with a filled selection (SET TYPE / TEXT
-/// BRUSH in handoff 04).
+/// the TYPE specimens in handoff 04).
 class SegmentedToggle<T> extends StatelessWidget {
   const new({
     required this.options,

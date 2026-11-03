@@ -20,8 +20,7 @@ mixin _$EditorSession {
  String? get category;/// Element shown with its frame and pill.
  String? get selectedElementId;/// Text element being typed (the keyboard is up).
  String? get editingElementId; TypeMode get typeMode;/// Look of the next text added (when no text is selected).
- TextPreset get textPreset; int get textColor; BrushSettings get brush;/// Brush element strokes are added to, while its settings don't change.
- String? get activeBrushId; AddTab get addTab;
+ TextPreset get textPreset; int get textColor; AddTab get addTab;
 /// Create a copy of EditorSession
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -33,20 +32,20 @@ $EditorSessionCopyWith<EditorSession> get copyWith => _$EditorSessionCopyWithImp
 @override
 bool operator ==(Object other) {
   final _this = this as EditorSession;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditorSession&&(identical(other.project, _this.project) || other.project == _this.project)&&(identical(other.history, _this.history) || other.history == _this.history)&&(identical(other.tool, _this.tool) || other.tool == _this.tool)&&(identical(other.family, _this.family) || other.family == _this.family)&&(identical(other.parameter, _this.parameter) || other.parameter == _this.parameter)&&(identical(other.category, _this.category) || other.category == _this.category)&&(identical(other.selectedElementId, _this.selectedElementId) || other.selectedElementId == _this.selectedElementId)&&(identical(other.editingElementId, _this.editingElementId) || other.editingElementId == _this.editingElementId)&&(identical(other.typeMode, _this.typeMode) || other.typeMode == _this.typeMode)&&(identical(other.textPreset, _this.textPreset) || other.textPreset == _this.textPreset)&&(identical(other.textColor, _this.textColor) || other.textColor == _this.textColor)&&(identical(other.brush, _this.brush) || other.brush == _this.brush)&&(identical(other.activeBrushId, _this.activeBrushId) || other.activeBrushId == _this.activeBrushId)&&(identical(other.addTab, _this.addTab) || other.addTab == _this.addTab));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditorSession&&(identical(other.project, _this.project) || other.project == _this.project)&&(identical(other.history, _this.history) || other.history == _this.history)&&(identical(other.tool, _this.tool) || other.tool == _this.tool)&&(identical(other.family, _this.family) || other.family == _this.family)&&(identical(other.parameter, _this.parameter) || other.parameter == _this.parameter)&&(identical(other.category, _this.category) || other.category == _this.category)&&(identical(other.selectedElementId, _this.selectedElementId) || other.selectedElementId == _this.selectedElementId)&&(identical(other.editingElementId, _this.editingElementId) || other.editingElementId == _this.editingElementId)&&(identical(other.typeMode, _this.typeMode) || other.typeMode == _this.typeMode)&&(identical(other.textPreset, _this.textPreset) || other.textPreset == _this.textPreset)&&(identical(other.textColor, _this.textColor) || other.textColor == _this.textColor)&&(identical(other.addTab, _this.addTab) || other.addTab == _this.addTab));
 }
 
 
 @override
 int get hashCode {
   final _this = this as EditorSession;
-  return Object.hash(runtimeType,_this.project,_this.history,_this.tool,_this.family,_this.parameter,_this.category,_this.selectedElementId,_this.editingElementId,_this.typeMode,_this.textPreset,_this.textColor,_this.brush,_this.activeBrushId,_this.addTab);
+  return Object.hash(runtimeType,_this.project,_this.history,_this.tool,_this.family,_this.parameter,_this.category,_this.selectedElementId,_this.editingElementId,_this.typeMode,_this.textPreset,_this.textColor,_this.addTab);
 }
 
 @override
 String toString() {
   final _this = this as EditorSession;
-  return 'EditorSession(project: ${_this.project}, history: ${_this.history}, tool: ${_this.tool}, family: ${_this.family}, parameter: ${_this.parameter}, category: ${_this.category}, selectedElementId: ${_this.selectedElementId}, editingElementId: ${_this.editingElementId}, typeMode: ${_this.typeMode}, textPreset: ${_this.textPreset}, textColor: ${_this.textColor}, brush: ${_this.brush}, activeBrushId: ${_this.activeBrushId}, addTab: ${_this.addTab})';
+  return 'EditorSession(project: ${_this.project}, history: ${_this.history}, tool: ${_this.tool}, family: ${_this.family}, parameter: ${_this.parameter}, category: ${_this.category}, selectedElementId: ${_this.selectedElementId}, editingElementId: ${_this.editingElementId}, typeMode: ${_this.typeMode}, textPreset: ${_this.textPreset}, textColor: ${_this.textColor}, addTab: ${_this.addTab})';
 }
 
 
@@ -57,7 +56,7 @@ abstract mixin class $EditorSessionCopyWith<$Res>  {
   factory $EditorSessionCopyWith(EditorSession value, $Res Function(EditorSession) _then) = _$EditorSessionCopyWithImpl;
 @useResult
 $Res call({
- Project project, EditHistory<EditState> history, EditorTool tool, AdjustmentFamily family, int parameter, String? category, String? selectedElementId, String? editingElementId, TypeMode typeMode, TextPreset textPreset, int textColor, BrushSettings brush, String? activeBrushId, AddTab addTab
+ Project project, EditHistory<EditState> history, EditorTool tool, AdjustmentFamily family, int parameter, String? category, String? selectedElementId, String? editingElementId, TypeMode typeMode, TextPreset textPreset, int textColor, AddTab addTab
 });
 
 
@@ -74,7 +73,7 @@ class _$EditorSessionCopyWithImpl<$Res>
 
 /// Create a copy of EditorSession
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? project = null,Object? history = null,Object? tool = null,Object? family = null,Object? parameter = null,Object? category = freezed,Object? selectedElementId = freezed,Object? editingElementId = freezed,Object? typeMode = null,Object? textPreset = null,Object? textColor = null,Object? brush = null,Object? activeBrushId = freezed,Object? addTab = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? project = null,Object? history = null,Object? tool = null,Object? family = null,Object? parameter = null,Object? category = freezed,Object? selectedElementId = freezed,Object? editingElementId = freezed,Object? typeMode = null,Object? textPreset = null,Object? textColor = null,Object? addTab = null,}) {
   return _then(EditorSession(
 project: null == project ? _self.project : project // ignore: cast_nullable_to_non_nullable
 as Project,history: null == history ? _self.history : history // ignore: cast_nullable_to_non_nullable
@@ -87,9 +86,7 @@ as String?,editingElementId: freezed == editingElementId ? _self.editingElementI
 as String?,typeMode: null == typeMode ? _self.typeMode : typeMode // ignore: cast_nullable_to_non_nullable
 as TypeMode,textPreset: null == textPreset ? _self.textPreset : textPreset // ignore: cast_nullable_to_non_nullable
 as TextPreset,textColor: null == textColor ? _self.textColor : textColor // ignore: cast_nullable_to_non_nullable
-as int,brush: null == brush ? _self.brush : brush // ignore: cast_nullable_to_non_nullable
-as BrushSettings,activeBrushId: freezed == activeBrushId ? _self.activeBrushId : activeBrushId // ignore: cast_nullable_to_non_nullable
-as String?,addTab: null == addTab ? _self.addTab : addTab // ignore: cast_nullable_to_non_nullable
+as int,addTab: null == addTab ? _self.addTab : addTab // ignore: cast_nullable_to_non_nullable
 as AddTab,
   ));
 }
@@ -184,10 +181,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Project project,  EditHistory<EditState> history,  EditorTool tool,  AdjustmentFamily family,  int parameter,  String? category,  String? selectedElementId,  String? editingElementId,  TypeMode typeMode,  TextPreset textPreset,  int textColor,  BrushSettings brush,  String? activeBrushId,  AddTab addTab)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Project project,  EditHistory<EditState> history,  EditorTool tool,  AdjustmentFamily family,  int parameter,  String? category,  String? selectedElementId,  String? editingElementId,  TypeMode typeMode,  TextPreset textPreset,  int textColor,  AddTab addTab)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EditorSession() when $default != null:
-return $default(_that.project,_that.history,_that.tool,_that.family,_that.parameter,_that.category,_that.selectedElementId,_that.editingElementId,_that.typeMode,_that.textPreset,_that.textColor,_that.brush,_that.activeBrushId,_that.addTab);case _:
+return $default(_that.project,_that.history,_that.tool,_that.family,_that.parameter,_that.category,_that.selectedElementId,_that.editingElementId,_that.typeMode,_that.textPreset,_that.textColor,_that.addTab);case _:
   return orElse();
 
 }
@@ -205,10 +202,10 @@ return $default(_that.project,_that.history,_that.tool,_that.family,_that.parame
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Project project,  EditHistory<EditState> history,  EditorTool tool,  AdjustmentFamily family,  int parameter,  String? category,  String? selectedElementId,  String? editingElementId,  TypeMode typeMode,  TextPreset textPreset,  int textColor,  BrushSettings brush,  String? activeBrushId,  AddTab addTab)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Project project,  EditHistory<EditState> history,  EditorTool tool,  AdjustmentFamily family,  int parameter,  String? category,  String? selectedElementId,  String? editingElementId,  TypeMode typeMode,  TextPreset textPreset,  int textColor,  AddTab addTab)  $default,) {final _that = this;
 switch (_that) {
 case _EditorSession():
-return $default(_that.project,_that.history,_that.tool,_that.family,_that.parameter,_that.category,_that.selectedElementId,_that.editingElementId,_that.typeMode,_that.textPreset,_that.textColor,_that.brush,_that.activeBrushId,_that.addTab);case _:
+return $default(_that.project,_that.history,_that.tool,_that.family,_that.parameter,_that.category,_that.selectedElementId,_that.editingElementId,_that.typeMode,_that.textPreset,_that.textColor,_that.addTab);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -225,10 +222,10 @@ return $default(_that.project,_that.history,_that.tool,_that.family,_that.parame
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Project project,  EditHistory<EditState> history,  EditorTool tool,  AdjustmentFamily family,  int parameter,  String? category,  String? selectedElementId,  String? editingElementId,  TypeMode typeMode,  TextPreset textPreset,  int textColor,  BrushSettings brush,  String? activeBrushId,  AddTab addTab)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Project project,  EditHistory<EditState> history,  EditorTool tool,  AdjustmentFamily family,  int parameter,  String? category,  String? selectedElementId,  String? editingElementId,  TypeMode typeMode,  TextPreset textPreset,  int textColor,  AddTab addTab)?  $default,) {final _that = this;
 switch (_that) {
 case _EditorSession() when $default != null:
-return $default(_that.project,_that.history,_that.tool,_that.family,_that.parameter,_that.category,_that.selectedElementId,_that.editingElementId,_that.typeMode,_that.textPreset,_that.textColor,_that.brush,_that.activeBrushId,_that.addTab);case _:
+return $default(_that.project,_that.history,_that.tool,_that.family,_that.parameter,_that.category,_that.selectedElementId,_that.editingElementId,_that.typeMode,_that.textPreset,_that.textColor,_that.addTab);case _:
   return null;
 
 }
@@ -240,7 +237,7 @@ return $default(_that.project,_that.history,_that.tool,_that.family,_that.parame
 
 
 class _EditorSession extends EditorSession {
-  const _EditorSession({required this.project, required this.history, this.tool = EditorTool.film, this.family = AdjustmentFamily.light, this.parameter = 0, this.category, this.selectedElementId, this.editingElementId, this.typeMode = TypeMode.setType, this.textPreset = TextPreset.didone, this.textColor = 0xFFF6F0E6, this.brush = defaultBrush, this.activeBrushId, this.addTab = AddTab.stickers}): super._();
+  const _EditorSession({required this.project, required this.history, this.tool = EditorTool.film, this.family = AdjustmentFamily.light, this.parameter = 0, this.category, this.selectedElementId, this.editingElementId, this.typeMode = TypeMode.setType, this.textPreset = TextPreset.didone, this.textColor = 0xFFF6F0E6, this.addTab = AddTab.stickers}): super._();
   
 
 @override final  Project project;
@@ -259,9 +256,6 @@ class _EditorSession extends EditorSession {
 /// Look of the next text added (when no text is selected).
 @override@JsonKey() final  TextPreset textPreset;
 @override@JsonKey() final  int textColor;
-@override@JsonKey() final  BrushSettings brush;
-/// Brush element strokes are added to, while its settings don't change.
-@override final  String? activeBrushId;
 @override@JsonKey() final  AddTab addTab;
 
 /// Create a copy of EditorSession
@@ -274,18 +268,18 @@ _$EditorSessionCopyWith<_EditorSession> get copyWith => __$EditorSessionCopyWith
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _EditorSession&&(identical(other.project, project) || other.project == project)&&(identical(other.history, history) || other.history == history)&&(identical(other.tool, tool) || other.tool == tool)&&(identical(other.family, family) || other.family == family)&&(identical(other.parameter, parameter) || other.parameter == parameter)&&(identical(other.category, category) || other.category == category)&&(identical(other.selectedElementId, selectedElementId) || other.selectedElementId == selectedElementId)&&(identical(other.editingElementId, editingElementId) || other.editingElementId == editingElementId)&&(identical(other.typeMode, typeMode) || other.typeMode == typeMode)&&(identical(other.textPreset, textPreset) || other.textPreset == textPreset)&&(identical(other.textColor, textColor) || other.textColor == textColor)&&(identical(other.brush, brush) || other.brush == brush)&&(identical(other.activeBrushId, activeBrushId) || other.activeBrushId == activeBrushId)&&(identical(other.addTab, addTab) || other.addTab == addTab));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _EditorSession&&(identical(other.project, project) || other.project == project)&&(identical(other.history, history) || other.history == history)&&(identical(other.tool, tool) || other.tool == tool)&&(identical(other.family, family) || other.family == family)&&(identical(other.parameter, parameter) || other.parameter == parameter)&&(identical(other.category, category) || other.category == category)&&(identical(other.selectedElementId, selectedElementId) || other.selectedElementId == selectedElementId)&&(identical(other.editingElementId, editingElementId) || other.editingElementId == editingElementId)&&(identical(other.typeMode, typeMode) || other.typeMode == typeMode)&&(identical(other.textPreset, textPreset) || other.textPreset == textPreset)&&(identical(other.textColor, textColor) || other.textColor == textColor)&&(identical(other.addTab, addTab) || other.addTab == addTab));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,project,history,tool,family,parameter,category,selectedElementId,editingElementId,typeMode,textPreset,textColor,brush,activeBrushId,addTab);
+    return Object.hash(runtimeType,project,history,tool,family,parameter,category,selectedElementId,editingElementId,typeMode,textPreset,textColor,addTab);
 }
 
 @override
 String toString() {
-    return 'EditorSession(project: $project, history: $history, tool: $tool, family: $family, parameter: $parameter, category: $category, selectedElementId: $selectedElementId, editingElementId: $editingElementId, typeMode: $typeMode, textPreset: $textPreset, textColor: $textColor, brush: $brush, activeBrushId: $activeBrushId, addTab: $addTab)';
+    return 'EditorSession(project: $project, history: $history, tool: $tool, family: $family, parameter: $parameter, category: $category, selectedElementId: $selectedElementId, editingElementId: $editingElementId, typeMode: $typeMode, textPreset: $textPreset, textColor: $textColor, addTab: $addTab)';
 }
 
 
@@ -296,7 +290,7 @@ abstract mixin class _$EditorSessionCopyWith<$Res> implements $EditorSessionCopy
   factory _$EditorSessionCopyWith(_EditorSession value, $Res Function(_EditorSession) _then) = __$EditorSessionCopyWithImpl;
 @override @useResult
 $Res call({
- Project project, EditHistory<EditState> history, EditorTool tool, AdjustmentFamily family, int parameter, String? category, String? selectedElementId, String? editingElementId, TypeMode typeMode, TextPreset textPreset, int textColor, BrushSettings brush, String? activeBrushId, AddTab addTab
+ Project project, EditHistory<EditState> history, EditorTool tool, AdjustmentFamily family, int parameter, String? category, String? selectedElementId, String? editingElementId, TypeMode typeMode, TextPreset textPreset, int textColor, AddTab addTab
 });
 
 
@@ -313,7 +307,7 @@ class __$EditorSessionCopyWithImpl<$Res>
 
 /// Create a copy of EditorSession
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? project = null,Object? history = null,Object? tool = null,Object? family = null,Object? parameter = null,Object? category = freezed,Object? selectedElementId = freezed,Object? editingElementId = freezed,Object? typeMode = null,Object? textPreset = null,Object? textColor = null,Object? brush = null,Object? activeBrushId = freezed,Object? addTab = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? project = null,Object? history = null,Object? tool = null,Object? family = null,Object? parameter = null,Object? category = freezed,Object? selectedElementId = freezed,Object? editingElementId = freezed,Object? typeMode = null,Object? textPreset = null,Object? textColor = null,Object? addTab = null,}) {
   return _then(_EditorSession(
 project: null == project ? _self.project : project // ignore: cast_nullable_to_non_nullable
 as Project,history: null == history ? _self.history : history // ignore: cast_nullable_to_non_nullable
@@ -326,9 +320,7 @@ as String?,editingElementId: freezed == editingElementId ? _self.editingElementI
 as String?,typeMode: null == typeMode ? _self.typeMode : typeMode // ignore: cast_nullable_to_non_nullable
 as TypeMode,textPreset: null == textPreset ? _self.textPreset : textPreset // ignore: cast_nullable_to_non_nullable
 as TextPreset,textColor: null == textColor ? _self.textColor : textColor // ignore: cast_nullable_to_non_nullable
-as int,brush: null == brush ? _self.brush : brush // ignore: cast_nullable_to_non_nullable
-as BrushSettings,activeBrushId: freezed == activeBrushId ? _self.activeBrushId : activeBrushId // ignore: cast_nullable_to_non_nullable
-as String?,addTab: null == addTab ? _self.addTab : addTab // ignore: cast_nullable_to_non_nullable
+as int,addTab: null == addTab ? _self.addTab : addTab // ignore: cast_nullable_to_non_nullable
 as AddTab,
   ));
 }

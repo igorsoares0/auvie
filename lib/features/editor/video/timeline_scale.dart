@@ -65,7 +65,7 @@ String _two(int n) => n.toString().padLeft(2, '0');
 /// What dragging a lane bar does.
 enum BarDrag { move, start, end }
 
-/// A bar of a TYPE / BRUSH / ADD lane.
+/// A bar of a TYPE / ADD lane.
 typedef LaneBar = ({String id, TimeRange range});
 
 /// Which bar is under [x], and what a drag there does. The selected bar

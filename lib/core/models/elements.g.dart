@@ -125,19 +125,6 @@ Map<String, dynamic> _$StrokePointToJson(_StrokePoint instance) =>
       'pressure': instance.pressure,
     };
 
-_BrushStroke _$BrushStrokeFromJson(Map<String, dynamic> json) => _BrushStroke(
-  points:
-      (json['points'] as List<dynamic>?)
-          ?.map((e) => StrokePoint.fromJson(e as Map<String, dynamic>))
-          .toList() ??
-      const <StrokePoint>[],
-);
-
-Map<String, dynamic> _$BrushStrokeToJson(_BrushStroke instance) =>
-    <String, dynamic>{
-      'points': instance.points.map((e) => e.toJson()).toList(),
-    };
-
 TextElement _$TextElementFromJson(Map<String, dynamic> json) => TextElement(
   id: json['id'] as String,
   text: json['text'] as String,
@@ -200,52 +187,6 @@ Map<String, dynamic> _$TextPathElementToJson(TextPathElement instance) =>
       'time': instance.time?.toJson(),
       'type': instance.$type,
     };
-
-BrushElement _$BrushElementFromJson(Map<String, dynamic> json) => BrushElement(
-  id: json['id'] as String,
-  brushType:
-      $enumDecodeNullable(_$BrushTypeEnumMap, json['brushType']) ??
-      BrushType.pen,
-  size: (json['size'] as num?)?.toDouble() ?? 0.01,
-  color: (json['color'] as num?)?.toInt() ?? 0xFFEFE8DC,
-  smoothing: (json['smoothing'] as num?)?.toDouble() ?? 0.5,
-  strokes:
-      (json['strokes'] as List<dynamic>?)
-          ?.map((e) => BrushStroke.fromJson(e as Map<String, dynamic>))
-          .toList() ??
-      const <BrushStroke>[],
-  transform: json['transform'] == null
-      ? const ElementTransform()
-      : ElementTransform.fromJson(json['transform'] as Map<String, dynamic>),
-  opacity: (json['opacity'] as num?)?.toDouble() ?? 1,
-  time: json['time'] == null
-      ? null
-      : TimeRange.fromJson(json['time'] as Map<String, dynamic>),
-  $type: json['type'] as String?,
-);
-
-Map<String, dynamic> _$BrushElementToJson(BrushElement instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'brushType': _$BrushTypeEnumMap[instance.brushType]!,
-      'size': instance.size,
-      'color': instance.color,
-      'smoothing': instance.smoothing,
-      'strokes': instance.strokes.map((e) => e.toJson()).toList(),
-      'transform': instance.transform.toJson(),
-      'opacity': instance.opacity,
-      'time': instance.time?.toJson(),
-      'type': instance.$type,
-    };
-
-const _$BrushTypeEnumMap = {
-  BrushType.pen: 'pen',
-  BrushType.marker: 'marker',
-  BrushType.pencil: 'pencil',
-  BrushType.chalk: 'chalk',
-  BrushType.paint: 'paint',
-  BrushType.highlighter: 'highlighter',
-};
 
 StickerElement _$StickerElementFromJson(Map<String, dynamic> json) =>
     StickerElement(

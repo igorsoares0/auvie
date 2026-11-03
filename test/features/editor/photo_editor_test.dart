@@ -148,7 +148,6 @@ void main() {
       await tapKey(tester, 'family-${family.name}');
     }
     await tapKey(tester, 'tool-type');
-    await tapKey(tester, 'tool-brush');
     await tapKey(tester, 'tool-add');
     await tapKey(tester, 'add-tab-Overlays');
     await tapKey(tester, 'add-tab-Frames');
@@ -172,8 +171,6 @@ void main() {
     await openEditor(tester);
     await tapKey(tester, 'tool-type');
     expect(find.text('SET TYPE'), findsOneWidget);
-    await tapKey(tester, 'tool-brush');
-    expect(find.text('MARKER'), findsOneWidget);
     await tapKey(tester, 'tool-add');
     expect(find.text('STICKERS'), findsOneWidget);
   });

@@ -16,7 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Elements over the photo, and the gestures that edit them: tap to select
 /// (or to add text in TYPE), drag / pinch / twist the selection, draw with
-/// BRUSH or TEXT BRUSH. On a video, only the elements visible at the
+/// TEXT BRUSH. On a video, only the elements visible at the
 /// playhead show and respond.
 class ElementsLayer extends ConsumerStatefulWidget {
   const new({required this.projectId, super.key});
@@ -44,8 +44,8 @@ class _ElementsLayerState extends ConsumerState<ElementsLayer> {
 
   static bool _drawing(EditorSession s) =>
       s.editingElementId == null &&
-      (s.tool == EditorTool.brush ||
-          (s.tool == EditorTool.type && s.typeMode == TypeMode.textBrush));
+      s.tool == EditorTool.type &&
+      s.typeMode == TypeMode.textBrush;
 
   StrokePoint _point(PointerEvent e, Size size) {
     final pressure = e.pressureMax > e.pressureMin
@@ -59,23 +59,19 @@ class _ElementsLayerState extends ConsumerState<ElementsLayer> {
     );
   }
 
-  void _down(PointerDownEvent e, Size size, EditorSession s) {
+  void _down(PointerDownEvent e, Size size) {
     if (_pointer != null) return;
     _pointer = e.pointer;
     _lastPoint = e.localPosition;
     final p = _point(e, size);
-    if (s.tool == EditorTool.brush) {
-      _controller.beginStroke(p);
-    } else {
-      setState(
-        () => _path
-          ..clear()
-          ..add(p),
-      );
-    }
+    setState(
+      () => _path
+        ..clear()
+        ..add(p),
+    );
   }
 
-  void _move(PointerMoveEvent e, Size size, EditorSession s) {
+  void _move(PointerMoveEvent e, Size size) {
     if (e.pointer != _pointer) return;
     final last = _lastPoint;
     if (last != null &&
@@ -84,24 +80,16 @@ class _ElementsLayerState extends ConsumerState<ElementsLayer> {
     }
     _lastPoint = e.localPosition;
     final p = _point(e, size);
-    if (s.tool == EditorTool.brush) {
-      _controller.extendStroke(p);
-    } else {
-      setState(() => _path.add(p));
-    }
+    setState(() => _path.add(p));
   }
 
-  void _up(PointerEvent e, EditorSession s) {
+  void _up(PointerEvent e) {
     if (e.pointer != _pointer) return;
     _pointer = null;
     _lastPoint = null;
-    if (s.tool == EditorTool.brush) {
-      _controller.endStroke();
-    } else {
-      final path = smoothStroke(List<StrokePoint>.of(_path));
-      setState(_path.clear);
-      _controller.addTextPath(path);
-    }
+    final path = smoothStroke(List<StrokePoint>.of(_path));
+    setState(_path.clear);
+    _controller.addTextPath(path);
   }
 
   void _tap(
@@ -243,10 +231,10 @@ class _ElementsLayerState extends ConsumerState<ElementsLayer> {
                   ? Listener(
                       key: const Key('elements-draw'),
                       behavior: HitTestBehavior.opaque,
-                      onPointerDown: (e) => _down(e, size, session),
-                      onPointerMove: (e) => _move(e, size, session),
-                      onPointerUp: (e) => _up(e, session),
-                      onPointerCancel: (e) => _up(e, session),
+                      onPointerDown: (e) => _down(e, size),
+                      onPointerMove: (e) => _move(e, size),
+                      onPointerUp: _up,
+                      onPointerCancel: _up,
                     )
                   : GestureDetector(
                       key: const Key('elements-gestures'),
