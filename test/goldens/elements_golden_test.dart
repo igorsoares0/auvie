@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:auvie/app/router/routes.dart';
+import 'package:auvie/core/content/catalog.dart';
 import 'package:auvie/core/content/catalog_source.dart';
 import 'package:auvie/core/models/elements.dart';
 import 'package:auvie/core/storage/storage_providers.dart';
@@ -12,9 +13,11 @@ import 'package:auvie/features/editor/elements/element_assets.dart';
 import 'package:auvie/features/editor/elements/element_assets_provider.dart';
 import 'package:auvie/features/editor/elements/elements_painter.dart';
 import 'package:auvie/features/editor/elements/frame_renderer.dart';
+import 'package:auvie/features/editor/elements/overlay_renderer.dart';
 import 'package:auvie/features/editor/shell/editor_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/fixtures.dart';
@@ -173,48 +176,123 @@ void main() {
       );
     });
 
-    testWidgets('the four frames', (tester) async {
-      const frames = [
-        'frame_paper',
-        'frame_print',
-        'frame_film35',
-        'frame_hairline',
-      ];
-      Widget frame(String id) => SizedBox(
-        width: 198,
-        height: 148,
-        child: ColoredBox(
-          color: const Color(0xFF6F7A80),
-          child: CustomPaint(painter: _FramePainter(assets.params(id))),
-        ),
-      );
-      await tester.pumpWidget(
-        Center(
-          child: RepaintBoundary(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (var row = 0; row < 2; row++)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    textDirection: TextDirection.ltr,
-                    children: [
-                      frame(frames[row * 2]),
-                      const SizedBox(width: 4),
-                      frame(frames[row * 2 + 1]),
-                    ],
+    /// Three columns of paintings over a neutral grey.
+    Widget sheet(List<CustomPainter> painters) => Center(
+      child: RepaintBoundary(
+        child: SizedBox(
+          width: 602,
+          child: Wrap(
+            spacing: 4,
+            runSpacing: 4,
+            textDirection: TextDirection.ltr,
+            children: [
+              for (final painter in painters)
+                ClipRect(
+                  child: SizedBox(
+                    width: 198,
+                    height: 148,
+                    child: ColoredBox(
+                      color: const Color(0xFF6F7A80),
+                      child: CustomPaint(painter: painter),
+                    ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
+      ),
+    );
+
+    testWidgets('every frame', (tester) async {
+      final frames = assets.catalog.assets.where(
+        (a) => a.type == ContentAssetType.frame,
+      );
+      await tester.pumpWidget(
+        sheet([for (final a in frames) _FramePainter(assets.params(a.id))]),
       );
       await expectLater(
         find.byType(RepaintBoundary).first,
         matchesGoldenFile('screens/frames.png'),
       );
     });
+
+    testWidgets('every sticker', (tester) async {
+      final stickers = assets.catalog.assets.where(
+        (a) => a.type == ContentAssetType.sticker,
+      );
+      await tester.pumpWidget(
+        Center(
+          child: RepaintBoundary(
+            child: SizedBox(
+              width: 600,
+              child: Wrap(
+                textDirection: TextDirection.ltr,
+                children: [
+                  for (final a in stickers)
+                    SizedBox.square(
+                      dimension: 100,
+                      child: ColoredBox(
+                        color: const Color(0xFF6F7A80),
+                        child: CustomPaint(
+                          painter: _StickerPainter(assets.stickers[a.id]!),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await expectLater(
+        find.byType(RepaintBoundary).first,
+        matchesGoldenFile('screens/stickers.png'),
+      );
+    });
+
+    testWidgets('every overlay', (tester) async {
+      final overlays = assets.catalog.assets.where(
+        (a) => a.type == ContentAssetType.overlay,
+      );
+      await tester.pumpWidget(
+        sheet([for (final a in overlays) _OverlayPainter(assets.params(a.id))]),
+      );
+      await expectLater(
+        find.byType(RepaintBoundary).first,
+        matchesGoldenFile('screens/overlays.png'),
+      );
+    });
   });
+}
+
+class _OverlayPainter extends CustomPainter {
+  new(this.params);
+
+  final Map<String, Object?> params;
+
+  @override
+  void paint(Canvas canvas, Size size) =>
+      OverlayRenderer.paint(canvas, size, params, seed: 'golden');
+
+  @override
+  bool shouldRepaint(_OverlayPainter oldDelegate) => false;
+}
+
+class _StickerPainter extends CustomPainter {
+  new(this.sticker);
+
+  final PictureInfo sticker;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas
+      ..translate(14, 14)
+      ..scale((size.width - 28) / sticker.size.width)
+      ..drawPicture(sticker.picture);
+  }
+
+  @override
+  bool shouldRepaint(_StickerPainter oldDelegate) => false;
 }
 
 class _FramePainter extends CustomPainter {

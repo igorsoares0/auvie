@@ -232,13 +232,13 @@ void main() {
     test('every shipped sticker file exists', () async {
       final catalog = await BundledCatalogSource(rootBundle).load();
       final stickers = catalog.assetsOfType(ContentAssetType.sticker);
-      expect(stickers, hasLength(12));
+      expect(stickers, hasLength(20));
       for (final sticker in stickers) {
         final svg = await rootBundle.loadString(sticker.file);
         expect(svg, contains('currentColor'), reason: sticker.id);
       }
-      expect(catalog.assetsOfType(ContentAssetType.overlay), hasLength(6));
-      expect(catalog.assetsOfType(ContentAssetType.frame), hasLength(4));
+      expect(catalog.assetsOfType(ContentAssetType.overlay), hasLength(11));
+      expect(catalog.assetsOfType(ContentAssetType.frame), hasLength(9));
     });
 
     test('the shipped catalog has no out-of-range settings', () async {

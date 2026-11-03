@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 /// Frames (spec §26) from their catalog params: drawn over the image edges.
@@ -60,6 +61,81 @@ abstract final class FrameRenderer {
             );
           }
         }
+      case 'mat':
+        border(m, m, m, m);
+        canvas.drawRect(
+          all.deflate(m * 0.55),
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = short * 0.0018
+            ..color = const Color(0x59000000),
+        );
+      case 'slide':
+        final window = RRect.fromRectAndRadius(
+          all.deflate(m),
+          Radius.circular(m * 0.45),
+        );
+        canvas
+          ..drawPath(
+            Path()
+              ..fillType = PathFillType.evenOdd
+              ..addRect(all)
+              ..addRRect(window),
+            fill,
+          )
+          ..drawRRect(
+            window,
+            Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = short * 0.003
+              ..color = const Color(0x40000000),
+          );
+      case 'deckle':
+        canvas.drawPath(
+          Path()
+            ..fillType = PathFillType.evenOdd
+            ..addRect(all)
+            ..addPolygon(_deckledEdge(all.deflate(m), short * 0.014), true),
+          fill,
+        );
+      case 'rebate':
+        border(m * 0.35, m, m * 0.35, m);
+        final tick = Paint()
+          ..strokeWidth = short * 0.0025
+          ..color = const Color(0xCCE7C27A);
+        final step = short * 0.03;
+        var index = 0;
+        for (var x = step; x < size.width; x += step) {
+          final length = m * (index % 5 == 0 ? 0.42 : 0.22);
+          canvas
+            ..drawLine(Offset(x, m * 0.2), Offset(x, m * 0.2 + length), tick)
+            ..drawLine(
+              Offset(x, size.height - m * 0.2),
+              Offset(x, size.height - m * 0.2 - length),
+              tick,
+            );
+          index++;
+        }
     }
+  }
+
+  /// The hand-torn edge of an old print, the same at every resolution: the
+  /// walk is seeded and its steps follow [step], a fraction of the photo.
+  static List<Offset> _deckledEdge(Rect inner, double step) {
+    final random = math.Random(7);
+    double wobble() => (random.nextDouble() - 0.5) * step;
+    final points = <Offset>[];
+    void side(Offset from, Offset to, Offset out) {
+      final count = ((to - from).distance / step).ceil();
+      for (var i = 0; i < count; i++) {
+        points.add(Offset.lerp(from, to, i / count)! + out * wobble());
+      }
+    }
+
+    side(inner.topLeft, inner.topRight, const Offset(0, 1));
+    side(inner.topRight, inner.bottomRight, const Offset(1, 0));
+    side(inner.bottomRight, inner.bottomLeft, const Offset(0, 1));
+    side(inner.bottomLeft, inner.topLeft, const Offset(1, 0));
+    return points;
   }
 }

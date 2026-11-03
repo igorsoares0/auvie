@@ -1,5 +1,5 @@
 {
-  "catalogVersion": 4,
+  "catalogVersion": 5,
   "edition": {
     "number": 12,
     "season": "Autumn",
@@ -575,6 +575,62 @@
       "isPremium": false
     },
     {
+      "id": "sticker_camera",
+      "type": "sticker",
+      "name": "Camera",
+      "file": "assets/content/stickers/camera.svg",
+      "isPremium": false
+    },
+    {
+      "id": "sticker_flower",
+      "type": "sticker",
+      "name": "Flower",
+      "file": "assets/content/stickers/flower.svg",
+      "isPremium": false
+    },
+    {
+      "id": "sticker_leaf",
+      "type": "sticker",
+      "name": "Leaf",
+      "file": "assets/content/stickers/leaf.svg",
+      "isPremium": false
+    },
+    {
+      "id": "sticker_cloud",
+      "type": "sticker",
+      "name": "Cloud",
+      "file": "assets/content/stickers/cloud.svg",
+      "isPremium": false
+    },
+    {
+      "id": "sticker_asterisk",
+      "type": "sticker",
+      "name": "Asterisk",
+      "file": "assets/content/stickers/asterisk.svg",
+      "isPremium": false
+    },
+    {
+      "id": "sticker_eye",
+      "type": "sticker",
+      "name": "Eye",
+      "file": "assets/content/stickers/eye.svg",
+      "isPremium": true
+    },
+    {
+      "id": "sticker_postmark",
+      "type": "sticker",
+      "name": "Postmark",
+      "file": "assets/content/stickers/postmark.svg",
+      "isPremium": true
+    },
+    {
+      "id": "sticker_ticket",
+      "type": "sticker",
+      "name": "Ticket",
+      "file": "assets/content/stickers/ticket.svg",
+      "isPremium": true
+    },
+    {
       "id": "overlay_leak_warm",
       "type": "overlay",
       "name": "Warm leak",
@@ -643,6 +699,62 @@
       }
     },
     {
+      "id": "overlay_leak_rose",
+      "type": "overlay",
+      "name": "Rose leak",
+      "isPremium": false,
+      "params": {
+        "generator": "leak",
+        "tone": "rose",
+        "blend": "screen",
+        "opacity": 0.7
+      }
+    },
+    {
+      "id": "overlay_haze",
+      "type": "overlay",
+      "name": "Haze",
+      "isPremium": false,
+      "params": {
+        "generator": "haze",
+        "blend": "screen",
+        "opacity": 0.6
+      }
+    },
+    {
+      "id": "overlay_bokeh",
+      "type": "overlay",
+      "name": "Bokeh",
+      "isPremium": false,
+      "params": {
+        "generator": "bokeh",
+        "blend": "screen",
+        "opacity": 0.7
+      }
+    },
+    {
+      "id": "overlay_prism",
+      "type": "overlay",
+      "name": "Prism",
+      "isPremium": true,
+      "params": {
+        "generator": "prism",
+        "blend": "screen",
+        "opacity": 0.65
+      }
+    },
+    {
+      "id": "overlay_creases",
+      "type": "overlay",
+      "name": "Creases",
+      "isPremium": true,
+      "params": {
+        "generator": "creases",
+        "blend": "normal",
+        "opacity": 0.8
+      }
+    },
+    {
       "id": "frame_paper",
       "type": "frame",
       "name": "Paper",
@@ -684,6 +796,61 @@
         "style": "hairline",
         "color": "#EFE8DC",
         "margin": 0.035
+      }
+    },
+    {
+      "id": "frame_noir",
+      "type": "frame",
+      "name": "Noir",
+      "isPremium": false,
+      "params": {
+        "style": "border",
+        "color": "#0B0A09",
+        "margin": 0.04
+      }
+    },
+    {
+      "id": "frame_mat",
+      "type": "frame",
+      "name": "Mat",
+      "isPremium": false,
+      "params": {
+        "style": "mat",
+        "color": "#F3EEE5",
+        "margin": 0.07
+      }
+    },
+    {
+      "id": "frame_slide",
+      "type": "frame",
+      "name": "Slide",
+      "isPremium": true,
+      "params": {
+        "style": "slide",
+        "color": "#E7DCC8",
+        "margin": 0.09
+      }
+    },
+    {
+      "id": "frame_deckle",
+      "type": "frame",
+      "name": "Deckle",
+      "isPremium": true,
+      "params": {
+        "style": "deckle",
+        "color": "#F3EEE5",
+        "margin": 0.05
+      }
+    },
+    {
+      "id": "frame_rebate",
+      "type": "frame",
+      "name": "Rebate",
+      "isPremium": true,
+      "params": {
+        "style": "rebate",
+        "color": "#0B0A09",
+        "margin": 0.06
       }
     }
   ]

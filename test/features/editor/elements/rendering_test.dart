@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:auvie/core/content/catalog.dart';
 import 'package:auvie/core/content/catalog_source.dart';
 import 'package:auvie/core/models/edit_state.dart';
 import 'package:auvie/core/models/elements.dart';
@@ -86,7 +87,7 @@ void main() {
   });
 
   test('every overlay draws something', () async {
-    for (final generator in ['leak', 'burn', 'streak', 'dust', 'scratches']) {
+    for (final generator in overlayGenerators) {
       final pixels = await _render(const Size(80, 60), (canvas) {
         OverlayRenderer.paint(canvas, const Size(80, 60), {
           'generator': generator,

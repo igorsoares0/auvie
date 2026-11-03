@@ -24,10 +24,29 @@ abstract class PresetCollection with _$PresetCollection {
 enum ContentAssetType { sticker, overlay, frame, font }
 
 /// Overlay generators the app can draw (params.generator).
-const overlayGenerators = {'leak', 'burn', 'streak', 'dust', 'scratches'};
+const overlayGenerators = {
+  'leak',
+  'burn',
+  'streak',
+  'dust',
+  'scratches',
+  'haze',
+  'bokeh',
+  'prism',
+  'creases',
+};
 
 /// Frame styles the app can draw (params.style).
-const frameStyles = {'border', 'print', 'film35', 'hairline'};
+const frameStyles = {
+  'border',
+  'print',
+  'film35',
+  'hairline',
+  'mat',
+  'slide',
+  'deckle',
+  'rebate',
+};
 
 /// A file distributed as content (spec §44): stickers, overlays, frames,
 /// fonts. [file] is an asset path when bundled, a URL when remote (M8).
