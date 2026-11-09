@@ -111,6 +111,20 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets('color and grain families, saved films empty', (tester) async {
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    await openEditor(tester);
+    await tap(tester, 'category-saved');
+    await expectScreen('editor_film_saved_dark');
+    await tap(tester, 'tool-adjust');
+    await tap(tester, 'family-color');
+    await expectScreen('editor_color_dark');
+    await tap(tester, 'family-grain');
+    await expectScreen('editor_grain_dark');
+    await tester.pump(EditorController.saveDelay);
+  });
+
   testWidgets('hsl', (tester) async {
     tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);

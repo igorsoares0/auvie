@@ -84,6 +84,37 @@ void main() {
     });
   }
 
+  testWidgets('set type: typing, then the selected text', (tester) async {
+    await openEditor(tester, Brightness.dark);
+    await tap(tester, 'tool-type');
+    await tap(tester, 'elements-gestures');
+    await tester.enterText(find.byKey(const Key('text-input')), 'Riviera');
+    await tester.pump();
+    await expectScreen('editor_typing_dark');
+    await tap(tester, 'typing-done');
+    await expectScreen('editor_type_set_dark');
+    await tester.pump(EditorController.saveDelay);
+  });
+
+  testWidgets('tall panels on a small phone', (tester) async {
+    await openEditor(tester, Brightness.dark);
+    tester.view.physicalSize = const Size(1080, 2160); // 360 × 720 pt.
+    await tester.pumpAndSettle();
+    await tap(tester, 'tool-type');
+    await tap(tester, 'elements-gestures');
+    await tester.enterText(find.byKey(const Key('text-input')), 'Riviera');
+    await tap(tester, 'typing-done');
+    await expectScreen('editor_type_small_dark');
+    await tap(tester, 'tool-add');
+    await tap(tester, 'add-tab-Overlays');
+    await tap(tester, 'asset-overlay_leak_warm');
+    await expectScreen('editor_add_overlays_small_dark');
+    await tap(tester, 'tool-adjust');
+    await tap(tester, 'family-hsl');
+    await expectScreen('editor_hsl_small_dark');
+    await tester.pump(EditorController.saveDelay);
+  });
+
   testWidgets('add, every tab', (tester) async {
     await openEditor(tester, Brightness.dark);
     await tap(tester, 'tool-add');
