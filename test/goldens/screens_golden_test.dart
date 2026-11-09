@@ -129,6 +129,19 @@ void main() {
     await tester.pump(EditorController.saveDelay);
   });
 
+  testWidgets('curve', (tester) async {
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    await openEditor(tester);
+    await tap(tester, 'tool-adjust');
+    await tap(tester, 'family-curve');
+    final area = tester.getRect(find.byKey(const Key('curve-area')));
+    await tester.dragFrom(area.center, const Offset(0, -30));
+    await tester.pumpAndSettle();
+    await expectScreen('editor_curve_dark');
+    await tester.pump(EditorController.saveDelay);
+  });
+
   testWidgets('crop', (tester) async {
     tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);

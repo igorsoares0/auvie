@@ -1,6 +1,7 @@
 import 'package:auvie/app/theme/app_theme.dart';
 import 'package:auvie/app/theme/spacing.dart';
 import 'package:auvie/core/models/tone_curve.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 enum CurveChannel { rgb, red, green, blue }
@@ -57,8 +58,8 @@ abstract final class CurveEdits {
   }
 }
 
-/// CURVE: drag points, tap to add, hold a point to remove it, double-tap to
-/// reset the channel.
+/// CURVE: drag a point, or the line anywhere to bend it there; tap to add a
+/// point, hold one to remove it, double-tap to reset the channel.
 class CurveEditor extends StatefulWidget {
   const new({
     required this.curves,
@@ -81,6 +82,14 @@ class _CurveEditorState extends State<CurveEditor> {
   CurveChannel _channel = CurveChannel.rgb;
   int? _dragging;
 
+  /// The curve during a drag: the panel may not have rebuilt between two
+  /// moves, so moves build on this rather than on the widget.
+  ToneCurve? _live;
+
+  /// From the finger to the dragged point (0…1 units), so the point keeps
+  /// its place under the finger instead of jumping to it.
+  Offset _grab = Offset.zero;
+
   static const _hitRadius = 24.0;
 
   ToneCurve get _curve => widget.curves.channel(_channel);
@@ -98,8 +107,38 @@ class _CurveEditorState extends State<CurveEditor> {
     return null;
   }
 
-  void _emit(ToneCurve curve) =>
-      widget.onPreview(widget.curves.withChannel(_channel, curve));
+  void _emit(ToneCurve curve) {
+    _live = curve;
+    widget.onPreview(widget.curves.withChannel(_channel, curve));
+  }
+
+  /// Grabs the point under [local], or adds one on the line at that x.
+  void _startDrag(Offset local, Size size) {
+    final unit = _toUnit(local, size);
+    var curve = _curve;
+    var index = _nearest(local, size);
+    if (index == null) {
+      final (added, at) = CurveEdits.add(
+        curve,
+        unit.dx,
+        curve.evaluate(unit.dx),
+      );
+      if (at < 0) return;
+      curve = added;
+      index = at;
+      _emit(curve);
+    }
+    final point = curve.points[index];
+    _dragging = index;
+    _live = curve;
+    _grab = Offset(point.x, point.y) - unit;
+  }
+
+  void _endDrag() {
+    if (_dragging != null) widget.onCommit();
+    _dragging = null;
+    _live = null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +171,10 @@ class _CurveEditorState extends State<CurveEditor> {
             ],
           ),
           const SizedBox(height: AuvieSpacing.s6),
+          // Full width: the painter has no size of its own, and the column
+          // would otherwise shrink it to nothing.
           SizedBox(
+            width: double.infinity,
             height: 132,
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -140,6 +182,9 @@ class _CurveEditorState extends State<CurveEditor> {
                 return GestureDetector(
                   key: const Key('curve-area'),
                   behavior: HitTestBehavior.opaque,
+                  // Where the finger went down, not where the drag was
+                  // recognized (~18 px later, often off the point).
+                  dragStartBehavior: DragStartBehavior.down,
                   onTapUp: (d) {
                     if (_nearest(d.localPosition, size) != null) return;
                     final unit = _toUnit(d.localPosition, size);
@@ -167,18 +212,16 @@ class _CurveEditorState extends State<CurveEditor> {
                   onDoubleTap: () => widget.onRecord(
                     widget.curves.withChannel(_channel, const ToneCurve()),
                   ),
-                  onPanStart: (d) =>
-                      _dragging = _nearest(d.localPosition, size),
+                  onPanStart: (d) => _startDrag(d.localPosition, size),
                   onPanUpdate: (d) {
                     final i = _dragging;
-                    if (i == null) return;
-                    final unit = _toUnit(d.localPosition, size);
-                    _emit(CurveEdits.move(_curve, i, unit.dx, unit.dy));
+                    final curve = _live;
+                    if (i == null || curve == null) return;
+                    final unit = _toUnit(d.localPosition, size) + _grab;
+                    _emit(CurveEdits.move(curve, i, unit.dx, unit.dy));
                   },
-                  onPanEnd: (_) {
-                    if (_dragging != null) widget.onCommit();
-                    _dragging = null;
-                  },
+                  onPanEnd: (_) => _endDrag(),
+                  onPanCancel: _endDrag,
                   child: CustomPaint(
                     painter: _CurvePainter(
                       curve: _curve,
