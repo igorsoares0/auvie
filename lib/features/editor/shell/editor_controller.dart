@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:auvie/core/content/catalog_providers.dart';
+import 'package:auvie/core/models/color_mix.dart';
 import 'package:auvie/core/models/crop.dart';
 import 'package:auvie/core/models/edit_state.dart';
 import 'package:auvie/core/models/elements.dart';
@@ -123,6 +124,10 @@ class EditorController extends _$EditorController {
     });
   }
 
+  /// Pastes copied edits (spec §29) as one undo step: film, intensity,
+  /// adjustments, curves and color mix change; crop, elements and trim stay.
+  void pasteEdits(CopiedEdits edits) => record(_session.edit.pasteEdits(edits));
+
   // Navigation inside the editor (not saved).
 
   void selectTool(EditorTool tool) {
@@ -145,6 +150,10 @@ class EditorController extends _$EditorController {
     final next = (_session.parameter + delta).clamp(0, count - 1);
     _update(_session.copyWith(parameter: next), save: false);
   }
+
+  /// HSL: the color range to edit (keeps the channel).
+  void selectColorBand(ColorBand band) =>
+      _update(_session.copyWith(colorBand: band), save: false);
 
   void selectCategory(String category) =>
       _update(_session.copyWith(category: category), save: false);

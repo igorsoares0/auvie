@@ -22,6 +22,8 @@ class DevelopRenderer(assets: AssetManager) {
     private var programExternal: ShaderProgram? = null
     private val lut = GlTexture.empty(256, 1)
     private var uploadedLut: ByteArray? = null
+    private val colorLut = GlTexture.empty(256, 1)
+    private var uploadedColorLut: ByteArray? = null
     private val quad = FullScreenQuad()
 
     /**
@@ -53,6 +55,7 @@ class DevelopRenderer(assets: AssetManager) {
         tile: Tile? = null,
     ) {
         setLut(settings.curveLut)
+        if (settings.hasColorMix) setColorLut(settings.colorLut)
         val part = tile ?: Tile(0, 0, outputWidth, outputHeight)
         GLES30.glViewport(0, 0, part.width, part.height)
         val program = if (source.isExternal) external() else program2d
@@ -62,6 +65,9 @@ class DevelopRenderer(assets: AssetManager) {
         program.set("uSource", 0)
         lut.bind(1)
         program.set("uCurveLut", 1)
+        colorLut.bind(2)
+        program.set("uColorLut", 2)
+        program.set("uColorMix", settings.hasColorMix)
         program.setMatrix4("uSourceTransform", source.transform)
 
         GLES30.glUniformMatrix3fv(
@@ -106,6 +112,7 @@ class DevelopRenderer(assets: AssetManager) {
         program2d.release()
         programExternal?.release()
         lut.release()
+        colorLut.release()
         quad.release()
     }
 
@@ -117,5 +124,11 @@ class DevelopRenderer(assets: AssetManager) {
         if (uploadedLut?.contentEquals(bytes) == true) return
         lut.upload(bytes)
         uploadedLut = bytes.copyOf()
+    }
+
+    private fun setColorLut(bytes: ByteArray) {
+        if (uploadedColorLut?.contentEquals(bytes) == true) return
+        colorLut.upload(bytes)
+        uploadedColorLut = bytes.copyOf()
     }
 }

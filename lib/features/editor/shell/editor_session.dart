@@ -1,3 +1,4 @@
+import 'package:auvie/core/models/color_mix.dart';
 import 'package:auvie/core/models/edit_state.dart';
 import 'package:auvie/core/models/elements.dart';
 import 'package:auvie/core/models/project.dart';
@@ -45,8 +46,11 @@ abstract class EditorSession with _$EditorSession {
     @Default(EditorTool.film) EditorTool tool,
     @Default(AdjustmentFamily.light) AdjustmentFamily family,
 
-    /// Index into [family]'s adjustments.
+    /// Index into [family]'s adjustments; for HSL, into `ColorChannel`.
     @Default(0) int parameter,
+
+    /// Color range edited by HSL.
+    @Default(ColorBand.red) ColorBand colorBand,
 
     /// Collection id, or [savedCategory].
     String? category,

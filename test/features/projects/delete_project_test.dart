@@ -26,6 +26,8 @@ void main() {
 
     await tester.longPress(find.byKey(const Key('recent-p1')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('edit-action-delete')));
+    await tester.pumpAndSettle();
     expect(find.byKey(const Key('delete-sheet')), findsOneWidget);
     expect(
       find.text('Delete Roll 001 · 01?', findRichText: true),
@@ -35,6 +37,8 @@ void main() {
     expect(app.engine.released, isEmpty);
 
     await tester.longPress(find.byKey(const Key('recent-p1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('edit-action-delete')));
     await tester.pumpAndSettle();
     await tapKey(tester, 'delete-confirm');
     expect(app.engine.released, ['content://p1']);

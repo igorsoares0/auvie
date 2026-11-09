@@ -4,6 +4,7 @@ import 'package:auvie/app/theme/typography.dart';
 import 'package:auvie/app/widgets/auvie_icon.dart';
 import 'package:auvie/core/models/adjustment.dart';
 import 'package:auvie/features/editor/adjustments/adjustment_family.dart';
+import 'package:auvie/features/editor/adjustments/color_mix_controls.dart';
 import 'package:auvie/features/editor/adjustments/curve_editor.dart';
 import 'package:auvie/features/editor/adjustments/lens_ruler.dart';
 import 'package:auvie/features/editor/adjustments/ruler_scale.dart';
@@ -30,6 +31,8 @@ class AdjustPanel extends ConsumerWidget {
     final Widget body;
     if (family == AdjustmentFamily.crop) {
       body = CropControls(projectId: projectId);
+    } else if (family == AdjustmentFamily.hsl) {
+      body = ColorMixControls(projectId: projectId);
     } else if (family == AdjustmentFamily.curve) {
       body = CurveEditor(
         curves: edit.curves,

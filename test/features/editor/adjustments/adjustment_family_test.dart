@@ -12,8 +12,9 @@ void main() {
     expect(all, hasLength(Adjustment.values.length));
   });
 
-  test('curve and crop have their own controls instead of a ruler', () {
+  test('HSL, curve and crop have their own controls instead of a ruler', () {
     expect(AdjustmentFamily.values.where((f) => !f.usesRuler), [
+      AdjustmentFamily.hsl,
       AdjustmentFamily.curve,
       AdjustmentFamily.crop,
     ]);

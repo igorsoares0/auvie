@@ -91,7 +91,7 @@ class PhotoExporterTest {
     private fun params(): DevelopParams = DevelopSettings.NEUTRAL.let {
         DevelopParams(
             0.1, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.0, 0.0,
-            it.curveLut, it.geometry,
+            it.curveLut, it.colorLut, it.geometry,
         )
     }
 

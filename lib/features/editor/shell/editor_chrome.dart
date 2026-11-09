@@ -13,6 +13,7 @@ class EditorHeader extends StatelessWidget {
     required this.title,
     required VoidCallback onClose,
     required VoidCallback onExport,
+    this.onTitleTap,
     super.key,
   }) : _left = 'Close',
        _right = 'EXPORT',
@@ -25,13 +26,17 @@ class EditorHeader extends StatelessWidget {
     required VoidCallback onCancel,
     required VoidCallback onDone,
     super.key,
-  }) : _left = 'Cancel',
+  }) : onTitleTap = null,
+       _left = 'Cancel',
        _right = 'DONE',
        _onLeft = onCancel,
        _onRight = onDone,
        _keys = const ('typing-cancel', 'typing-done');
 
   final String? title;
+
+  /// Tapping the title opens the edit actions (copy / paste edits).
+  final VoidCallback? onTitleTap;
   final String _left;
   final String _right;
   final VoidCallback _onLeft;
@@ -60,26 +65,28 @@ class EditorHeader extends StatelessWidget {
               onTap: _onLeft,
             ),
             Expanded(
-              child: Text.rich(
-                TextSpan(
-                  style: style,
-                  children: [
-                    TextSpan(text: parts.first),
-                    if (parts.length > 1) ...[
-                      TextSpan(
-                        text: ' · ',
-                        style: TextStyle(color: palette.muted),
-                      ),
-                      TextSpan(
-                        text: parts.sublist(1).join(' · '),
-                        style: const TextStyle(fontStyle: FontStyle.italic),
-                      ),
+              child: _tappable(
+                Text.rich(
+                  TextSpan(
+                    style: style,
+                    children: [
+                      TextSpan(text: parts.first),
+                      if (parts.length > 1) ...[
+                        TextSpan(
+                          text: ' · ',
+                          style: TextStyle(color: palette.muted),
+                        ),
+                        TextSpan(
+                          text: parts.sublist(1).join(' · '),
+                          style: const TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
             Semantics(
@@ -106,6 +113,24 @@ class EditorHeader extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tappable(Widget child) {
+    final onTap = onTitleTap;
+    if (onTap == null) return child;
+    return Semantics(
+      button: true,
+      label: 'Edit actions',
+      child: GestureDetector(
+        key: const Key('editor-title'),
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: SizedBox(
+          height: AuvieSpacing.minHitTarget,
+          child: Center(child: child),
         ),
       ),
     );

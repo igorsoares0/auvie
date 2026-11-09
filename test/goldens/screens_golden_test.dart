@@ -111,6 +111,24 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets('hsl', (tester) async {
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    await openEditor(tester);
+    await tap(tester, 'tool-adjust');
+    await tap(tester, 'family-hsl');
+    await tap(tester, 'hsl-band-blue');
+    await tap(tester, 'hsl-channel-saturation');
+    await tester.drag(
+      find.byKey(const Key('lens-ruler')),
+      const Offset(-40, 0),
+    );
+    await tester.pumpAndSettle();
+    await tap(tester, 'hsl-band-orange');
+    await expectScreen('editor_hsl_dark');
+    await tester.pump(EditorController.saveDelay);
+  });
+
   testWidgets('crop', (tester) async {
     tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);

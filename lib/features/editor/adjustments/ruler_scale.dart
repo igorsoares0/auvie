@@ -15,6 +15,13 @@ class RulerScale {
         : const [0, 0.5, 1],
   );
 
+  /// −1…+1 values outside `Adjustment` (the HSL tool).
+  static const bipolar = RulerScale(
+    min: -1,
+    max: 1,
+    majors: [-1, -0.5, 0, 0.5, 1],
+  );
+
   /// Straighten, in degrees.
   static const straighten = RulerScale(
     min: -45,

@@ -283,6 +283,7 @@ pigeon.DevelopParams developParamsFrom(RenderParams params) {
     fade: v(Adjustment.fade),
     vignette: v(Adjustment.vignette),
     curveLut: params.curveLut,
+    colorLut: params.colorLut,
     geometry: params.geometry.toList(),
   );
 }

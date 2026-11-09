@@ -16,7 +16,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$EditState {
 
- Adjustments get adjustments; ToneCurves get curves; PresetRef? get preset; CropTransform get crop; List<EditElement> get elements;/// Only for video projects.
+ Adjustments get adjustments; ToneCurves get curves;/// Hue / saturation / luminance per color range (the HSL tool).
+ ColorMix get colorMix; PresetRef? get preset; CropTransform get crop; List<EditElement> get elements;/// Only for video projects.
  VideoTimeline? get video;
 /// Create a copy of EditState
 /// with the given fields replaced by the non-null parameter values.
@@ -31,20 +32,20 @@ $EditStateCopyWith<EditState> get copyWith => _$EditStateCopyWithImpl<EditState>
 @override
 bool operator ==(Object other) {
   final _this = this as EditState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditState&&(identical(other.adjustments, _this.adjustments) || other.adjustments == _this.adjustments)&&(identical(other.curves, _this.curves) || other.curves == _this.curves)&&(identical(other.preset, _this.preset) || other.preset == _this.preset)&&(identical(other.crop, _this.crop) || other.crop == _this.crop)&&const DeepCollectionEquality().equals(other.elements, _this.elements)&&(identical(other.video, _this.video) || other.video == _this.video));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditState&&(identical(other.adjustments, _this.adjustments) || other.adjustments == _this.adjustments)&&(identical(other.curves, _this.curves) || other.curves == _this.curves)&&(identical(other.colorMix, _this.colorMix) || other.colorMix == _this.colorMix)&&(identical(other.preset, _this.preset) || other.preset == _this.preset)&&(identical(other.crop, _this.crop) || other.crop == _this.crop)&&const DeepCollectionEquality().equals(other.elements, _this.elements)&&(identical(other.video, _this.video) || other.video == _this.video));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as EditState;
-  return Object.hash(runtimeType,_this.adjustments,_this.curves,_this.preset,_this.crop,const DeepCollectionEquality().hash(_this.elements),_this.video);
+  return Object.hash(runtimeType,_this.adjustments,_this.curves,_this.colorMix,_this.preset,_this.crop,const DeepCollectionEquality().hash(_this.elements),_this.video);
 }
 
 @override
 String toString() {
   final _this = this as EditState;
-  return 'EditState(adjustments: ${_this.adjustments}, curves: ${_this.curves}, preset: ${_this.preset}, crop: ${_this.crop}, elements: ${_this.elements}, video: ${_this.video})';
+  return 'EditState(adjustments: ${_this.adjustments}, curves: ${_this.curves}, colorMix: ${_this.colorMix}, preset: ${_this.preset}, crop: ${_this.crop}, elements: ${_this.elements}, video: ${_this.video})';
 }
 
 
@@ -55,7 +56,7 @@ abstract mixin class $EditStateCopyWith<$Res>  {
   factory $EditStateCopyWith(EditState value, $Res Function(EditState) _then) = _$EditStateCopyWithImpl;
 @useResult
 $Res call({
- Adjustments adjustments, ToneCurves curves, PresetRef? preset, CropTransform crop, List<EditElement> elements, VideoTimeline? video
+ Adjustments adjustments, ToneCurves curves, ColorMix colorMix, PresetRef? preset, CropTransform crop, List<EditElement> elements, VideoTimeline? video
 });
 
 
@@ -72,11 +73,12 @@ class _$EditStateCopyWithImpl<$Res>
 
 /// Create a copy of EditState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? adjustments = null,Object? curves = null,Object? preset = freezed,Object? crop = null,Object? elements = null,Object? video = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? adjustments = null,Object? curves = null,Object? colorMix = null,Object? preset = freezed,Object? crop = null,Object? elements = null,Object? video = freezed,}) {
   return _then(EditState(
 adjustments: null == adjustments ? _self.adjustments : adjustments // ignore: cast_nullable_to_non_nullable
 as Adjustments,curves: null == curves ? _self.curves : curves // ignore: cast_nullable_to_non_nullable
-as ToneCurves,preset: freezed == preset ? _self.preset : preset // ignore: cast_nullable_to_non_nullable
+as ToneCurves,colorMix: null == colorMix ? _self.colorMix : colorMix // ignore: cast_nullable_to_non_nullable
+as ColorMix,preset: freezed == preset ? _self.preset : preset // ignore: cast_nullable_to_non_nullable
 as PresetRef?,crop: null == crop ? _self.crop : crop // ignore: cast_nullable_to_non_nullable
 as CropTransform,elements: null == elements ? _self.elements : elements // ignore: cast_nullable_to_non_nullable
 as List<EditElement>,video: freezed == video ? _self.video : video // ignore: cast_nullable_to_non_nullable
@@ -207,10 +209,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Adjustments adjustments,  ToneCurves curves,  PresetRef? preset,  CropTransform crop,  List<EditElement> elements,  VideoTimeline? video)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Adjustments adjustments,  ToneCurves curves,  ColorMix colorMix,  PresetRef? preset,  CropTransform crop,  List<EditElement> elements,  VideoTimeline? video)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EditState() when $default != null:
-return $default(_that.adjustments,_that.curves,_that.preset,_that.crop,_that.elements,_that.video);case _:
+return $default(_that.adjustments,_that.curves,_that.colorMix,_that.preset,_that.crop,_that.elements,_that.video);case _:
   return orElse();
 
 }
@@ -228,10 +230,10 @@ return $default(_that.adjustments,_that.curves,_that.preset,_that.crop,_that.ele
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Adjustments adjustments,  ToneCurves curves,  PresetRef? preset,  CropTransform crop,  List<EditElement> elements,  VideoTimeline? video)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Adjustments adjustments,  ToneCurves curves,  ColorMix colorMix,  PresetRef? preset,  CropTransform crop,  List<EditElement> elements,  VideoTimeline? video)  $default,) {final _that = this;
 switch (_that) {
 case _EditState():
-return $default(_that.adjustments,_that.curves,_that.preset,_that.crop,_that.elements,_that.video);case _:
+return $default(_that.adjustments,_that.curves,_that.colorMix,_that.preset,_that.crop,_that.elements,_that.video);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -248,10 +250,10 @@ return $default(_that.adjustments,_that.curves,_that.preset,_that.crop,_that.ele
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Adjustments adjustments,  ToneCurves curves,  PresetRef? preset,  CropTransform crop,  List<EditElement> elements,  VideoTimeline? video)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Adjustments adjustments,  ToneCurves curves,  ColorMix colorMix,  PresetRef? preset,  CropTransform crop,  List<EditElement> elements,  VideoTimeline? video)?  $default,) {final _that = this;
 switch (_that) {
 case _EditState() when $default != null:
-return $default(_that.adjustments,_that.curves,_that.preset,_that.crop,_that.elements,_that.video);case _:
+return $default(_that.adjustments,_that.curves,_that.colorMix,_that.preset,_that.crop,_that.elements,_that.video);case _:
   return null;
 
 }
@@ -263,11 +265,13 @@ return $default(_that.adjustments,_that.curves,_that.preset,_that.crop,_that.ele
 @JsonSerializable()
 
 class _EditState extends EditState {
-  const _EditState({this.adjustments = const Adjustments(), this.curves = const ToneCurves(), this.preset, this.crop = const CropTransform(),  List<EditElement> elements = const <EditElement>[], this.video}): _elements = elements,super._();
+  const _EditState({this.adjustments = const Adjustments(), this.curves = const ToneCurves(), this.colorMix = const ColorMix(), this.preset, this.crop = const CropTransform(),  List<EditElement> elements = const <EditElement>[], this.video}): _elements = elements,super._();
   factory _EditState.fromJson(Map<String, dynamic> json) => _$EditStateFromJson(json);
 
 @override@JsonKey() final  Adjustments adjustments;
 @override@JsonKey() final  ToneCurves curves;
+/// Hue / saturation / luminance per color range (the HSL tool).
+@override@JsonKey() final  ColorMix colorMix;
 @override final  PresetRef? preset;
 @override@JsonKey() final  CropTransform crop;
  final  List<EditElement> _elements;
@@ -293,18 +297,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _EditState&&(identical(other.adjustments, adjustments) || other.adjustments == adjustments)&&(identical(other.curves, curves) || other.curves == curves)&&(identical(other.preset, preset) || other.preset == preset)&&(identical(other.crop, crop) || other.crop == crop)&&const DeepCollectionEquality().equals(other.elements, _elements)&&(identical(other.video, video) || other.video == video));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _EditState&&(identical(other.adjustments, adjustments) || other.adjustments == adjustments)&&(identical(other.curves, curves) || other.curves == curves)&&(identical(other.colorMix, colorMix) || other.colorMix == colorMix)&&(identical(other.preset, preset) || other.preset == preset)&&(identical(other.crop, crop) || other.crop == crop)&&const DeepCollectionEquality().equals(other.elements, _elements)&&(identical(other.video, video) || other.video == video));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,adjustments,curves,preset,crop,const DeepCollectionEquality().hash(_elements),video);
+    return Object.hash(runtimeType,adjustments,curves,colorMix,preset,crop,const DeepCollectionEquality().hash(_elements),video);
 }
 
 @override
 String toString() {
-    return 'EditState(adjustments: $adjustments, curves: $curves, preset: $preset, crop: $crop, elements: $elements, video: $video)';
+    return 'EditState(adjustments: $adjustments, curves: $curves, colorMix: $colorMix, preset: $preset, crop: $crop, elements: $elements, video: $video)';
 }
 
 
@@ -315,7 +319,7 @@ abstract mixin class _$EditStateCopyWith<$Res> implements $EditStateCopyWith<$Re
   factory _$EditStateCopyWith(_EditState value, $Res Function(_EditState) _then) = __$EditStateCopyWithImpl;
 @override @useResult
 $Res call({
- Adjustments adjustments, ToneCurves curves, PresetRef? preset, CropTransform crop, List<EditElement> elements, VideoTimeline? video
+ Adjustments adjustments, ToneCurves curves, ColorMix colorMix, PresetRef? preset, CropTransform crop, List<EditElement> elements, VideoTimeline? video
 });
 
 
@@ -332,11 +336,12 @@ class __$EditStateCopyWithImpl<$Res>
 
 /// Create a copy of EditState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? adjustments = null,Object? curves = null,Object? preset = freezed,Object? crop = null,Object? elements = null,Object? video = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? adjustments = null,Object? curves = null,Object? colorMix = null,Object? preset = freezed,Object? crop = null,Object? elements = null,Object? video = freezed,}) {
   return _then(_EditState(
 adjustments: null == adjustments ? _self.adjustments : adjustments // ignore: cast_nullable_to_non_nullable
 as Adjustments,curves: null == curves ? _self.curves : curves // ignore: cast_nullable_to_non_nullable
-as ToneCurves,preset: freezed == preset ? _self.preset : preset // ignore: cast_nullable_to_non_nullable
+as ToneCurves,colorMix: null == colorMix ? _self.colorMix : colorMix // ignore: cast_nullable_to_non_nullable
+as ColorMix,preset: freezed == preset ? _self.preset : preset // ignore: cast_nullable_to_non_nullable
 as PresetRef?,crop: null == crop ? _self.crop : crop // ignore: cast_nullable_to_non_nullable
 as CropTransform,elements: null == elements ? _self._elements : elements // ignore: cast_nullable_to_non_nullable
 as List<EditElement>,video: freezed == video ? _self.video : video // ignore: cast_nullable_to_non_nullable
@@ -393,7 +398,7 @@ $VideoTimelineCopyWith<$Res>? get video {
 /// @nodoc
 mixin _$CopiedEdits {
 
- Adjustments get adjustments; ToneCurves get curves; PresetRef? get preset;
+ Adjustments get adjustments; ToneCurves get curves; ColorMix get colorMix; PresetRef? get preset;
 /// Create a copy of CopiedEdits
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -407,20 +412,20 @@ $CopiedEditsCopyWith<CopiedEdits> get copyWith => _$CopiedEditsCopyWithImpl<Copi
 @override
 bool operator ==(Object other) {
   final _this = this as CopiedEdits;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CopiedEdits&&(identical(other.adjustments, _this.adjustments) || other.adjustments == _this.adjustments)&&(identical(other.curves, _this.curves) || other.curves == _this.curves)&&(identical(other.preset, _this.preset) || other.preset == _this.preset));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CopiedEdits&&(identical(other.adjustments, _this.adjustments) || other.adjustments == _this.adjustments)&&(identical(other.curves, _this.curves) || other.curves == _this.curves)&&(identical(other.colorMix, _this.colorMix) || other.colorMix == _this.colorMix)&&(identical(other.preset, _this.preset) || other.preset == _this.preset));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as CopiedEdits;
-  return Object.hash(runtimeType,_this.adjustments,_this.curves,_this.preset);
+  return Object.hash(runtimeType,_this.adjustments,_this.curves,_this.colorMix,_this.preset);
 }
 
 @override
 String toString() {
   final _this = this as CopiedEdits;
-  return 'CopiedEdits(adjustments: ${_this.adjustments}, curves: ${_this.curves}, preset: ${_this.preset})';
+  return 'CopiedEdits(adjustments: ${_this.adjustments}, curves: ${_this.curves}, colorMix: ${_this.colorMix}, preset: ${_this.preset})';
 }
 
 
@@ -431,7 +436,7 @@ abstract mixin class $CopiedEditsCopyWith<$Res>  {
   factory $CopiedEditsCopyWith(CopiedEdits value, $Res Function(CopiedEdits) _then) = _$CopiedEditsCopyWithImpl;
 @useResult
 $Res call({
- Adjustments adjustments, ToneCurves curves, PresetRef? preset
+ Adjustments adjustments, ToneCurves curves, ColorMix colorMix, PresetRef? preset
 });
 
 
@@ -448,11 +453,12 @@ class _$CopiedEditsCopyWithImpl<$Res>
 
 /// Create a copy of CopiedEdits
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? adjustments = null,Object? curves = null,Object? preset = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? adjustments = null,Object? curves = null,Object? colorMix = null,Object? preset = freezed,}) {
   return _then(CopiedEdits(
 adjustments: null == adjustments ? _self.adjustments : adjustments // ignore: cast_nullable_to_non_nullable
 as Adjustments,curves: null == curves ? _self.curves : curves // ignore: cast_nullable_to_non_nullable
-as ToneCurves,preset: freezed == preset ? _self.preset : preset // ignore: cast_nullable_to_non_nullable
+as ToneCurves,colorMix: null == colorMix ? _self.colorMix : colorMix // ignore: cast_nullable_to_non_nullable
+as ColorMix,preset: freezed == preset ? _self.preset : preset // ignore: cast_nullable_to_non_nullable
 as PresetRef?,
   ));
 }
@@ -559,10 +565,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Adjustments adjustments,  ToneCurves curves,  PresetRef? preset)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Adjustments adjustments,  ToneCurves curves,  ColorMix colorMix,  PresetRef? preset)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CopiedEdits() when $default != null:
-return $default(_that.adjustments,_that.curves,_that.preset);case _:
+return $default(_that.adjustments,_that.curves,_that.colorMix,_that.preset);case _:
   return orElse();
 
 }
@@ -580,10 +586,10 @@ return $default(_that.adjustments,_that.curves,_that.preset);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Adjustments adjustments,  ToneCurves curves,  PresetRef? preset)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Adjustments adjustments,  ToneCurves curves,  ColorMix colorMix,  PresetRef? preset)  $default,) {final _that = this;
 switch (_that) {
 case _CopiedEdits():
-return $default(_that.adjustments,_that.curves,_that.preset);case _:
+return $default(_that.adjustments,_that.curves,_that.colorMix,_that.preset);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -600,10 +606,10 @@ return $default(_that.adjustments,_that.curves,_that.preset);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Adjustments adjustments,  ToneCurves curves,  PresetRef? preset)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Adjustments adjustments,  ToneCurves curves,  ColorMix colorMix,  PresetRef? preset)?  $default,) {final _that = this;
 switch (_that) {
 case _CopiedEdits() when $default != null:
-return $default(_that.adjustments,_that.curves,_that.preset);case _:
+return $default(_that.adjustments,_that.curves,_that.colorMix,_that.preset);case _:
   return null;
 
 }
@@ -615,11 +621,12 @@ return $default(_that.adjustments,_that.curves,_that.preset);case _:
 @JsonSerializable()
 
 class _CopiedEdits implements CopiedEdits {
-  const _CopiedEdits({this.adjustments = const Adjustments(), this.curves = const ToneCurves(), this.preset});
+  const _CopiedEdits({this.adjustments = const Adjustments(), this.curves = const ToneCurves(), this.colorMix = const ColorMix(), this.preset});
   factory _CopiedEdits.fromJson(Map<String, dynamic> json) => _$CopiedEditsFromJson(json);
 
 @override@JsonKey() final  Adjustments adjustments;
 @override@JsonKey() final  ToneCurves curves;
+@override@JsonKey() final  ColorMix colorMix;
 @override final  PresetRef? preset;
 
 /// Create a copy of CopiedEdits
@@ -635,18 +642,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _CopiedEdits&&(identical(other.adjustments, adjustments) || other.adjustments == adjustments)&&(identical(other.curves, curves) || other.curves == curves)&&(identical(other.preset, preset) || other.preset == preset));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _CopiedEdits&&(identical(other.adjustments, adjustments) || other.adjustments == adjustments)&&(identical(other.curves, curves) || other.curves == curves)&&(identical(other.colorMix, colorMix) || other.colorMix == colorMix)&&(identical(other.preset, preset) || other.preset == preset));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,adjustments,curves,preset);
+    return Object.hash(runtimeType,adjustments,curves,colorMix,preset);
 }
 
 @override
 String toString() {
-    return 'CopiedEdits(adjustments: $adjustments, curves: $curves, preset: $preset)';
+    return 'CopiedEdits(adjustments: $adjustments, curves: $curves, colorMix: $colorMix, preset: $preset)';
 }
 
 
@@ -657,7 +664,7 @@ abstract mixin class _$CopiedEditsCopyWith<$Res> implements $CopiedEditsCopyWith
   factory _$CopiedEditsCopyWith(_CopiedEdits value, $Res Function(_CopiedEdits) _then) = __$CopiedEditsCopyWithImpl;
 @override @useResult
 $Res call({
- Adjustments adjustments, ToneCurves curves, PresetRef? preset
+ Adjustments adjustments, ToneCurves curves, ColorMix colorMix, PresetRef? preset
 });
 
 
@@ -674,11 +681,12 @@ class __$CopiedEditsCopyWithImpl<$Res>
 
 /// Create a copy of CopiedEdits
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? adjustments = null,Object? curves = null,Object? preset = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? adjustments = null,Object? curves = null,Object? colorMix = null,Object? preset = freezed,}) {
   return _then(_CopiedEdits(
 adjustments: null == adjustments ? _self.adjustments : adjustments // ignore: cast_nullable_to_non_nullable
 as Adjustments,curves: null == curves ? _self.curves : curves // ignore: cast_nullable_to_non_nullable
-as ToneCurves,preset: freezed == preset ? _self.preset : preset // ignore: cast_nullable_to_non_nullable
+as ToneCurves,colorMix: null == colorMix ? _self.colorMix : colorMix // ignore: cast_nullable_to_non_nullable
+as ColorMix,preset: freezed == preset ? _self.preset : preset // ignore: cast_nullable_to_non_nullable
 as PresetRef?,
   ));
 }

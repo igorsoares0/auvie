@@ -114,7 +114,7 @@ final class EditorControllerProvider
   }
 }
 
-String _$editorControllerHash() => r'c5ab032fc0c19bd2d48d9fe06b17412c5f6fb35d';
+String _$editorControllerHash() => r'49cc7df7de7363c40f85e167876a0035efba8aba';
 
 /// State and actions of the photo and video editors for one project.
 /// Edits autosave [saveDelay] after the last change (spec: errors never

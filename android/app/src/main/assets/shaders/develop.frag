@@ -1,7 +1,7 @@
 #version 300 es
 // The "develop" shader: every adjustment and preset, shared by photo and
 // (from M6) video. Parameters are normalized as in lib/core/models/adjustment.dart.
-// DevelopReference.kt (src/sharedTest) mirrors steps 2-5 on the CPU for tests:
+// DevelopReference.kt (src/sharedTest) mirrors steps 2-5 (with 3b) on the CPU for tests:
 // keep both in sync.
 // EXTERNAL_SOURCE (defined by DevelopRenderer) samples a video frame from a
 // SurfaceTexture instead of a 2D texture.
@@ -20,6 +20,8 @@ uniform sampler2D uSource;
 #endif
 uniform mat4 uSourceTransform; // source uv (top-left origin) -> texture coordinates
 uniform sampler2D uCurveLut;   // 256x1 RGBA: preset + user curves (Dart)
+uniform sampler2D uColorLut;   // 256x1 RGBA by hue: hue shift, saturation, luminance; 128 = 0 (Dart)
+uniform bool uColorMix;        // false when the color mix is neutral: step 3b is skipped
 uniform mat3 uGeometry;        // output uv -> source uv: crop, turns, flips, straighten
 uniform vec4 uTile;            // this draw's part of the output: offset.xy, scale.zw
 uniform vec2 uTexel;           // 1 / source image size
@@ -52,6 +54,14 @@ const float TONE_AMOUNT = 0.25;
 const float FADE_LIFT = 0.15;
 const float VIGNETTE_AMOUNT = 0.6;
 const float VIGNETTE_START = 0.35;
+// Color mix (HSL) at ±1: hue turns by MIX_HUE of the wheel (30 degrees),
+// saturation scales like uSaturation, luminance darkens by MIX_DARKEN or
+// lightens toward white by MIX_LIGHTEN. Pixels below MIX_CHROMA chroma
+// fade out of it, so grays and near-grays (no reliable hue) stay as they are.
+const float MIX_HUE = 30.0 / 360.0;
+const float MIX_DARKEN = 0.5;
+const float MIX_LIGHTEN = 0.35;
+const float MIX_CHROMA = 0.08;
 // Grain and sharpen strengths are uniforms (DevelopTuning.kt), tunable live
 // in the engine lab.
 const vec3 LUMA = vec3(0.2126, 0.7152, 0.0722);
@@ -70,6 +80,36 @@ vec3 source(vec2 uv) {
 
 float curve(float v, int channel) {
     return texture(uCurveLut, vec2((v * 255.0 + 0.5) / 256.0, 0.5))[channel];
+}
+
+// Color mix of a hue (0..1): entry i of the LUT is at hue (i + 0.5) / 256.
+// Interpolated here rather than by the sampler, so it wraps round the wheel.
+vec3 colorMixAt(float hue) {
+    float x = hue * 256.0 - 0.5;
+    float i0 = floor(x);
+    int a = int(mod(i0, 256.0));
+    int b = int(mod(i0 + 1.0, 256.0));
+    vec3 lo = texelFetch(uColorLut, ivec2(a, 0), 0).rgb;
+    vec3 hi = texelFetch(uColorLut, ivec2(b, 0), 0).rgb;
+    return (mix(lo, hi, x - i0) * 255.0 - 128.0) / 127.0;
+}
+
+// HSV hue (0..1) of a color with the given max channel and chroma (> 0).
+float hueOf(vec3 c, float maxc, float chroma) {
+    float h;
+    if (maxc == c.r) {
+        h = mod((c.g - c.b) / chroma, 6.0);
+    } else if (maxc == c.g) {
+        h = (c.b - c.r) / chroma + 2.0;
+    } else {
+        h = (c.r - c.g) / chroma + 4.0;
+    }
+    return h / 6.0;
+}
+
+vec3 hsvToRgb(float h, float s, float v) {
+    vec3 k = mod(vec3(5.0, 3.0, 1.0) + h * 6.0, 6.0);
+    return v - v * s * clamp(min(k, 4.0 - k), 0.0, 1.0);
 }
 
 // Dave Hoskins' hash: stable for large coordinates, unlike sin().
@@ -135,6 +175,21 @@ void main() {
     c = (c - 0.5) * (1.0 + uContrast) + 0.5;
     c = mix(vec3(dot(c, LUMA)), c, 1.0 + uSaturation);
     c = clamp(c, 0.0, 1.0);
+
+    // 3b. Color mix (HSL): hue, saturation and luminance by color range.
+    if (uColorMix) {
+        float maxc = max(c.r, max(c.g, c.b));
+        float chroma = maxc - min(c.r, min(c.g, c.b));
+        if (chroma > 0.0) {
+            float hue = hueOf(c, maxc, chroma);
+            vec3 m = colorMixAt(hue) * smoothstep(0.0, MIX_CHROMA, chroma);
+            c = hsvToRgb(fract(hue + m.x * MIX_HUE), chroma / maxc, maxc);
+            c = mix(vec3(dot(c, LUMA)), c, 1.0 + m.y);
+            c = m.z >= 0.0 ? mix(c, vec3(1.0), m.z * MIX_LIGHTEN)
+                           : c * (1.0 + m.z * MIX_DARKEN);
+            c = clamp(c, 0.0, 1.0);
+        }
+    }
 
     // 4. Curves.
     c = vec3(curve(c.r, 0), curve(c.g, 1), curve(c.b, 2));

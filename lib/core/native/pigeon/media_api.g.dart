@@ -186,6 +186,7 @@ class DevelopParams {
     required this.fade,
     required this.vignette,
     required this.curveLut,
+    required this.colorLut,
     required this.geometry,
   });
 
@@ -216,6 +217,10 @@ class DevelopParams {
   /// 256×1 RGBA (1024 bytes).
   Uint8List curveLut;
 
+  /// Color mix (HSL) by hue: 256×1 RGBA, hue shift / saturation /
+  /// luminance in R, G, B with 128 as 0 (lib/core/models/color_mix.dart).
+  Uint8List colorLut;
+
   /// Output uv → source uv as `[a, b, c, d, tx, ty]`
   /// (`x' = a·x + b·y + tx`, `y' = c·x + d·y + ty`): crop, turns, flips and
   /// straighten (lib/core/models/crop_geometry.dart).
@@ -236,6 +241,7 @@ class DevelopParams {
       fade,
       vignette,
       curveLut,
+      colorLut,
       geometry,
     ];
   }
@@ -260,7 +266,8 @@ class DevelopParams {
       fade: result[10]! as double,
       vignette: result[11]! as double,
       curveLut: result[12]! as Uint8List,
-      geometry: result[13]! as Float64List,
+      colorLut: result[13]! as Uint8List,
+      geometry: result[14]! as Float64List,
     );
   }
 
@@ -286,6 +293,7 @@ class DevelopParams {
         _deepEquals(fade, other.fade) &&
         _deepEquals(vignette, other.vignette) &&
         _deepEquals(curveLut, other.curveLut) &&
+        _deepEquals(colorLut, other.colorLut) &&
         _deepEquals(geometry, other.geometry);
   }
 
@@ -295,7 +303,7 @@ class DevelopParams {
 
   @override
   String toString() {
-    return 'DevelopParams(exposure: $exposure, brightness: $brightness, contrast: $contrast, highlights: $highlights, shadows: $shadows, saturation: $saturation, temperature: $temperature, tint: $tint, sharpen: $sharpen, grain: $grain, fade: $fade, vignette: $vignette, curveLut: $curveLut, geometry: $geometry)';
+    return 'DevelopParams(exposure: $exposure, brightness: $brightness, contrast: $contrast, highlights: $highlights, shadows: $shadows, saturation: $saturation, temperature: $temperature, tint: $tint, sharpen: $sharpen, grain: $grain, fade: $fade, vignette: $vignette, curveLut: $curveLut, colorLut: $colorLut, geometry: $geometry)';
   }
 }
 

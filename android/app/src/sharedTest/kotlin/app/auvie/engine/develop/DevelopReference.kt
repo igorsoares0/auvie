@@ -6,8 +6,8 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 /**
- * CPU mirror of develop.frag steps 2-5 (no sharpen, no grain), used as the
- * test oracle. Keep the constants and order identical to the shader.
+ * CPU mirror of develop.frag steps 2-5 with 3b (no sharpen, no grain), used
+ * as the test oracle. Keep the constants and order identical to the shader.
  */
 object DevelopReference {
     private const val EXPOSURE_STOPS = 2.0
@@ -17,6 +17,10 @@ object DevelopReference {
     private const val FADE_LIFT = 0.15
     private const val VIGNETTE_AMOUNT = 0.6
     private const val VIGNETTE_START = 0.35
+    private const val MIX_HUE = 30.0 / 360.0
+    private const val MIX_DARKEN = 0.5
+    private const val MIX_LIGHTEN = 0.35
+    private const val MIX_CHROMA = 0.08
     private val LUMA = doubleArrayOf(0.2126, 0.7152, 0.0722)
 
     /** [rgb] and the result are sRGB in 0..1; [u], [v] are texture coordinates. */
@@ -45,6 +49,9 @@ object DevelopReference {
         val l2 = luma(c)
         c = DoubleArray(3) { (l2 + (c[it] - l2) * (1 + s.saturation)).coerceIn(0.0, 1.0) }
 
+        // 3b. Color mix.
+        if (s.hasColorMix) c = colorMix(c, s.colorLut)
+
         // 4. Curves (linear interpolation, like GL_LINEAR on the LUT texture).
         c = DoubleArray(3) { curve(s.curveLut, c[it], it) }
 
@@ -66,6 +73,58 @@ object DevelopReference {
         val out = develop(DoubleArray(3) { rgb[it] / 255.0 }, s, u, v, aspect)
         return IntArray(3) { Math.round(out[it] * 255).toInt() }
     }
+
+    private fun colorMix(c: DoubleArray, lut: ByteArray): DoubleArray {
+        val maxc = maxOf(c[0], c[1], c[2])
+        val chroma = maxc - minOf(c[0], c[1], c[2])
+        if (chroma <= 0) return c
+        val hue = hueOf(c, maxc, chroma)
+        val w = smoothstep(0.0, MIX_CHROMA, chroma)
+        val m = colorMixAt(lut, hue).map { it * w }
+        var out = hsvToRgb(fract(hue + m[0] * MIX_HUE), chroma / maxc, maxc)
+        val l = luma(out)
+        out = DoubleArray(3) { l + (out[it] - l) * (1 + m[1]) }
+        out = DoubleArray(3) {
+            if (m[2] >= 0) out[it] + (1 - out[it]) * m[2] * MIX_LIGHTEN else out[it] * (1 + m[2] * MIX_DARKEN)
+        }
+        return DoubleArray(3) { out[it].coerceIn(0.0, 1.0) }
+    }
+
+    /** Hue shift, saturation and luminance at [hue], like colorMixAt in the shader. */
+    fun colorMixAt(lut: ByteArray, hue: Double): DoubleArray {
+        val x = hue * 256 - 0.5
+        val i0 = floor(x)
+        val f = x - i0
+        val a = Math.floorMod(i0.toInt(), 256)
+        val b = Math.floorMod(i0.toInt() + 1, 256)
+        return DoubleArray(3) {
+            val lo = (lut[a * 4 + it].toInt() and 0xFF).toDouble()
+            val hi = (lut[b * 4 + it].toInt() and 0xFF).toDouble()
+            (lo + (hi - lo) * f - DevelopSettings.COLOR_LUT_ZERO) / 127
+        }
+    }
+
+    private fun hueOf(c: DoubleArray, maxc: Double, chroma: Double): Double {
+        val h = when (maxc) {
+            c[0] -> mod((c[1] - c[2]) / chroma, 6.0)
+            c[1] -> (c[2] - c[0]) / chroma + 2
+            else -> (c[0] - c[1]) / chroma + 4
+        }
+        return h / 6
+    }
+
+    private fun hsvToRgb(h: Double, s: Double, v: Double): DoubleArray {
+        val n = doubleArrayOf(5.0, 3.0, 1.0)
+        return DoubleArray(3) {
+            val k = mod(n[it] + h * 6, 6.0)
+            v - v * s * minOf(k, 4 - k).coerceIn(0.0, 1.0)
+        }
+    }
+
+    /** GLSL mod: the result has the sign of [y]. */
+    private fun mod(x: Double, y: Double) = x - y * floor(x / y)
+
+    private fun fract(x: Double) = x - floor(x)
 
     private fun luma(c: DoubleArray) = c[0] * LUMA[0] + c[1] * LUMA[1] + c[2] * LUMA[2]
 

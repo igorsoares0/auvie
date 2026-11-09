@@ -311,6 +311,11 @@ data class DevelopParams (
   /** 256×1 RGBA (1024 bytes). */
   val curveLut: ByteArray,
   /**
+   * Color mix (HSL) by hue: 256×1 RGBA, hue shift / saturation /
+   * luminance in R, G, B with 128 as 0 (lib/core/models/color_mix.dart).
+   */
+  val colorLut: ByteArray,
+  /**
    * Output uv → source uv as `[a, b, c, d, tx, ty]`
    * (`x' = a·x + b·y + tx`, `y' = c·x + d·y + ty`): crop, turns, flips and
    * straighten (lib/core/models/crop_geometry.dart).
@@ -333,8 +338,9 @@ data class DevelopParams (
       val fade = pigeonVar_list[10] as Double
       val vignette = pigeonVar_list[11] as Double
       val curveLut = pigeonVar_list[12] as ByteArray
-      val geometry = pigeonVar_list[13] as DoubleArray
-      return DevelopParams(exposure, brightness, contrast, highlights, shadows, saturation, temperature, tint, sharpen, grain, fade, vignette, curveLut, geometry)
+      val colorLut = pigeonVar_list[13] as ByteArray
+      val geometry = pigeonVar_list[14] as DoubleArray
+      return DevelopParams(exposure, brightness, contrast, highlights, shadows, saturation, temperature, tint, sharpen, grain, fade, vignette, curveLut, colorLut, geometry)
     }
   }
   fun toList(): List<Any?> {
@@ -352,6 +358,7 @@ data class DevelopParams (
       fade,
       vignette,
       curveLut,
+      colorLut,
       geometry,
     )
   }
@@ -363,7 +370,7 @@ data class DevelopParams (
       return true
     }
     val other = other as DevelopParams
-    return MediaApiPigeonUtils.deepEquals(this.exposure, other.exposure) && MediaApiPigeonUtils.deepEquals(this.brightness, other.brightness) && MediaApiPigeonUtils.deepEquals(this.contrast, other.contrast) && MediaApiPigeonUtils.deepEquals(this.highlights, other.highlights) && MediaApiPigeonUtils.deepEquals(this.shadows, other.shadows) && MediaApiPigeonUtils.deepEquals(this.saturation, other.saturation) && MediaApiPigeonUtils.deepEquals(this.temperature, other.temperature) && MediaApiPigeonUtils.deepEquals(this.tint, other.tint) && MediaApiPigeonUtils.deepEquals(this.sharpen, other.sharpen) && MediaApiPigeonUtils.deepEquals(this.grain, other.grain) && MediaApiPigeonUtils.deepEquals(this.fade, other.fade) && MediaApiPigeonUtils.deepEquals(this.vignette, other.vignette) && MediaApiPigeonUtils.deepEquals(this.curveLut, other.curveLut) && MediaApiPigeonUtils.deepEquals(this.geometry, other.geometry)
+    return MediaApiPigeonUtils.deepEquals(this.exposure, other.exposure) && MediaApiPigeonUtils.deepEquals(this.brightness, other.brightness) && MediaApiPigeonUtils.deepEquals(this.contrast, other.contrast) && MediaApiPigeonUtils.deepEquals(this.highlights, other.highlights) && MediaApiPigeonUtils.deepEquals(this.shadows, other.shadows) && MediaApiPigeonUtils.deepEquals(this.saturation, other.saturation) && MediaApiPigeonUtils.deepEquals(this.temperature, other.temperature) && MediaApiPigeonUtils.deepEquals(this.tint, other.tint) && MediaApiPigeonUtils.deepEquals(this.sharpen, other.sharpen) && MediaApiPigeonUtils.deepEquals(this.grain, other.grain) && MediaApiPigeonUtils.deepEquals(this.fade, other.fade) && MediaApiPigeonUtils.deepEquals(this.vignette, other.vignette) && MediaApiPigeonUtils.deepEquals(this.curveLut, other.curveLut) && MediaApiPigeonUtils.deepEquals(this.colorLut, other.colorLut) && MediaApiPigeonUtils.deepEquals(this.geometry, other.geometry)
   }
 
   override fun hashCode(): Int {
@@ -381,11 +388,12 @@ data class DevelopParams (
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.fade)
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.vignette)
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.curveLut)
+    result = 31 * result + MediaApiPigeonUtils.deepHash(this.colorLut)
     result = 31 * result + MediaApiPigeonUtils.deepHash(this.geometry)
     return result
   }
   override fun toString(): String {
-    return "DevelopParams(exposure=$exposure, brightness=$brightness, contrast=$contrast, highlights=$highlights, shadows=$shadows, saturation=$saturation, temperature=$temperature, tint=$tint, sharpen=$sharpen, grain=$grain, fade=$fade, vignette=$vignette, curveLut=${curveLut.contentToString()}, geometry=${geometry.contentToString()})"
+    return "DevelopParams(exposure=$exposure, brightness=$brightness, contrast=$contrast, highlights=$highlights, shadows=$shadows, saturation=$saturation, temperature=$temperature, tint=$tint, sharpen=$sharpen, grain=$grain, fade=$fade, vignette=$vignette, curveLut=${curveLut.contentToString()}, colorLut=${colorLut.contentToString()}, geometry=${geometry.contentToString()})"
   }
 }
 

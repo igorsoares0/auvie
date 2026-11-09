@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import app.auvie.engine.develop.ColorLuts
 import app.auvie.engine.develop.DevelopReference
 import app.auvie.engine.develop.DevelopSettings
 import app.auvie.engine.develop.DevelopVectors
@@ -70,6 +71,27 @@ class DevelopRendererTest {
                     .that(DevelopReference.maxChannelDifference(actual, expected))
                     .isAtMost(TOLERANCE)
             }
+        }
+    }
+
+    @Test
+    fun colorMixMatchesTheReference() {
+        val lut = ColorLuts.byHue { hue ->
+            doubleArrayOf(kotlin.math.sin(hue * 6.283), -0.6 + hue, 0.8 - 1.6 * hue)
+        }
+        val settings = DevelopSettings(colorLut = lut, saturation = 0.1f)
+        val colors = listOf(
+            intArrayOf(220, 50, 40), intArrayOf(230, 150, 60), intArrayOf(210, 200, 70),
+            intArrayOf(60, 170, 70), intArrayOf(50, 180, 190), intArrayOf(40, 60, 220),
+            intArrayOf(140, 70, 200), intArrayOf(210, 60, 170), intArrayOf(128, 128, 128),
+            intArrayOf(120, 110, 105),
+        )
+        for (rgb in colors) {
+            val actual = rgbAt(render(solid(4, 4, rgb), settings), 1, 1)
+            val expected = DevelopReference.develop255(rgb, settings)
+            assertWithMessage("${rgb.toList()}: gpu ${actual.toList()} cpu ${expected.toList()}")
+                .that(DevelopReference.maxChannelDifference(actual, expected))
+                .isAtMost(TOLERANCE)
         }
     }
 

@@ -16,6 +16,7 @@ class VideoExportPlannerTest {
         shadows = 0.0, saturation = 0.3, temperature = 0.0, tint = 0.0,
         sharpen = 0.0, grain = 0.4, fade = 0.0, vignette = 0.2,
         curveLut = DevelopSettings.IDENTITY_LUT.copyOf().also { it[5] = 9 },
+        colorLut = DevelopSettings.IDENTITY_COLOR_LUT.copyOf().also { it[6] = 40 },
         geometry = doubleArrayOf(0.5, 0.0, 0.0, 1.0, 0.25, 0.0),
     )
 
@@ -82,11 +83,20 @@ class VideoExportPlannerTest {
     }
 
     @Test
+    fun `a job file from before the color mix has a neutral one`() {
+        val json = org.json.JSONObject(VideoExportPlanner.toJson(request(layers = emptyList())))
+        json.getJSONObject("params").remove("colorLut")
+        val copy = VideoExportPlanner.fromJson(json.toString())
+        assertThat(copy.params.colorLut).isEqualTo(DevelopSettings.IDENTITY_COLOR_LUT)
+    }
+
+    @Test
     fun `the job file round-trips the request`() {
         val original = request(layers = listOf(layer(), layer(start = null, end = null)))
         val copy = VideoExportPlanner.fromJson(VideoExportPlanner.toJson(original))
         assertThat(copy.copy(params = params)).isEqualTo(original)
         assertThat(copy.params.curveLut).isEqualTo(params.curveLut)
+        assertThat(copy.params.colorLut).isEqualTo(params.colorLut)
         assertThat(copy.params.geometry).isEqualTo(params.geometry)
         assertThat(DevelopSettings.from(copy.params)).isEqualTo(DevelopSettings.from(params))
         assertThat(copy.layers[1].startMs).isNull()

@@ -13,6 +13,9 @@ _EditState _$EditStateFromJson(Map<String, dynamic> json) => _EditState(
   curves: json['curves'] == null
       ? const ToneCurves()
       : ToneCurves.fromJson(json['curves'] as Map<String, dynamic>),
+  colorMix: json['colorMix'] == null
+      ? const ColorMix()
+      : ColorMix.fromJson(json['colorMix'] as Map<String, dynamic>),
   preset: json['preset'] == null
       ? null
       : PresetRef.fromJson(json['preset'] as Map<String, dynamic>),
@@ -33,6 +36,7 @@ Map<String, dynamic> _$EditStateToJson(_EditState instance) =>
     <String, dynamic>{
       'adjustments': instance.adjustments.toJson(),
       'curves': instance.curves.toJson(),
+      'colorMix': instance.colorMix.toJson(),
       'preset': instance.preset?.toJson(),
       'crop': instance.crop.toJson(),
       'elements': instance.elements.map((e) => e.toJson()).toList(),
@@ -46,6 +50,9 @@ _CopiedEdits _$CopiedEditsFromJson(Map<String, dynamic> json) => _CopiedEdits(
   curves: json['curves'] == null
       ? const ToneCurves()
       : ToneCurves.fromJson(json['curves'] as Map<String, dynamic>),
+  colorMix: json['colorMix'] == null
+      ? const ColorMix()
+      : ColorMix.fromJson(json['colorMix'] as Map<String, dynamic>),
   preset: json['preset'] == null
       ? null
       : PresetRef.fromJson(json['preset'] as Map<String, dynamic>),
@@ -55,5 +62,6 @@ Map<String, dynamic> _$CopiedEditsToJson(_CopiedEdits instance) =>
     <String, dynamic>{
       'adjustments': instance.adjustments.toJson(),
       'curves': instance.curves.toJson(),
+      'colorMix': instance.colorMix.toJson(),
       'preset': instance.preset?.toJson(),
     };

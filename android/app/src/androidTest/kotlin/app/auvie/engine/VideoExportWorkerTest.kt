@@ -41,7 +41,8 @@ class VideoExportWorkerTest {
         params = DevelopParams(
             exposure = 0.0, brightness = 0.0, contrast = 0.0, highlights = 0.0, shadows = 0.0,
             saturation = 0.0, temperature = 0.0, tint = 0.0, sharpen = 0.0, grain = 0.0, fade = 0.0,
-            vignette = 0.0, curveLut = DevelopSettings.IDENTITY_LUT, geometry = Geometry.IDENTITY,
+            vignette = 0.0, curveLut = DevelopSettings.IDENTITY_LUT,
+            colorLut = DevelopSettings.IDENTITY_COLOR_LUT, geometry = Geometry.IDENTITY,
         ),
         outputWidth = 320, outputHeight = 180, trimStartMs = 0, trimEndMs = 1000,
         includeAudio = false, videoBitrate = 1_000_000, fileName = "worker_test", layers = emptyList(),

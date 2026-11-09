@@ -9,6 +9,7 @@ String describeEdit(EditState edit, Preset? preset) {
   final count =
       edit.adjustments.values.length +
       (edit.curves.isIdentity ? 0 : 1) +
+      (edit.colorMix.isNeutral ? 0 : 1) +
       (edit.crop.isIdentity ? 0 : 1);
   String? counted(int n, String noun) =>
       n == 0 ? null : '${_numberWord(n)} $noun${n == 1 ? '' : 's'}';
@@ -29,6 +30,10 @@ String describeEdit(EditState edit, Preset? preset) {
   final percent = (ref.intensity * 100).round();
   return rest.isEmpty ? '$name, at $percent%' : '$name $percent%, $rest';
 }
+
+/// What "Paste edits" would apply: "Ektar 72%, two adjustments".
+String describeCopiedEdits(CopiedEdits edits, Preset? preset) =>
+    describeEdit(const EditState().pasteEdits(edits), preset);
 
 /// "Ektar 02" → "Ektar"; names without a stock number stay whole.
 String presetBaseName(String name) {

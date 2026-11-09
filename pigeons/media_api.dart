@@ -49,6 +49,7 @@ class DevelopParams {
     required this.fade,
     required this.vignette,
     required this.curveLut,
+    required this.colorLut,
     required this.geometry,
   });
 
@@ -67,6 +68,10 @@ class DevelopParams {
 
   /// 256×1 RGBA (1024 bytes).
   Uint8List curveLut;
+
+  /// Color mix (HSL) by hue: 256×1 RGBA, hue shift / saturation /
+  /// luminance in R, G, B with 128 as 0 (lib/core/models/color_mix.dart).
+  Uint8List colorLut;
 
   /// Output uv → source uv as `[a, b, c, d, tx, ty]`
   /// (`x' = a·x + b·y + tx`, `y' = c·x + d·y + ty`): crop, turns, flips and

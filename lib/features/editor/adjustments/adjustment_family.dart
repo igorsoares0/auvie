@@ -1,7 +1,7 @@
 import 'package:auvie/app/widgets/auvie_icon.dart';
 import 'package:auvie/core/models/adjustment.dart';
 
-/// The five groups of the ADJUST tool (handoff "Adjust").
+/// The groups of the ADJUST tool (handoff "Adjust", plus HSL).
 enum AdjustmentFamily {
   light(AuvieIcons.light, [
     Adjustment.exposure,
@@ -15,6 +15,9 @@ enum AdjustmentFamily {
     Adjustment.temperature,
     Adjustment.tint,
   ]),
+
+  /// Hue, saturation and luminance per color range (color mix controls).
+  hsl(AuvieIcons.hsl, []),
 
   /// Tone curves, edited with the curve editor instead of a ruler.
   curve(AuvieIcons.curve, []),

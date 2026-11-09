@@ -4,7 +4,8 @@ import app.auvie.engine.pigeon.DevelopParams
 
 /**
  * Validated develop parameters: the 12 adjustments of
- * lib/core/models/adjustment.dart (same ranges) plus the curve LUT.
+ * lib/core/models/adjustment.dart (same ranges) plus the curve and color mix
+ * LUTs.
  */
 class DevelopSettings(
     val exposure: Float = 0f,
@@ -21,6 +22,7 @@ class DevelopSettings(
     val vignette: Float = 0f,
     curveLut: ByteArray = IDENTITY_LUT,
     geometry: DoubleArray = Geometry.IDENTITY,
+    colorLut: ByteArray = IDENTITY_COLOR_LUT,
 ) {
     /** Output uv → source uv, `[a, b, c, d, tx, ty]` (see Geometry). */
     val geometry: DoubleArray = Geometry.validated(geometry)
@@ -30,13 +32,26 @@ class DevelopSettings(
         require(it.size == LUT_BYTES) { "curveLut must be $LUT_BYTES bytes, was ${it.size}" }
     }
 
+    /**
+     * Color mix (HSL) by hue, 256x1 RGBA: hue shift, saturation and
+     * luminance in R, G, B, 128 meaning 0 (lib/core/models/color_mix.dart).
+     */
+    val colorLut: ByteArray = colorLut.also {
+        require(it.size == LUT_BYTES) { "colorLut must be $LUT_BYTES bytes, was ${it.size}" }
+    }
+
+    /** False when the color mix changes nothing (the shader skips it). */
+    val hasColorMix: Boolean = !colorLut.contentEquals(IDENTITY_COLOR_LUT)
+
     override fun equals(other: Any?): Boolean =
         other is DevelopSettings && values() == other.values() &&
             curveLut.contentEquals(other.curveLut) &&
+            colorLut.contentEquals(other.colorLut) &&
             geometry.contentEquals(other.geometry)
 
     override fun hashCode(): Int =
-        31 * (31 * values().hashCode() + curveLut.contentHashCode()) + geometry.contentHashCode()
+        31 * (31 * (31 * values().hashCode() + curveLut.contentHashCode()) + colorLut.contentHashCode()) +
+            geometry.contentHashCode()
 
     override fun toString(): String = "DevelopSettings(${PARAMETERS.zip(values())})"
 
@@ -61,6 +76,13 @@ class DevelopSettings(
             (if (i % 4 == 3) 255 else i / 4).toByte()
         }
 
+        /** Byte that stands for 0 in the color LUT (`v -> 128 + 127 v`). */
+        const val COLOR_LUT_ZERO = 128
+
+        val IDENTITY_COLOR_LUT: ByteArray = ByteArray(LUT_BYTES) { i ->
+            (if (i % 4 == 3) 255 else COLOR_LUT_ZERO).toByte()
+        }
+
         val NEUTRAL = DevelopSettings()
 
         /** Builds settings from named values, clamping each to its range. */
@@ -68,6 +90,7 @@ class DevelopSettings(
             values: Map<String, Double>,
             curveLut: ByteArray = IDENTITY_LUT,
             geometry: DoubleArray = Geometry.IDENTITY,
+            colorLut: ByteArray = IDENTITY_COLOR_LUT,
         ): DevelopSettings {
             val unknown = values.keys - PARAMETERS.toSet()
             require(unknown.isEmpty()) { "Unknown parameters: $unknown" }
@@ -90,6 +113,7 @@ class DevelopSettings(
                 vignette = v("vignette"),
                 curveLut = curveLut,
                 geometry = geometry,
+                colorLut = colorLut,
             )
         }
 
@@ -110,6 +134,7 @@ class DevelopSettings(
             ),
             p.curveLut,
             p.geometry,
+            p.colorLut,
         )
     }
 }

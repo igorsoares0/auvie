@@ -17,6 +17,8 @@ import 'package:auvie/features/editor/text/type_panel.dart';
 import 'package:auvie/features/editor/video/timeline_panel.dart';
 import 'package:auvie/features/editor/video/video_playback.dart';
 import 'package:auvie/features/editor/video/video_transport.dart';
+import 'package:auvie/features/projects/edit_actions_sheet.dart';
+import 'package:auvie/features/projects/edits_clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -156,6 +158,35 @@ class _Editor extends ConsumerWidget {
   final VoidCallback onClose;
   final VoidCallback onExport;
 
+  /// Copy this edit's look, or paste a copied one on it.
+  Future<void> _editActions(BuildContext context, WidgetRef ref) async {
+    final action = await showEditActions(
+      context,
+      name: session.project.name,
+      clipboard: copiedEditsCaption(ref),
+      canDelete: false,
+    );
+    if (!context.mounted) return;
+    final clipboard = ref.read(editsClipboardProvider.notifier);
+    final String message;
+    switch (action) {
+      case EditAction.copy:
+        await clipboard.copy(session.edit.copyEdits());
+        message = 'Edits copied.';
+      case EditAction.paste:
+        final edits = ref.read(editsClipboardProvider);
+        if (edits == null) return;
+        controller.pasteEdits(edits);
+        message = 'Edits pasted.';
+      case EditAction.delete || null:
+        return;
+    }
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final id = session.project.id;
@@ -190,6 +221,7 @@ class _Editor extends ConsumerWidget {
             title: session.project.name,
             onClose: onClose,
             onExport: onExport,
+            onTitleTap: () => _editActions(context, ref),
           ),
         Expanded(
           child: Padding(

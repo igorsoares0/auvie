@@ -12,9 +12,11 @@ class DevelopSettingsTest {
         val params = DevelopParams(
             0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12,
             DevelopSettings.IDENTITY_LUT,
+            ColorLuts.uniform(saturation = 0.5),
             doubleArrayOf(0.5, 0.0, 0.0, 1.0, 0.25, 0.0),
         )
         val settings = DevelopSettings.from(params)
+        assertThat(settings.colorLut).isEqualTo(params.colorLut)
         val values = settings.values()
         assertThat(values).hasSize(DevelopSettings.PARAMETERS.size)
         values.forEachIndexed { i, v -> assertThat(v).isWithin(1e-6f).of((i + 1) / 100f) }
@@ -36,6 +38,9 @@ class DevelopSettingsTest {
         }
         assertThrows(IllegalArgumentException::class.java) {
             DevelopSettings(curveLut = ByteArray(10))
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            DevelopSettings(colorLut = ByteArray(10))
         }
         assertThrows(IllegalArgumentException::class.java) {
             DevelopSettings(geometry = doubleArrayOf(1.0, 0.0))

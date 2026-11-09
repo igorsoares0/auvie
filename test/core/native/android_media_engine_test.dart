@@ -4,6 +4,8 @@ import 'dart:typed_data';
 
 import 'package:auvie/core/models/adjustment.dart';
 import 'package:auvie/core/models/adjustments.dart';
+import 'package:auvie/core/models/color_mix.dart';
+import 'package:auvie/core/models/edit_state.dart';
 import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/native/android_media_engine.dart';
 import 'package:auvie/core/native/media_engine.dart';
@@ -47,6 +49,7 @@ void main() {
       fade: 0,
       vignette: 0,
       curveLut: Uint8List(0),
+      colorLut: Uint8List(0),
       geometry: Float64List(6),
     );
     registerFallbackValue(params);
@@ -90,6 +93,20 @@ void main() {
       final params = developParamsFrom(RenderParams.neutral);
       expect(params.curveLut, RenderParams.neutral.curveLut);
       expect(params.geometry, [1, 0, 0, 1, 0, 0]);
+    });
+
+    test('sends the color mix LUT', () {
+      expect(
+        developParamsFrom(RenderParams.neutral).colorLut,
+        identityColorLut,
+      );
+      final mix = ColorMix.of(const {
+        (ColorBand.blue, ColorChannel.saturation): -0.5,
+      });
+      final params = developParamsFrom(
+        RenderParams.fromEdit(EditState(colorMix: mix), null, mediaRatio: 1),
+      );
+      expect(params.colorLut, buildColorLut(mix));
     });
 
     test('the shared shader vectors use the same parameter names', () {

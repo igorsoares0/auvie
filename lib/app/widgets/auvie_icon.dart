@@ -15,6 +15,7 @@ enum AuvieIcons {
   film,
   flip,
   grain,
+  hsl,
   light,
   mute,
   pause,
@@ -33,10 +34,11 @@ enum AuvieIcons {
 
   String get asset => 'assets/icons/$name.svg';
 
-  /// Drawing grid: the adjustment family icons (LIGHT, COLOR, CURVE, GRAIN,
-  /// CROP) are drawn on 28 and shown at 28 pt; every other icon is on 24.
+  /// Drawing grid: the adjustment family icons (LIGHT, COLOR, HSL, CURVE,
+  /// GRAIN, CROP) are drawn on 28 and shown at 28 pt; every other icon is
+  /// on 24.
   double get grid => switch (this) {
-    light || color || curve || grain || crop => 28,
+    light || color || hsl || curve || grain || crop => 28,
     _ => 24,
   };
 }

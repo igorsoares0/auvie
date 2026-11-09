@@ -56,7 +56,8 @@ class VideoExporterTest {
     private fun params(exposure: Double = 0.0, geometry: DoubleArray = Geometry.IDENTITY) = DevelopParams(
         exposure = exposure, brightness = 0.0, contrast = 0.0, highlights = 0.0, shadows = 0.0,
         saturation = 0.0, temperature = 0.0, tint = 0.0, sharpen = 0.0, grain = 0.0, fade = 0.0,
-        vignette = 0.0, curveLut = DevelopSettings.IDENTITY_LUT, geometry = geometry,
+        vignette = 0.0, curveLut = DevelopSettings.IDENTITY_LUT,
+        colorLut = DevelopSettings.IDENTITY_COLOR_LUT, geometry = geometry,
     )
 
     private fun request(

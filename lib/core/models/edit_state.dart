@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:auvie/core/models/adjustment.dart';
 import 'package:auvie/core/models/adjustments.dart';
+import 'package:auvie/core/models/color_mix.dart';
 import 'package:auvie/core/models/crop.dart';
 import 'package:auvie/core/models/elements.dart';
 import 'package:auvie/core/models/preset.dart';
@@ -19,6 +20,9 @@ abstract class EditState with _$EditState {
   const factory({
     @Default(Adjustments()) Adjustments adjustments,
     @Default(ToneCurves()) ToneCurves curves,
+
+    /// Hue / saturation / luminance per color range (the HSL tool).
+    @Default(ColorMix()) ColorMix colorMix,
     PresetRef? preset,
     @Default(CropTransform()) CropTransform crop,
     @Default(<EditElement>[]) List<EditElement> elements,
@@ -37,6 +41,7 @@ abstract class EditState with _$EditState {
   bool get isUnedited =>
       adjustments.isNeutral &&
       curves.isIdentity &&
+      colorMix.isNeutral &&
       preset == null &&
       crop.isIdentity &&
       elements.isEmpty &&
@@ -136,13 +141,19 @@ abstract class EditState with _$EditState {
 
   // Copy / paste edits (spec §29).
 
-  CopiedEdits copyEdits() =>
-      CopiedEdits(adjustments: adjustments, curves: curves, preset: preset);
+  CopiedEdits copyEdits() => CopiedEdits(
+    adjustments: adjustments,
+    curves: curves,
+    colorMix: colorMix,
+    preset: preset,
+  );
 
-  /// Replaces adjustments, curves and preset; crop, elements and trim stay.
+  /// Replaces adjustments, curves, color mix and preset; crop, elements and
+  /// trim stay.
   EditState pasteEdits(CopiedEdits edits) => copyWith(
     adjustments: edits.adjustments,
     curves: edits.curves,
+    colorMix: edits.colorMix,
     preset: edits.preset,
   );
 }
@@ -153,6 +164,7 @@ abstract class CopiedEdits with _$CopiedEdits {
   const factory({
     @Default(Adjustments()) Adjustments adjustments,
     @Default(ToneCurves()) ToneCurves curves,
+    @Default(ColorMix()) ColorMix colorMix,
     PresetRef? preset,
   }) = _CopiedEdits;
 

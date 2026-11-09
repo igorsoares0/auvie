@@ -17,6 +17,8 @@ import 'package:auvie/core/models/project.dart';
 import 'package:auvie/core/storage/project_repository.dart';
 import 'package:auvie/core/subscription/entitlement_providers.dart';
 import 'package:auvie/features/projects/delete_project_sheet.dart';
+import 'package:auvie/features/projects/edit_actions_sheet.dart';
+import 'package:auvie/features/projects/edits_clipboard.dart';
 import 'package:auvie/features/projects/project_providers.dart';
 import 'package:auvie/features/projects/start_project.dart';
 import 'package:flutter/foundation.dart';
@@ -48,7 +50,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   void _open(String id, MediaType type) => openProject(context, id, type);
 
-  /// Hold a recent edit to delete it (its original stays in the gallery).
+  /// Hold a recent edit to copy its edits, paste copied ones on it, or
+  /// delete it (its original stays in the gallery).
+  Future<void> _actions(ProjectSummary project) async {
+    final action = await showEditActions(
+      context,
+      name: project.name,
+      clipboard: copiedEditsCaption(ref),
+    );
+    if (!mounted) return;
+    final clipboard = ref.read(editsClipboardProvider.notifier);
+    switch (action) {
+      case EditAction.copy:
+        if (await clipboard.copyFrom(project.id)) _tell('Edits copied.');
+      case EditAction.paste:
+        if (await clipboard.pasteInto(project.id)) _tell('Edits pasted.');
+      case EditAction.delete:
+        await _delete(project);
+      case null:
+        break;
+    }
+  }
+
+  void _tell(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
   Future<void> _delete(ProjectSummary project) async {
     final confirmed = await confirmDeleteProject(context, name: project.name);
     if (!confirmed) return;
@@ -138,7 +168,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           recents: recents,
                           catalog: catalog,
                           onOpen: (p) => _open(p.id, p.mediaType),
-                          onHold: _delete,
+                          onHold: _actions,
                         ),
                       if (!kReleaseMode)
                         Align(

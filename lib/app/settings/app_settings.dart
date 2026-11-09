@@ -27,6 +27,7 @@ class AppSettings {
   static const _notificationsAsked = 'auvie.notificationsAsked';
   static const _entitlement = 'auvie.entitlement';
   static const _simulatedEntitlement = 'auvie.entitlement.simulated';
+  static const _copiedEdits = 'auvie.copiedEdits';
 
   /// Frames per roll, like 36-exposure film.
   static const framesPerRoll = 36;
@@ -83,6 +84,12 @@ class AppSettings {
       await _prefs.setString(_simulatedEntitlement, json);
     }
   }
+
+  /// The edits last copied with "Copy edits" (JSON), kept across launches.
+  String? get copiedEdits => _prefs.getString(_copiedEdits);
+
+  Future<void> saveCopiedEdits(String json) =>
+      _prefs.setString(_copiedEdits, json);
 
   /// Names the next project like a frame on a roll of film:
   /// "Roll 001 · 01" … "Roll 001 · 36", "Roll 002 · 01" …

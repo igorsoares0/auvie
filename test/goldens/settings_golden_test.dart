@@ -40,7 +40,19 @@ void main() {
     await tester.pumpTestApp(app);
     await tester.longPress(find.byKey(const Key('recent-p1')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('edit-action-delete')));
+    await tester.pumpAndSettle();
     await expectScreen('delete_sheet');
+  });
+
+  testWidgets('edit actions sheet', (tester) async {
+    final app = (await tester.runAsync(
+      () => TestApp.create(recents: [summary('p1', name: 'Roll 001 · 01')]),
+    ))!;
+    await tester.pumpTestApp(app);
+    await tester.longPress(find.byKey(const Key('recent-p1')));
+    await tester.pumpAndSettle();
+    await expectScreen('edit_actions_sheet');
   });
 
   testWidgets('editor, original gone', (tester) async {

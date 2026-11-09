@@ -1,5 +1,6 @@
 package app.auvie.engine.export
 
+import app.auvie.engine.develop.DevelopSettings
 import app.auvie.engine.pigeon.DevelopParams
 import app.auvie.engine.pigeon.ExportLayer
 import app.auvie.engine.pigeon.LayerBlend
@@ -103,6 +104,7 @@ object VideoExportPlanner {
         )
         PARAM_NAMES.zip(values).forEach { (name, value) -> put(name, value) }
         put("curveLut", Base64.getEncoder().encodeToString(p.curveLut))
+        put("colorLut", Base64.getEncoder().encodeToString(p.colorLut))
         put("geometry", JSONArray().apply { p.geometry.forEach { put(it) } })
     }
 
@@ -114,6 +116,10 @@ object VideoExportPlanner {
             shadows = v[4], saturation = v[5], temperature = v[6], tint = v[7],
             sharpen = v[8], grain = v[9], fade = v[10], vignette = v[11],
             curveLut = Base64.getDecoder().decode(o.getString("curveLut")),
+            // Jobs saved before the color mix existed have none.
+            colorLut = o.optString("colorLut", "").let {
+                if (it.isEmpty()) DevelopSettings.IDENTITY_COLOR_LUT else Base64.getDecoder().decode(it)
+            },
             geometry = DoubleArray(geometry.length()) { geometry.getDouble(it) },
         )
     }
